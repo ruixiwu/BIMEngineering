@@ -1,0 +1,271 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" DefaultTargets="Build">
+  <PropertyGroup>
+    <ProjectType>local</ProjectType>
+    <ProjectVersion>7.10.377</ProjectVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{C578EF48-3BB5-42A1-BEBE-AC1DA86ED3B6}</ProjectGuid>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <AssemblyName>LT.Revit</AssemblyName>
+    <OutputType>Library</OutputType>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <PlatformTarget>x86</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
+  <ItemGroup>
+    <Reference Include="Ionic.Zip, Version=1.9.8.0, Culture=neutral, PublicKeyToken=6583c7c814667745, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>bin\Debug\Ionic.Zip.dll</HintPath>
+    </Reference>
+    <Reference Include="RevitAPIUI">
+      <HintPath>..\..\..\..\programfiles\Autodesk\revit2016\Revit 2016\RevitAPIUI.dll</HintPath>
+    </Reference>
+    <Reference Include="RevitAPI">
+      <HintPath>..\..\..\..\programfiles\Autodesk\revit2016\Revit 2016\RevitAPI.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System" />
+    <Reference Include="PresentationCore" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>C:\Users\Lenovo\Desktop\pack\部署包\部署包\plus\Release_R2016\System.Data.SQLite.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.XML" />
+    <Reference Include="websocket-sharp">
+      <HintPath>C:\Users\Lenovo\Desktop\pack\部署包\部署包\plus\Release_R2016\websocket-sharp.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>C:\Users\Lenovo\Desktop\pack\部署包\部署包\plus\Release_R2016\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="UIAutomationClient" />
+    <Reference Include="ICSharpCode.SharpZipLib">
+      <HintPath>C:\Users\Lenovo\Desktop\pack\部署包\部署包\plus\Release_R2016\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
+    <Reference Include="System.Web" />
+    <Reference Include="System.Core" />
+    <Reference Include="UIAutomationTypes" />
+    <Reference Include="System.Web.Services" />
+    <Compile Include="AssemblyInfo.cs" />
+    <Compile Include="BIM\Lmv\Common\JsonGz\JsonGzWriter.cs" />
+    <Compile Include="BIM\Lmv\Common\Pack\PackEntryBase.cs" />
+    <Compile Include="BIM\Lmv\Common\Pack\PackEntryType.cs" />
+    <Compile Include="BIM\Lmv\Common\Pack\PackFileOutput!1.cs" />
+    <Compile Include="BIM\Lmv\Common\Pack\PackFileStream.cs" />
+    <Compile Include="BIM\Lmv\Common\Pack\PackFileStreamReader.cs" />
+    <Compile Include="BIM\Lmv\Common\Pack\PackFileStreamWriter.cs" />
+    <Compile Include="BIM\Lmv\Common\TypeArray\Float32Array.cs" />
+    <Compile Include="BIM\Lmv\Common\TypeArray\Int32Array.cs" />
+    <Compile Include="BIM\Lmv\Common\TypeArray\Uint16Array.cs" />
+    <Compile Include="BIM\Lmv\Common\TypeArray\UInt8Array.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\EntryFragment.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\EntryGeometry.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\EntryGeometryMetadata.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\Types\Box3F.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\Types\Matrix4F.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\Types\Transform.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\Types\Vector3D.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\Types\Vector3F.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\Types\Vector4F.cs" />
+    <Compile Include="BIM\Lmv\Content\Geometry\UVInfo.cs" />
+    <Compile Include="BIM\Lmv\Content\Other\EntryAsset.cs" />
+    <Compile Include="BIM\Lmv\Content\Other\EntryCamera.cs" />
+    <Compile Include="BIM\Lmv\Content\Other\EntryInstance.cs" />
+    <Compile Include="BIM\Lmv\Content\Other\EntryLight.cs" />
+    <Compile Include="BIM\Lmv\Core\InnerExporter.cs" />
+    <Compile Include="BIM\Lmv\DataExport.cs" />
+    <Compile Include="BIM\Lmv\IDataExport.cs" />
+    <Compile Include="BIM\Lmv\Processers\FileEntry.cs" />
+    <Compile Include="BIM\Lmv\Processers\FileEntryFile.cs" />
+    <Compile Include="BIM\Lmv\Processers\FileEntryFolderName.cs" />
+    <Compile Include="BIM\Lmv\Processers\FileEntryStream.cs" />
+    <Compile Include="BIM\Lmv\Processers\FileEntryString.cs" />
+    <Compile Include="BIM\Lmv\Processers\GeometryProceser.cs" />
+    <Compile Include="BIM\Lmv\Processers\Geometry\FileCamera.cs" />
+    <Compile Include="BIM\Lmv\Processers\Geometry\FileFragment.cs" />
+    <Compile Include="BIM\Lmv\Processers\Geometry\FileGeometry.cs" />
+    <Compile Include="BIM\Lmv\Processers\Geometry\FileGeometryMetadata.cs" />
+    <Compile Include="BIM\Lmv\Processers\Geometry\FileLight.cs" />
+    <Compile Include="BIM\Lmv\Processers\Helper\InstanceTemplate.cs" />
+    <Compile Include="BIM\Lmv\Processers\Helper\NormalsCalc.cs" />
+    <Compile Include="BIM\Lmv\Processers\MaterialProcesser.cs" />
+    <Compile Include="BIM\Lmv\Processers\OutputProcesser.cs" />
+    <Compile Include="BIM\Lmv\Processers\PropertyProcesser.cs" />
+    <Compile Include="BIM\Lmv\Processers\SvfFileProcesser.cs" />
+    <Compile Include="BIM\Lmv\Properties\Resources.cs" />
+    <Compile Include="BIM\Lmv\Types\CameraInfo.cs" />
+    <Compile Include="BIM\Lmv\Types\ExportOption.cs" />
+    <Compile Include="BIM\Lmv\Types\ExportTarget.cs" />
+    <Compile Include="BIM\Lmv\Types\MaterialInfo.cs" />
+    <Compile Include="BIM\Lmv\Types\PropDataType.cs" />
+    <Compile Include="BIM\Lmv\Types\PropDef.cs" />
+    <Compile Include="BIM\Lmv\Types\PropItem.cs" />
+    <Compile Include="BIM\Lmv\Types\SceneInfo.cs" />
+    <Compile Include="BIM\Lmv\Types\TextureInfo.cs" />
+    <Compile Include="BIM\Lmv\Types\TextureType.cs" />
+    <Compile Include="BIM\Lmv\Types\TransformType.cs" />
+    <Compile Include="BIM\Lmv\Revit\Config\AppCloudConfig.cs" />
+    <Compile Include="BIM\Lmv\Revit\Config\AppConfig.cs" />
+    <Compile Include="BIM\Lmv\Revit\Config\AppConfigManager.cs" />
+    <Compile Include="BIM\Lmv\Revit\Config\AppLocalConfig.cs" />
+    <Compile Include="BIM\Lmv\Revit\Config\LicenseConfig.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\CloudErrorMessages.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\HttpHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\OssHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\InvokeResultBase.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\InvokeResultLogin.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\InvokeResultUpload.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\InvokeResultRegisterModel.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\InvokeError.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\InvokeResultQRCode.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\Cloud\CloudClient.cs" />
+    <Compile Include="BIM\Revit\InnerApp.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\ExportContext.cs" />
+    <Compile Include="BIM\Revit\TLCommand.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\ExportUtility.cs" />
+    <Compile Include="BIM\Lmv\Revit\Core\TLExportContext.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\GeometryHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\MaterialHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\ProgressHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\Progress\FormProgress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BIM\Lmv\Revit\Helpers\PropertyHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\SqliteOpr.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\CoordinaeSysItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\DataSetItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\FamilyItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\PropertyItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\GeoItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\GeoBlockItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\AccessorItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\MeshItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\MaterialItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\TexturesItem.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\BFileHelp.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\TableHelp.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\TLGeometryHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\TLGeometryBuffer.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\TLNormalCalculator.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\TLMaterialHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\TLPropertyHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Properties\Resources.cs" />
+    <Compile Include="BIM\Lmv\Revit\Properties\Settings.cs" />
+    <Compile Include="BIM\Lmv\Revit\Batch\MessageObj.cs" />
+    <Compile Include="BIM\Lmv\Revit\Batch\RevitDialogResponse.cs" />
+    <Compile Include="BIM\Lmv\Revit\Batch\RevitDialogType.cs" />
+    <Compile Include="BIM\Lmv\Revit\Batch\Router.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\ExportHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\UI\FormCloudLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BIM\Lmv\Revit\UI\FormCloudShare.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BIM\Lmv\Revit\UI\FormCloudShareProgress.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BIM\Lmv\Revit\UI\FormCloudShareResultPublic.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BIM\Lmv\Revit\UI\FormCloudShareResultPrivate.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BIM\Lmv\Revit\UI\FormLocalShare.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BIM\Lmv\Revit\UI\FormModel.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BIM\Lmv\Revit\UI\FormLogin.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="BIM\Lmv\Revit\Utility\AppHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\AssetDumper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\FormHelper.cs" />
+    <Compile Include="DotNet\Http\Core\HttpCookieType.cs" />
+    <Compile Include="DotNet\Http\Core\IHttpProvider.cs" />
+    <Compile Include="DotNet\Http\Core\HttpProvider.cs" />
+    <Compile Include="DotNet\Http\Core\HttpRequestParameter.cs" />
+    <Compile Include="DotNet\Http\Core\HttpResponseParameter.cs" />
+    <Compile Include="DotNet\Http\Core\HttpUtil.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\LKAPIHelper.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Utils\MD5Convertor.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\RevitHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Helpers\TransformHelper.cs" />
+    <Compile Include="Utils\ServiceInterfaceEnum.cs" />
+    <Compile Include="Utils\FamilyParamHeaderName.cs" />
+    <Compile Include="Utils\WebServiceClient.cs" />
+    <Compile Include="TestWebService\WebServiceHelper.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\INPUT.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\InputUnion.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\MOUSEINPUT.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\MOUSEEVENTF.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\KEYBDINPUT.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\KEYEVENTF.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\VirtualKeyShort.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\ScanCodeShort.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\HARDWAREINPUT.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\WinApi.cs" />
+    <Compile Include="BIM\Lmv\Revit\Utility\INPUT_TYPE.cs" />
+    <Compile Include="SQlite\Data\ZipManager.cs" />
+    <Compile Include="SQlite\Data\ZipHelper.cs" />
+    <Compile Include="SQlite\Data\ZipSimple.cs" />
+    <Compile Include="SQlite\Data\ZipCY.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="LT.Revit.dll.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Resources\config\" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="BIM.Lmv.Processers.Resources.index.cloud.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="BIM.Lmv.Processers.Resources.index.local.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Resources\config.txt" />
+    <Content Include="Resources\sqlite3RW.py" />
+  </ItemGroup>
+  <PropertyGroup>
+    <PostBuildEvent>xcopy /e  /y $(ProjectDir)Resources $(ProjectDir)$(OutDir)</PostBuildEvent>
+  </PropertyGroup>
+  <PropertyGroup>
+    <PreBuildEvent>
+    </PreBuildEvent>
+  </PropertyGroup>
+</Project>

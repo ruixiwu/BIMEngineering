@@ -1,0 +1,15 @@
+﻿# OS
+Thumbs.db
+.DS_Store
+
+# Solution
+obj
+bin
+*.userprefs
+*.user
+test-results
+
+# IDEs
+.vs
+.vscode
+
