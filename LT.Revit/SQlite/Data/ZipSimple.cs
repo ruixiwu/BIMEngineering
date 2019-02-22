@@ -1,12 +1,13 @@
-﻿using System.IO;
-
-namespace SQlite.Data
+﻿namespace SQlite.Data
 {
+    using System;
+    using System.IO;
+
     public class ZipSimple
     {
         public static void test()
         {
-            var path = "d:/BIM-SSH111/";
+            string path = "d:/BIM-SSH111/";
             if (!Directory.Exists(path))
             {
                 Directory.CreateDirectory(path).Attributes = 0;
@@ -14,3 +15,4 @@ namespace SQlite.Data
         }
     }
 }
+

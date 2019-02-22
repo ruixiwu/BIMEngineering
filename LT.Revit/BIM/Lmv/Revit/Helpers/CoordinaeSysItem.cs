@@ -1,21 +1,23 @@
 ﻿namespace BIM.Lmv.Revit.Helpers
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     internal class CoordinaeSysItem
     {
         public CoordinaeSysItem()
         {
         }
 
-        public CoordinaeSysItem(string sName, string sSemimaJoraxis, string sInverseFlattening, string sScaleFacetor,
-            string sFalse_easting, string sFalse_northing, string sCentralmeridian)
+        public CoordinaeSysItem(string sName, string sSemimaJoraxis, string sInverseFlattening, string sScaleFacetor, string sFalse_easting, string sFalse_northing, string sCentralmeridian)
         {
-            Name = sName;
-            SemimaJoraxis = sSemimaJoraxis;
-            InverseFlattening = sInverseFlattening;
-            ScaleFacetor = sScaleFacetor;
-            False_easting = sFalse_easting;
-            False_northing = sFalse_northing;
-            Centralmeridian = sCentralmeridian;
+            this.Name = sName;
+            this.SemimaJoraxis = sSemimaJoraxis;
+            this.InverseFlattening = sInverseFlattening;
+            this.ScaleFacetor = sScaleFacetor;
+            this.False_easting = sFalse_easting;
+            this.False_northing = sFalse_northing;
+            this.Centralmeridian = sCentralmeridian;
         }
 
         public string Centralmeridian { get; set; }
@@ -33,3 +35,4 @@
         public string SemimaJoraxis { get; set; }
     }
 }
+

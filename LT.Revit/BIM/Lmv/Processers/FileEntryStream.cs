@@ -1,64 +1,66 @@
-﻿using System;
-using System.IO;
-using Ionic.Zip;
-
-namespace BIM.Lmv.Processers
+﻿namespace BIM.Lmv.Processers
 {
+    using Ionic.Zip;
+    using System;
+    using System.IO;
+    using System.Runtime.CompilerServices;
+
     internal class FileEntryStream : FileEntry
     {
         public FileEntryStream(string entryName) : base(entryName)
         {
-            Stream = new MemoryStream();
+            this.Stream = new MemoryStream();
         }
 
-        public FileEntryStream(string entryName, Stream stream) : base(entryName)
+        public FileEntryStream(string entryName, System.IO.Stream stream) : base(entryName)
         {
             if (stream == null)
             {
                 throw new ArgumentNullException("stream");
             }
-            Stream = stream;
+            this.Stream = stream;
         }
-
-        public Stream Stream { get; private set; }
 
         public override void Dispose()
         {
-            if (Stream != null)
+            if (this.Stream != null)
             {
-                Stream.Dispose();
-                Stream = null;
+                this.Stream.Dispose();
+                this.Stream = null;
             }
         }
 
         public int GetSize()
         {
-            if (Stream == null)
+            if (this.Stream == null)
             {
                 return 0;
             }
-            return (int) Stream.Position;
+            return (int) this.Stream.Position;
         }
 
         public override void OnOutputToDisk(string path)
         {
-            if (Stream != null)
+            if (this.Stream != null)
             {
-                Stream.Seek(0L, SeekOrigin.Begin);
-                using (var stream = File.Open(path, FileMode.Create, FileAccess.Write))
+                this.Stream.Seek(0L, SeekOrigin.Begin);
+                using (FileStream stream = File.Open(path, FileMode.Create, FileAccess.Write))
                 {
-                    Stream.CopyTo(stream);
+                    this.Stream.CopyTo(stream);
                 }
             }
         }
 
         public override void OnOutputToZip(ZipFile zip)
         {
-            if (Stream != null)
+            if (this.Stream != null)
             {
-                Stream.Seek(0L, SeekOrigin.Begin);
-                zip.AddEntry(EntryName, Stream);
+                this.Stream.Seek(0L, SeekOrigin.Begin);
+                zip.AddEntry(base.EntryName, this.Stream);
             }
         }
+
+        public System.IO.Stream Stream { get; private set; }
     }
 }
+

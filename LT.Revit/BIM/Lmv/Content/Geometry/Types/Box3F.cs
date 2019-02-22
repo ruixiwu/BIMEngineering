@@ -1,7 +1,9 @@
-﻿using BIM.Lmv.Common.TypeArray;
-
-namespace BIM.Lmv.Content.Geometry.Types
+﻿namespace BIM.Lmv.Content.Geometry.Types
 {
+    using BIM.Lmv.Common.TypeArray;
+    using System;
+    using System.Runtime.InteropServices;
+
     public class Box3F
     {
         public Vector3F max;
@@ -9,8 +11,8 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public Box3F()
         {
-            min = new Vector3F();
-            max = new Vector3F();
+            this.min = new Vector3F();
+            this.max = new Vector3F();
         }
 
         public Box3F(Vector3F min, Vector3F max)
@@ -21,51 +23,41 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public Box3F applyMatrix4(Matrix4F matrix)
         {
-            Vector3F[] points =
-            {
-                new Vector3F(), new Vector3F(), new Vector3F(), new Vector3F(), new Vector3F(),
-                new Vector3F(), new Vector3F(), new Vector3F()
-            };
-            points[0].set(min.x, min.y, min.z).applyMatrix4(matrix);
-            points[1].set(min.x, min.y, max.z).applyMatrix4(matrix);
-            points[2].set(min.x, max.y, min.z).applyMatrix4(matrix);
-            points[3].set(min.x, max.y, max.z).applyMatrix4(matrix);
-            points[4].set(max.x, min.y, min.z).applyMatrix4(matrix);
-            points[5].set(max.x, min.y, max.z).applyMatrix4(matrix);
-            points[6].set(max.x, max.y, min.z).applyMatrix4(matrix);
-            points[7].set(max.x, max.y, max.z).applyMatrix4(matrix);
-            makeEmpty();
-            setFromPoints(points);
+            Vector3F[] points = new Vector3F[] { new Vector3F(), new Vector3F(), new Vector3F(), new Vector3F(), new Vector3F(), new Vector3F(), new Vector3F(), new Vector3F() };
+            points[0].set(this.min.x, this.min.y, this.min.z).applyMatrix4(matrix);
+            points[1].set(this.min.x, this.min.y, this.max.z).applyMatrix4(matrix);
+            points[2].set(this.min.x, this.max.y, this.min.z).applyMatrix4(matrix);
+            points[3].set(this.min.x, this.max.y, this.max.z).applyMatrix4(matrix);
+            points[4].set(this.max.x, this.min.y, this.min.z).applyMatrix4(matrix);
+            points[5].set(this.max.x, this.min.y, this.max.z).applyMatrix4(matrix);
+            points[6].set(this.max.x, this.max.y, this.min.z).applyMatrix4(matrix);
+            points[7].set(this.max.x, this.max.y, this.max.z).applyMatrix4(matrix);
+            this.makeEmpty();
+            this.setFromPoints(points);
             return this;
         }
 
         public Vector3F center(Vector3F optionalTarget = null)
         {
-            var vectorf = optionalTarget ?? new Vector3F();
-            return vectorf.addVectors(min, max).multiplyScalar(0.5f);
+            Vector3F vectorf = optionalTarget ?? new Vector3F();
+            return vectorf.addVectors(this.min, this.max).multiplyScalar(0.5f);
         }
 
         public Vector3F clampPoint(Vector3F point, Vector3F optionalTarget)
         {
-            var vectorf = optionalTarget ?? new Vector3F();
-            return vectorf.copy(point).clamp(min, max);
+            Vector3F vectorf = optionalTarget ?? new Vector3F();
+            return vectorf.copy(point).clamp(this.min, this.max);
         }
 
-        public Box3F clone()
-        {
-            return new Box3F().copy(this);
-        }
+        public Box3F clone() => 
+            new Box3F().copy(this);
 
-        public bool containsBox(Box3F box)
-        {
-            return (min.x <= box.min.x) && (box.max.x <= max.x) && (min.y <= box.min.y) && (box.max.y <= max.y) &&
-                   (min.z <= box.min.z) && (box.max.z <= max.z);
-        }
+        public bool containsBox(Box3F box) => 
+            (((((this.min.x <= box.min.x) && (box.max.x <= this.max.x)) && ((this.min.y <= box.min.y) && (box.max.y <= this.max.y))) && (this.min.z <= box.min.z)) && (box.max.z <= this.max.z));
 
         public bool containsPoint(Vector3F point)
         {
-            if ((point.x < min.x) || (point.x > max.x) || (point.y < min.y) || (point.y > max.y) || (point.z < min.z) ||
-                (point.z > max.z))
+            if (((((point.x < this.min.x) || (point.x > this.max.x)) || ((point.y < this.min.y) || (point.y > this.max.y))) || (point.z < this.min.z)) || (point.z > this.max.z))
             {
                 return false;
             }
@@ -74,76 +66,70 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public Box3F copy(Box3F box)
         {
-            min.copy(box.min);
-            max.copy(box.max);
+            this.min.copy(box.min);
+            this.max.copy(box.max);
             return this;
         }
 
         internal void copyToArray(Float32Array array, int offset)
         {
-            array[offset] = min.x;
-            array[offset + 1] = min.y;
-            array[offset + 2] = min.z;
-            array[offset + 3] = max.x;
-            array[offset + 4] = max.y;
-            array[offset + 5] = max.z;
+            array[offset] = this.min.x;
+            array[offset + 1] = this.min.y;
+            array[offset + 2] = this.min.z;
+            array[offset + 3] = this.max.x;
+            array[offset + 4] = this.max.y;
+            array[offset + 5] = this.max.z;
         }
 
         public float distanceToPoint(Vector3F point)
         {
-            var vectorf = new Vector3F();
-            return vectorf.copy(point).clamp(min, max).sub(point).length();
+            Vector3F vectorf = new Vector3F();
+            return vectorf.copy(point).clamp(this.min, this.max).sub(point).length();
         }
 
-        public bool empty()
-        {
-            return (max.x < min.x) || (max.y < min.y) || (max.z < min.z);
-        }
+        public bool empty() => 
+            (((this.max.x < this.min.x) || (this.max.y < this.min.y)) || (this.max.z < this.min.z));
 
-        public bool equals(Box3F box)
-        {
-            return box.min.@equals(min) && box.max.@equals(max);
-        }
+        public bool equals(Box3F box) => 
+            (box.min.equals(this.min) && box.max.equals(this.max));
 
         public Box3F expandByPoint(Vector3F point)
         {
-            min.min(point);
-            max.max(point);
+            this.min.min(point);
+            this.max.max(point);
             return this;
         }
 
         public Box3F expandByScalar(float scalar)
         {
-            min.addScalar(-scalar);
-            max.addScalar(scalar);
+            this.min.addScalar(-scalar);
+            this.max.addScalar(scalar);
             return this;
         }
 
         public Box3F expandByVector(Vector3F vector)
         {
-            min.sub(vector);
-            max.add(vector);
+            this.min.sub(vector);
+            this.max.add(vector);
             return this;
         }
 
         public Vector3F getParameter(Vector3F point, Vector3F optionalTarget)
         {
-            var vectorf = optionalTarget ?? new Vector3F();
-            return vectorf.set((point.x - min.x)/(max.x - min.x), (point.y - min.y)/(max.y - min.y),
-                (point.z - min.z)/(max.z - min.z));
+            Vector3F vectorf = optionalTarget ?? new Vector3F();
+            return vectorf.set((point.x - this.min.x) / (this.max.x - this.min.x), (point.y - this.min.y) / (this.max.y - this.min.y), (point.z - this.min.z) / (this.max.z - this.min.z));
         }
 
         public Box3F intersect(Box3F box)
         {
-            min.max(box.min);
-            max.min(box.max);
+            this.min.max(box.min);
+            this.max.min(box.max);
             return this;
         }
 
         public bool isIntersectionBox(Box3F box)
         {
-            if ((box.max.x < min.x) || (box.min.x > max.x) || (box.max.y < min.y) || (box.min.y > max.y) ||
-                (box.max.z < min.z) || (box.min.z > max.z))
+            if (((((box.max.x < this.min.x) || (box.min.x > this.max.x)) || ((box.max.y < this.min.y) || (box.min.y > this.max.y))) || (box.max.z < this.min.z)) || (box.min.z > this.max.z))
             {
                 return false;
             }
@@ -152,8 +138,8 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public Box3F makeEmpty()
         {
-            min.x = min.y = min.z = float.MaxValue;
-            max.x = max.y = max.z = float.MinValue;
+            this.min.x = this.min.y = this.min.z = float.MaxValue;
+            this.max.x = this.max.y = this.max.z = float.MinValue;
             return this;
         }
 
@@ -166,53 +152,54 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         internal Box3F setFromArray(Float32Array array, int offset)
         {
-            min.x = array[offset];
-            min.y = array[offset + 1];
-            min.z = array[offset + 2];
-            max.x = array[offset + 3];
-            max.y = array[offset + 4];
-            max.z = array[offset + 5];
+            this.min.x = array[offset];
+            this.min.y = array[offset + 1];
+            this.min.z = array[offset + 2];
+            this.max.x = array[offset + 3];
+            this.max.y = array[offset + 4];
+            this.max.z = array[offset + 5];
             return this;
         }
 
         public Box3F setFromCenterAndSize(Vector3F center, Vector3F size)
         {
-            var vectorf = new Vector3F();
-            var v = vectorf.copy(size).multiplyScalar(0.5f);
-            min.copy(center).sub(v);
-            max.copy(center).add(v);
+            Vector3F vectorf = new Vector3F();
+            Vector3F v = vectorf.copy(size).multiplyScalar(0.5f);
+            this.min.copy(center).sub(v);
+            this.max.copy(center).add(v);
             return this;
         }
 
         public Box3F setFromPoints(Vector3F[] points)
         {
-            makeEmpty();
-            var length = points.Length;
-            for (var i = 0; i < length; i++)
+            this.makeEmpty();
+            int length = points.Length;
+            for (int i = 0; i < length; i++)
             {
-                expandByPoint(points[i]);
+                this.expandByPoint(points[i]);
             }
             return this;
         }
 
         public Vector3F size(Vector3F optionalTarget = null)
         {
-            var vectorf = optionalTarget ?? new Vector3F();
-            return vectorf.subVectors(max, min);
+            Vector3F vectorf = optionalTarget ?? new Vector3F();
+            return vectorf.subVectors(this.max, this.min);
         }
 
         public Box3F translate(Vector3F offset)
         {
-            min.add(offset);
-            max.add(offset);
+            this.min.add(offset);
+            this.max.add(offset);
             return this;
         }
 
         public Box3F union(Box3F box)
         {
-            min.min(box.min);
-            max.max(box.max);
+            this.min.min(box.min);
+            this.max.max(box.max);
             return this;
         }
     }
 }
+

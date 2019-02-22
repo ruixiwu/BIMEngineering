@@ -1,27 +1,26 @@
-﻿using System;
-
-namespace BIM.Lmv.Revit.Config
+﻿namespace BIM.Lmv.Revit.Config
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     [Serializable]
     internal class LicenseConfig
     {
         public LicenseConfig()
         {
-            LicenseMode = "Trial";
-            LicenseServer = "";
+            this.LicenseMode = "Trial";
+            this.LicenseServer = "";
         }
+
+        public LicenseConfig Clone() => 
+            new LicenseConfig { 
+                LicenseMode = this.LicenseMode,
+                LicenseServer = this.LicenseServer
+            };
 
         public string LicenseMode { get; set; }
 
         public string LicenseServer { get; set; }
-
-        public LicenseConfig Clone()
-        {
-            return new LicenseConfig
-            {
-                LicenseMode = LicenseMode,
-                LicenseServer = LicenseServer
-            };
-        }
     }
 }
+

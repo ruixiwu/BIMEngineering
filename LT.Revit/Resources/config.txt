@@ -1,1 +1,0 @@
-urlroot=http://60.205.218.71:8090/BIMAPI/

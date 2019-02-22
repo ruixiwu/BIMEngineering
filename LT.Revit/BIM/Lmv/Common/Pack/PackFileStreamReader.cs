@@ -1,11 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using BIM.Lmv.Common.TypeArray;
-using BIM.Lmv.Content.Geometry.Types;
-
-namespace BIM.Lmv.Common.Pack
+﻿namespace BIM.Lmv.Common.Pack
 {
+    using BIM.Lmv.Common.TypeArray;
+    using BIM.Lmv.Content.Geometry.Types;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
+
     internal class PackFileStreamReader : IDisposable
     {
         private readonly List<uint> _EntryOffsets;
@@ -14,61 +16,53 @@ namespace BIM.Lmv.Common.Pack
         public PackFileStreamReader(Stream memoryStream)
         {
             int num4;
-            entryTypes = new List<PackEntryType>();
-            _EntryOffsets = new List<uint>();
-            stream = new PackFileStream(memoryStream);
-            type = stream.getString();
-            version = stream.getInt32();
-            stream.seek(stream.ByteLength - 8L);
-            var num = stream.getUInt32();
-            var num2 = stream.getUInt32();
-            stream.seek(num2);
-            var num3 = readU32V();
+            this.entryTypes = new List<PackEntryType>();
+            this._EntryOffsets = new List<uint>();
+            this.stream = new PackFileStream(memoryStream);
+            this.type = this.stream.getString();
+            this.version = this.stream.getInt32();
+            this.stream.seek(this.stream.ByteLength - 8L);
+            uint num = this.stream.getUInt32();
+            uint num2 = this.stream.getUInt32();
+            this.stream.seek((long) num2);
+            int num3 = this.readU32V();
             for (num4 = 0; num4 < num3; num4++)
             {
-                var item = PackEntryType.Read(this, num4);
-                entryTypes.Add(item);
+                PackEntryType item = PackEntryType.Read(this, num4);
+                this.entryTypes.Add(item);
             }
-            stream.seek(num);
-            entryCount = readU32V();
-            for (num4 = 0; num4 < entryCount; num4++)
+            this.stream.seek((long) num);
+            this.entryCount = this.readU32V();
+            for (num4 = 0; num4 < this.entryCount; num4++)
             {
-                _EntryOffsets.Add(stream.getUInt32());
+                this._EntryOffsets.Add(this.stream.getUInt32());
             }
-            stream.seek(0L);
+            this.stream.seek(0L);
         }
-
-        public int entryCount { get; }
-
-        public PackFileStream stream { get; private set; }
-
-        public string type { get; private set; }
-
-        public int version { get; }
 
         public void Dispose()
         {
-            if (stream != null)
+            if (this.stream != null)
             {
-                stream = null;
+                this.stream = null;
             }
         }
 
         public Box3F ReadBox3F()
         {
-            var min = ReadVector3F();
-            return new Box3F(min, ReadVector3F());
+            Vector3F min = this.ReadVector3F();
+            return new Box3F(min, this.ReadVector3F());
         }
 
         public void ReadMatrix3F(Matrix4F m)
         {
-            var matrixf = m;
+            Matrix4F matrixf = m;
             matrixf.identity();
-            for (var i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
-                for (var j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
-                    matrixf.elements[4*i + j] = stream.getFloat32();
+                    matrixf.elements[(4 * i) + j] = this.stream.getFloat32();
                 }
             }
         }
@@ -77,74 +71,73 @@ namespace BIM.Lmv.Common.Pack
         {
             string str;
             int num2;
-            if (version < 2)
+            if (this.version < 2)
             {
-                var num = stream.getUint16();
+                ushort num = this.stream.getUint16();
                 if (num == 0)
                 {
                     return null;
                 }
-                stream.getUint16();
+                this.stream.getUint16();
                 if (num == 1)
                 {
                     return "";
                 }
-                str = stream.getUint16().ToString();
+                str =this.stream.getUint16().ToString();
                 for (num2 = 2; num2 < num; num2++)
                 {
-                    str = str + "/" + stream.getUint16();
+                    str = str + "/" + this.stream.getUint16();
                 }
                 return str;
             }
-            var num3 = readU32V();
+            int num3 = this.readU32V();
             if (num3 == 0)
             {
                 return null;
             }
-            var num4 = readU32V();
+            int num4 = this.readU32V();
             if (num3 == 1)
             {
-                return num4.ToString();
+                return (num4.ToString());
             }
-            str = num4 + "/" + readU32V();
+            str = num4 + "/" + this.readU32V();
             for (num2 = 2; num2 < num3; num2++)
             {
-                str = str + "/" + readU32V();
+                str = str + "/" + this.readU32V();
             }
             return str;
         }
 
         public Vector4F ReadQuaternionF()
         {
-            var x = stream.getFloat32();
-            var y = stream.getFloat32();
-            var z = stream.getFloat32();
-            return new Vector4F(x, y, z, stream.getFloat32());
+            float x = this.stream.getFloat32();
+            float y = this.stream.getFloat32();
+            float z = this.stream.getFloat32();
+            return new Vector4F(x, y, z, this.stream.getFloat32());
         }
 
         public string readString()
         {
-            var len = readU32V();
-            return stream.getString(len);
+            int len = this.readU32V();
+            return this.stream.getString(len);
         }
 
-        public Matrix4F readTransform(int entityIndex = -1, Float32Array buffer = null, int offset = 0,
-            Vector3F globalOffset = null)
+        public Matrix4F readTransform(int entityIndex = -1, Float32Array buffer = null, int offset = 0, Vector3F globalOffset = null)
         {
             Vector4F vectorf2;
             Vector3F vectorf3;
-            var scale = new Vector3F(1f, 1f, 1f);
-            var m = new Matrix4F();
-            switch (stream.getUint8())
+            Vector3F scale = new Vector3F(1f, 1f, 1f);
+            Matrix4F m = new Matrix4F();
+            switch (this.stream.getUint8())
             {
                 case 0:
-                    vectorf3 = (Vector3F) ReadVector3D(globalOffset);
+                    vectorf3 = (Vector3F) this.ReadVector3D(globalOffset);
                     m.makeTranslation(vectorf3.x, vectorf3.y, vectorf3.z);
                     break;
 
                 case 1:
-                    vectorf2 = ReadQuaternionF();
-                    vectorf3 = (Vector3F) ReadVector3D(globalOffset);
+                    vectorf2 = this.ReadQuaternionF();
+                    vectorf3 = (Vector3F) this.ReadVector3D(globalOffset);
                     scale.x = 1f;
                     scale.y = 1f;
                     scale.z = 1f;
@@ -153,9 +146,9 @@ namespace BIM.Lmv.Common.Pack
 
                 case 2:
                 {
-                    var num2 = stream.getFloat32();
-                    vectorf2 = ReadQuaternionF();
-                    vectorf3 = (Vector3F) ReadVector3D(globalOffset);
+                    float num2 = this.stream.getFloat32();
+                    vectorf2 = this.ReadQuaternionF();
+                    vectorf3 = (Vector3F) this.ReadVector3D(globalOffset);
                     scale.x = num2;
                     scale.y = num2;
                     scale.z = num2;
@@ -163,8 +156,8 @@ namespace BIM.Lmv.Common.Pack
                     break;
                 }
                 case 3:
-                    ReadMatrix3F(m);
-                    vectorf3 = (Vector3F) ReadVector3D(globalOffset);
+                    this.ReadMatrix3F(m);
+                    vectorf3 = (Vector3F) this.ReadVector3D(globalOffset);
                     m.setPosition(vectorf3);
                     break;
 
@@ -185,7 +178,7 @@ namespace BIM.Lmv.Common.Pack
             {
                 if (buffer != null)
                 {
-                    var elements = m.elements;
+                    float[] elements = m.elements;
                     buffer[offset] = elements[0];
                     buffer[offset + 1] = elements[1];
                     buffer[offset + 2] = elements[2];
@@ -204,32 +197,24 @@ namespace BIM.Lmv.Common.Pack
             return m;
         }
 
-        public ushort ReadU16()
-        {
-            return stream.getUint16();
-        }
+        public ushort ReadU16() => 
+            this.stream.getUint16();
 
-        public int readU32V()
-        {
-            return ReadVarint();
-        }
+        public int readU32V() => 
+            this.ReadVarint();
 
-        public byte readU8()
-        {
-            return stream.getUint8();
-        }
+        public byte readU8() => 
+            this.stream.getUint8();
 
-        public int ReadVarint()
-        {
-            return stream.GetVarints();
-        }
+        public int ReadVarint() => 
+            this.stream.GetVarints();
 
         public Vector3D ReadVector3D(Vector3D globalOffset)
         {
-            var x = stream.getFloat64();
-            var y = stream.getFloat64();
-            var z = stream.getFloat64();
-            var vectord = new Vector3D(x, y, z);
+            double x = this.stream.getFloat64();
+            double y = this.stream.getFloat64();
+            double z = this.stream.getFloat64();
+            Vector3D vectord = new Vector3D(x, y, z);
             if (globalOffset != null)
             {
                 vectord.x -= globalOffset.x;
@@ -239,31 +224,38 @@ namespace BIM.Lmv.Common.Pack
             return vectord;
         }
 
-        public Vector3D ReadVector3D(Vector3F globalOffset)
-        {
-            return ReadVector3D((Vector3D) globalOffset);
-        }
+        public Vector3D ReadVector3D(Vector3F globalOffset) => 
+            this.ReadVector3D((Vector3D) globalOffset);
 
         public Vector3F ReadVector3F()
         {
-            var x = stream.getFloat32();
-            var y = stream.getFloat32();
-            return new Vector3F(x, y, stream.getFloat32());
+            float x = this.stream.getFloat32();
+            float y = this.stream.getFloat32();
+            return new Vector3F(x, y, this.stream.getFloat32());
         }
 
         public PackEntryType seekToEntry(int entryIndex)
         {
-            if (entryIndex >= entryCount)
+            if (entryIndex >= this.entryCount)
             {
                 return null;
             }
-            stream.seek(_EntryOffsets[entryIndex]);
-            var num = stream.getUInt32();
-            if (num >= entryTypes.Count)
+            this.stream.seek((long) ((ulong) this._EntryOffsets[entryIndex]));
+            uint num = this.stream.getUInt32();
+            if (num >= this.entryTypes.Count)
             {
                 return null;
             }
-            return entryTypes[(int) num];
+            return this.entryTypes[(int) num];
         }
+
+        public int entryCount { get; private set; }
+
+        public PackFileStream stream { get; private set; }
+
+        public string type { get; private set; }
+
+        public int version { get; private set; }
     }
 }
+

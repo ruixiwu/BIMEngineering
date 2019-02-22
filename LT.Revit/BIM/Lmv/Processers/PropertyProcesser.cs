@@ -1,26 +1,19 @@
-﻿using System.Collections.Generic;
-using BIM.Lmv.Common.JsonGz;
-using BIM.Lmv.Content.Other;
-using BIM.Lmv.Types;
-
-namespace BIM.Lmv.Processers
+﻿namespace BIM.Lmv.Processers
 {
+    using BIM.Lmv.Common.JsonGz;
+    using BIM.Lmv.Content.Other;
+    using BIM.Lmv.Types;
+    using System;
+    using System.Collections.Generic;
+    using System.Runtime.InteropServices;
+
     internal class PropertyProcesser
     {
-        public const string FILE_PATH_ATTRS = "objects_attrs.json.gz";
-        public const string FILE_PATH_AVS = "objects_avs.json.gz";
-        public const string FILE_PATH_IDS = "objects_ids.json.gz";
-        public const string FILE_PATH_OFFS = "objects_offs.json.gz";
-        public const string FILE_PATH_VALS = "objects_vals.json.gz";
-        private readonly Dictionary<string, int> _NodeIds = new Dictionary<string, int>();
-        private readonly Dictionary<string, int> _PropDefs = new Dictionary<string, int>(0x400);
-        private readonly List<List<int>> _PropItems = new List<List<int>>(0x5000);
-        private readonly Dictionary<string, int> _PropVals = new Dictionary<string, int>(0x2800);
-        private readonly SvfFileProcesser _SvfFile;
         private JsonGzWriter _FileAttr;
         private JsonGzWriter _FileIds;
         private JsonGzWriter _FileVals;
-        private readonly OutputProcesser _Output;
+        private readonly Dictionary<string, int> _NodeIds = new Dictionary<string, int>();
+        private OutputProcesser _Output;
         private FileEntryStream _OutputAttr;
         private FileEntryStream _OutputIds;
         private FileEntryStream _OutputVals;
@@ -29,26 +22,34 @@ namespace BIM.Lmv.Processers
         private int _PropDefNameId;
         private int _PropDefNextIndex;
         private int _PropDefParentId;
+        private readonly Dictionary<string, int> _PropDefs = new Dictionary<string, int>(0x400);
+        private readonly List<List<int>> _PropItems = new List<List<int>>(0x5000);
         private int _PropValNextIndex;
+        private readonly Dictionary<string, int> _PropVals = new Dictionary<string, int>(0x2800);
+        private readonly SvfFileProcesser _SvfFile;
+        public const string FILE_PATH_ATTRS = "objects_attrs.json.gz";
+        public const string FILE_PATH_AVS = "objects_avs.json.gz";
+        public const string FILE_PATH_IDS = "objects_ids.json.gz";
+        public const string FILE_PATH_OFFS = "objects_offs.json.gz";
+        public const string FILE_PATH_VALS = "objects_vals.json.gz";
 
         public PropertyProcesser(OutputProcesser output, SvfFileProcesser svfFile)
         {
-            _Output = output;
-            _SvfFile = svfFile;
+            this._Output = output;
+            this._SvfFile = svfFile;
         }
 
         private int GetPropDefIndex(PropDef def)
         {
-            var type = (int) def.Type;
-            return GetPropDefIndex(def.Name, def.Category, type, def.Unit, def.Hide);
+            int type = (int) def.Type;
+            return this.GetPropDefIndex(def.Name, def.Category, type, def.Unit, def.Hide);
         }
 
         private int GetPropDefIndex(string name, string category, int type, string unit, bool hide)
         {
             int num;
-            var str = hide ? "1" : "0";
-            if ((string.CompareOrdinal("is_doc_property", name) == 0) &&
-                (string.CompareOrdinal("__document__", category) == 0))
+            string str = hide ? "1" : "0";
+            if ((string.CompareOrdinal("is_doc_property", name) == 0) && (string.CompareOrdinal("__document__", category) == 0))
             {
                 str = "3";
             }
@@ -64,14 +65,13 @@ namespace BIM.Lmv.Processers
             {
                 unit = unit.Replace("\"", "\\\"");
             }
-            var key = string.Concat("[\"", name, "\",\"", category, "\",", type, ",",
-                unit == null ? "null" : "\"" + unit + "\"", ",null,null,", str, "]");
-            if (!_PropDefs.TryGetValue(key, out num))
+            string key = string.Concat(new object[] { "[\"", name, "\",\"", category, "\",", type, ",", (unit == null) ? "null" : ("\"" + unit + "\""), ",null,null,", str, "]" });
+            if (!this._PropDefs.TryGetValue(key, out num))
             {
-                num = _PropDefNextIndex++;
-                _PropDefs.Add(key, num);
-                _FileAttr.AppendLine(",");
-                _FileAttr.Append(key);
+                num = this._PropDefNextIndex++;
+                this._PropDefs.Add(key, num);
+                this._FileAttr.AppendLine(",");
+                this._FileAttr.Append(key);
             }
             return num;
         }
@@ -79,19 +79,19 @@ namespace BIM.Lmv.Processers
         private int GetPropValueIndex(string value, int type)
         {
             int num;
-            var key = value + "_" + type;
-            if (!_PropVals.TryGetValue(key, out num))
+            string key = value + "_" + type;
+            if (!this._PropVals.TryGetValue(key, out num))
             {
-                num = _PropValNextIndex++;
-                _PropVals.Add(key, num);
-                _FileVals.AppendLine(",");
+                num = this._PropValNextIndex++;
+                this._PropVals.Add(key, num);
+                this._FileVals.AppendLine(",");
                 if (type == 20)
                 {
-                    _FileVals.Append("\"" + value.Replace("\"", "\\\"") + "\"");
+                    this._FileVals.Append("\"" + value.Replace("\"", "\\\"") + "\"");
                 }
                 else
                 {
-                    _FileVals.Append(value);
+                    this._FileVals.Append(value);
                 }
             }
             return num;
@@ -100,30 +100,30 @@ namespace BIM.Lmv.Processers
         private int InsertNode(string key, string name, string uid, List<PropItem> props, int parentId)
         {
             int count;
-            if (!_NodeIds.TryGetValue(key, out count))
+            if (!this._NodeIds.TryGetValue(key, out count))
             {
-                _FileIds.AppendLine(",");
-                _FileIds.Append("\"");
-                _FileIds.Append(uid);
-                _FileIds.Append("\"");
-                var item = props == null ? new List<int>(0x20) : ProcessParameters(props);
-                item.Add(_PropDefNameId);
-                item.Add(GetPropValueIndex(name, 20));
-                count = _PropItems.Count;
-                _PropItems.Add(item);
-                _NodeIds.Add(key, count);
+                this._FileIds.AppendLine(",");
+                this._FileIds.Append("\"");
+                this._FileIds.Append(uid);
+                this._FileIds.Append("\"");
+                List<int> item = (props == null) ? new List<int>(0x20) : this.ProcessParameters(props);
+                item.Add(this._PropDefNameId);
+                item.Add(this.GetPropValueIndex(name, 20));
+                count = this._PropItems.Count;
+                this._PropItems.Add(item);
+                this._NodeIds.Add(key, count);
                 if (parentId == -1)
                 {
-                    item.Add(_PropDefMarkId);
-                    item.Add(GetPropValueIndex("比目鱼工程咨询", 20));
+                    item.Add(this._PropDefMarkId);
+                    item.Add(this.GetPropValueIndex("比目鱼工程咨询", 20));
                 }
                 if (parentId != -1)
                 {
-                    item.Add(_PropDefParentId);
-                    item.Add(GetPropValueIndex(parentId.ToString(), 2));
-                    var list2 = _PropItems[parentId];
-                    list2.Add(_PropDefChildId);
-                    list2.Add(GetPropValueIndex(count.ToString(), 2));
+                    item.Add(this._PropDefParentId);
+                    item.Add(this.GetPropValueIndex(parentId.ToString(), 2));
+                    List<int> list2 = this._PropItems[parentId];
+                    list2.Add(this._PropDefChildId);
+                    list2.Add(this.GetPropValueIndex(count.ToString(), 2));
                 }
             }
             return count;
@@ -131,33 +131,33 @@ namespace BIM.Lmv.Processers
 
         public void OnFinish()
         {
-            _FileAttr.AppendLine();
-            _FileAttr.Append("]");
-            _FileAttr.Dispose();
-            _FileAttr = null;
-            _FileIds.AppendLine();
-            _FileIds.Append("]");
-            _FileIds.Dispose();
-            _FileIds = null;
-            _FileVals.AppendLine();
-            _FileVals.Append("]");
-            _FileVals.Dispose();
-            _FileVals = null;
-            var entry = new FileEntryStream("objects_offs.json.gz");
-            var stream2 = new FileEntryStream("objects_avs.json.gz");
-            using (var writer = new JsonGzWriter(entry.Stream, true))
+            this._FileAttr.AppendLine();
+            this._FileAttr.Append("]");
+            this._FileAttr.Dispose();
+            this._FileAttr = null;
+            this._FileIds.AppendLine();
+            this._FileIds.Append("]");
+            this._FileIds.Dispose();
+            this._FileIds = null;
+            this._FileVals.AppendLine();
+            this._FileVals.Append("]");
+            this._FileVals.Dispose();
+            this._FileVals = null;
+            FileEntryStream entry = new FileEntryStream("objects_offs.json.gz");
+            FileEntryStream stream2 = new FileEntryStream("objects_avs.json.gz");
+            using (JsonGzWriter writer = new JsonGzWriter(entry.Stream, true))
             {
-                using (var writer2 = new JsonGzWriter(stream2.Stream, true))
+                using (JsonGzWriter writer2 = new JsonGzWriter(stream2.Stream, true))
                 {
                     writer.Append("[0,0");
                     writer2.Append("[");
-                    var num = 0;
-                    var flag = true;
-                    for (var i = 1; i < _PropItems.Count; i++)
+                    int num = 0;
+                    bool flag = true;
+                    for (int i = 1; i < this._PropItems.Count; i++)
                     {
-                        var list = _PropItems[i];
-                        writer.Append("," + (num + list.Count/2));
-                        foreach (var num3 in list)
+                        List<int> list = this._PropItems[i];
+                        writer.Append("," + (num + (list.Count / 2)));
+                        foreach (int num3 in list)
                         {
                             if (flag)
                             {
@@ -174,77 +174,70 @@ namespace BIM.Lmv.Processers
                     writer.Append("]");
                 }
             }
-            _PropItems.Clear();
-            var size = _OutputAttr.GetSize();
-            var num5 = _OutputIds.GetSize();
-            var num6 = _OutputVals.GetSize();
-            var num7 = entry.GetSize();
-            var num8 = stream2.GetSize();
-            _Output.OnAppendFile(_OutputAttr);
-            _Output.OnAppendFile(_OutputIds);
-            _Output.OnAppendFile(_OutputVals);
-            _Output.OnAppendFile(entry);
-            _Output.OnAppendFile(stream2);
-            _SvfFile.OnEntry(new EntryAsset("objects_attrs.json", "Autodesk.CloudPlatform.PropertyAttributes",
-                "objects_attrs.json.gz", size, 0, null));
-            _SvfFile.OnEntry(new EntryAsset("objects_vals.json", "Autodesk.CloudPlatform.PropertyValues",
-                "objects_vals.json.gz", num6, 0, null));
-            _SvfFile.OnEntry(new EntryAsset("objects_ids.json", "Autodesk.CloudPlatform.PropertyIDs",
-                "objects_ids.json.gz", num5, 0, null));
-            _SvfFile.OnEntry(new EntryAsset("objects_offs.json", "Autodesk.CloudPlatform.PropertyOffsets",
-                "objects_offs.json.gz", num7, 0, null));
-            _SvfFile.OnEntry(new EntryAsset("objects_avs.json", "Autodesk.CloudPlatform.PropertyAVs",
-                "objects_avs.json.gz", num8, 0, null));
+            this._PropItems.Clear();
+            int size = this._OutputAttr.GetSize();
+            int num5 = this._OutputIds.GetSize();
+            int num6 = this._OutputVals.GetSize();
+            int num7 = entry.GetSize();
+            int num8 = stream2.GetSize();
+            this._Output.OnAppendFile(this._OutputAttr);
+            this._Output.OnAppendFile(this._OutputIds);
+            this._Output.OnAppendFile(this._OutputVals);
+            this._Output.OnAppendFile(entry);
+            this._Output.OnAppendFile(stream2);
+            this._SvfFile.OnEntry(new EntryAsset("objects_attrs.json", "Autodesk.CloudPlatform.PropertyAttributes", "objects_attrs.json.gz", new int?(size), 0, null));
+            this._SvfFile.OnEntry(new EntryAsset("objects_vals.json", "Autodesk.CloudPlatform.PropertyValues", "objects_vals.json.gz", new int?(num6), 0, null));
+            this._SvfFile.OnEntry(new EntryAsset("objects_ids.json", "Autodesk.CloudPlatform.PropertyIDs", "objects_ids.json.gz", new int?(num5), 0, null));
+            this._SvfFile.OnEntry(new EntryAsset("objects_offs.json", "Autodesk.CloudPlatform.PropertyOffsets", "objects_offs.json.gz", new int?(num7), 0, null));
+            this._SvfFile.OnEntry(new EntryAsset("objects_avs.json", "Autodesk.CloudPlatform.PropertyAVs", "objects_avs.json.gz", new int?(num8), 0, null));
         }
 
-        public int OnNode(string key, string name, string uid, int parentNodeId, List<PropItem> props)
-        {
-            return InsertNode(key, name, uid, props, parentNodeId);
-        }
+        public int OnNode(string key, string name, string uid, int parentNodeId, List<PropItem> props) => 
+            this.InsertNode(key, name, uid, props, parentNodeId);
 
         public void OnStart()
         {
-            _PropDefs.Clear();
-            _PropDefNextIndex = 1;
-            _PropVals.Clear();
-            _PropValNextIndex = 1;
-            _PropItems.Clear();
-            _PropItems.Add(null);
-            _OutputAttr = new FileEntryStream("objects_attrs.json.gz");
-            _FileAttr = new JsonGzWriter(_OutputAttr.Stream, true);
-            _FileAttr.Append("[0");
-            _OutputIds = new FileEntryStream("objects_ids.json.gz");
-            _FileIds = new JsonGzWriter(_OutputIds.Stream, true);
-            _FileIds.Append("[0");
-            _OutputVals = new FileEntryStream("objects_vals.json.gz");
-            _FileVals = new JsonGzWriter(_OutputVals.Stream, true);
-            _FileVals.Append("[0");
-            _PropDefNameId = GetPropDefIndex(PropDef.DefName);
-            _PropDefChildId = GetPropDefIndex(PropDef.DefChild);
-            _PropDefParentId = GetPropDefIndex(PropDef.DefParent);
-            _PropDefMarkId = GetPropDefIndex(PropDef.DefMark);
-            foreach (var def in PropDef.PredefList)
+            this._PropDefs.Clear();
+            this._PropDefNextIndex = 1;
+            this._PropVals.Clear();
+            this._PropValNextIndex = 1;
+            this._PropItems.Clear();
+            this._PropItems.Add(null);
+            this._OutputAttr = new FileEntryStream("objects_attrs.json.gz");
+            this._FileAttr = new JsonGzWriter(this._OutputAttr.Stream, true);
+            this._FileAttr.Append("[0");
+            this._OutputIds = new FileEntryStream("objects_ids.json.gz");
+            this._FileIds = new JsonGzWriter(this._OutputIds.Stream, true);
+            this._FileIds.Append("[0");
+            this._OutputVals = new FileEntryStream("objects_vals.json.gz");
+            this._FileVals = new JsonGzWriter(this._OutputVals.Stream, true);
+            this._FileVals.Append("[0");
+            this._PropDefNameId = this.GetPropDefIndex(PropDef.DefName);
+            this._PropDefChildId = this.GetPropDefIndex(PropDef.DefChild);
+            this._PropDefParentId = this.GetPropDefIndex(PropDef.DefParent);
+            this._PropDefMarkId = this.GetPropDefIndex(PropDef.DefMark);
+            foreach (PropDef def in PropDef.PredefList)
             {
-                GetPropDefIndex(def);
+                this.GetPropDefIndex(def);
             }
         }
 
         private void ProcessParameter(PropItem p, out int propDefIndex, out int propValueIndex)
         {
-            var def = p.Def;
-            var type = (int) def.Type;
-            propDefIndex = GetPropDefIndex(def.Name, def.Category, type, def.Unit, def.Hide);
-            propValueIndex = GetPropValueIndex(p.Value, type);
+            PropDef def = p.Def;
+            int type = (int) def.Type;
+            propDefIndex = this.GetPropDefIndex(def.Name, def.Category, type, def.Unit, def.Hide);
+            propValueIndex = this.GetPropValueIndex(p.Value, type);
         }
 
         private List<int> ProcessParameters(List<PropItem> props)
         {
-            var list = new List<int>(props.Count*2 + 0x20);
-            foreach (var item in props)
+            List<int> list = new List<int>((props.Count * 2) + 0x20);
+            foreach (PropItem item in props)
             {
                 int num;
                 int num2;
-                ProcessParameter(item, out num, out num2);
+                this.ProcessParameter(item, out num, out num2);
                 list.Add(num);
                 list.Add(num2);
             }
@@ -252,3 +245,4 @@ namespace BIM.Lmv.Processers
         }
     }
 }
+

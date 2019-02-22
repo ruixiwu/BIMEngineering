@@ -1,7 +1,9 @@
-﻿using BIM.Lmv.Content.Geometry.Types;
-
-namespace BIM.Lmv.Types
+﻿namespace BIM.Lmv.Types
 {
+    using BIM.Lmv.Content.Geometry.Types;
+    using System;
+    using System.Runtime.CompilerServices;
+
     public class SceneInfo
     {
         public double AngleToTrueNorth;
@@ -11,14 +13,14 @@ namespace BIM.Lmv.Types
 
         public SceneInfo()
         {
-            WorldUp = new Vector3F(0f, 0f, 1f);
-            WorldFront = new Vector3F(0f, -1f, 0f);
-            WorldNorth = new Vector3F(0f, 1f, 0f);
-            DistanceUnit = "foot";
-            Longitude = 116.38765;
-            Latitude = 39.90657;
-            AngleToTrueNorth = 0.0;
-            VertexLimit = 0xffff;
+            this.WorldUp = new Vector3F(0f, 0f, 1f);
+            this.WorldFront = new Vector3F(0f, -1f, 0f);
+            this.WorldNorth = new Vector3F(0f, 1f, 0f);
+            this.DistanceUnit = "foot";
+            this.Longitude = 116.38765;
+            this.Latitude = 39.90657;
+            this.AngleToTrueNorth = 0.0;
+            this.VertexLimit = 0xffff;
         }
 
         public string DistanceUnit { get; set; }
@@ -30,3 +32,4 @@ namespace BIM.Lmv.Types
         public Vector3F WorldUp { get; set; }
     }
 }
+

@@ -1,5 +1,7 @@
 ﻿namespace Utils
 {
+    using System;
+
     public enum ServiceInterfaceEnum
     {
         checkUserLogin,
@@ -11,3 +13,4 @@
         downLoadComponent
     }
 }
+

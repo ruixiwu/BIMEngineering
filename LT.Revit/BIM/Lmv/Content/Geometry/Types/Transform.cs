@@ -1,12 +1,12 @@
-﻿using System;
-using BIM.Lmv.Common.Pack;
-using BIM.Lmv.Types;
-
-namespace BIM.Lmv.Content.Geometry.Types
+﻿namespace BIM.Lmv.Content.Geometry.Types
 {
+    using BIM.Lmv.Common.Pack;
+    using BIM.Lmv.Types;
+    using System;
+
     public class Transform
     {
-        private static readonly Matrix4F _MatrixIdentity = new Matrix4F().identity();
+        private static Matrix4F _MatrixIdentity = new Matrix4F().identity();
         private Matrix4F _Result;
         private Matrix4F _ResultEx;
         public Matrix4F matrix;
@@ -17,127 +17,112 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public Transform Clone()
         {
-            var transform = new Transform
-            {
-                type = type,
-                scale = scale
+            Transform transform = new Transform {
+                type = this.type,
+                scale = this.scale
             };
-            if (rotation != null)
+            if (this.rotation != null)
             {
-                transform.rotation = rotation.Clone();
+                transform.rotation = this.rotation.Clone();
             }
-            if (translation != null)
+            if (this.translation != null)
             {
-                transform.translation = translation.Clone();
+                transform.translation = this.translation.Clone();
             }
-            if (matrix != null)
+            if (this.matrix != null)
             {
-                transform.matrix = matrix.clone();
+                transform.matrix = this.matrix.clone();
             }
-            if (_Result != null)
+            if (this._Result != null)
             {
-                transform._Result = _Result.clone();
+                transform._Result = this._Result.clone();
             }
-            if (_ResultEx != null)
+            if (this._ResultEx != null)
             {
-                transform._ResultEx = _ResultEx.clone();
+                transform._ResultEx = this._ResultEx.clone();
             }
             return transform;
         }
 
-        public static Transform GetAffineMatrix(Matrix4F matrix, Vector3D translation)
-        {
-            return new Transform
-            {
+        public static Transform GetAffineMatrix(Matrix4F matrix, Vector3D translation) => 
+            new Transform { 
                 type = TransformType.AffineMatrix,
                 matrix = matrix,
                 translation = translation
             };
-        }
 
-        public static Transform GetIdentity()
-        {
-            return new Transform {type = TransformType.Identity};
-        }
+        public static Transform GetIdentity() => 
+            new Transform { type = TransformType.Identity };
 
         public Matrix4F GetMatrix()
         {
-            if (_Result == null)
+            if (this._Result == null)
             {
-                _Result = new Matrix4F();
-                switch (type)
+                this._Result = new Matrix4F();
+                switch (this.type)
                 {
                     case TransformType.Translation:
-                        _Result.makeTranslation((float) translation.x, (float) translation.y, (float) translation.z);
+                        this._Result.makeTranslation((float) this.translation.x, (float) this.translation.y, (float) this.translation.z);
                         break;
 
                     case TransformType.RotationTranslation:
-                        _Result.compose(translation, rotation, new Vector3F(1f, 1f, 1f));
+                        this._Result.compose(this.translation, this.rotation, new Vector3F(1f, 1f, 1f));
                         break;
 
                     case TransformType.UniformScaleRotationTranslation:
-                        _Result.compose(translation, rotation, new Vector3F(scale, scale, scale));
+                        this._Result.compose(this.translation, this.rotation, new Vector3F(this.scale, this.scale, this.scale));
                         break;
 
                     case TransformType.AffineMatrix:
-                        _Result.copy(matrix);
-                        _Result.setPosition(translation);
+                        this._Result.copy(this.matrix);
+                        this._Result.setPosition(this.translation);
                         break;
 
                     case TransformType.Identity:
-                        _Result.identity();
+                        this._Result.identity();
                         break;
 
                     default:
                         throw new ArgumentOutOfRangeException();
                 }
-                _ResultEx = _Result.clone().setPosition(new Vector3F(0f, 0f, 0f));
+                this._ResultEx = this._Result.clone().setPosition(new Vector3F(0f, 0f, 0f));
             }
-            return _Result;
+            return this._Result;
         }
 
         public Matrix4F GetMatrixEx()
         {
-            if (_ResultEx == null)
+            if (this._ResultEx == null)
             {
-                GetMatrix();
+                this.GetMatrix();
             }
-            return _ResultEx;
+            return this._ResultEx;
         }
 
-        public static Transform GetRotationTranslation(Vector4F rotation, Vector3D translation)
-        {
-            return new Transform
-            {
+        public static Transform GetRotationTranslation(Vector4F rotation, Vector3D translation) => 
+            new Transform { 
                 type = TransformType.RotationTranslation,
                 rotation = rotation,
                 translation = translation
             };
-        }
 
-        public static Transform GetTranslation(Vector3D translation)
-        {
-            return new Transform
-            {
+        public static Transform GetTranslation(Vector3D translation) => 
+            new Transform { 
                 type = TransformType.Translation,
                 translation = translation
             };
-        }
 
-        public static Transform GetUniformScaleRotationTranslation(float scale, Vector4F rotation, Vector3D translation)
-        {
-            return new Transform
-            {
+        public static Transform GetUniformScaleRotationTranslation(float scale, Vector4F rotation, Vector3D translation) => 
+            new Transform { 
                 type = TransformType.UniformScaleRotationTranslation,
                 scale = scale,
                 rotation = rotation,
                 translation = translation
             };
-        }
 
         private static bool IsIdentity(Matrix4F m)
         {
-            for (var i = 0; i < 0x10; i++)
+            for (int i = 0; i < 0x10; i++)
             {
                 if (!(_MatrixIdentity.elements[i] == m.elements[i]))
                 {
@@ -149,9 +134,9 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         private static bool IsTranslation(Matrix4F m)
         {
-            for (var i = 0; i < 0x10; i++)
+            for (int i = 0; i < 0x10; i++)
             {
-                if ((i != 12) && (i != 13) && (i != 14) && !(_MatrixIdentity.elements[i] == m.elements[i]))
+                if ((((i != 12) && (i != 13)) && (i != 14)) && !(_MatrixIdentity.elements[i] == m.elements[i]))
                 {
                     return false;
                 }
@@ -163,69 +148,67 @@ namespace BIM.Lmv.Content.Geometry.Types
         {
             if (t.type != TransformType.Identity)
             {
-                if (type == TransformType.Identity)
+                if (this.type == TransformType.Identity)
                 {
-                    type = t.type;
-                    scale = t.scale;
-                    rotation = t.rotation == null ? null : t.rotation.Clone();
-                    translation = t.translation == null ? null : t.translation.Clone();
-                    this.matrix = t.matrix == null ? null : t.matrix.clone();
-                    _Result = t._Result == null ? null : t._Result.clone();
+                    this.type = t.type;
+                    this.scale = t.scale;
+                    this.rotation = t.rotation?.Clone();
+                    this.translation = t.translation?.Clone();
+                    this.matrix = t.matrix?.clone();
+                    this._Result = t._Result?.clone();
                     return this;
                 }
-                var matrix = GetMatrix();
+                Matrix4F matrix = this.GetMatrix();
                 matrix.multiply(t.GetMatrix());
                 if (IsIdentity(matrix))
                 {
-                    type = TransformType.Identity;
+                    this.type = TransformType.Identity;
                 }
                 else if (IsTranslation(matrix))
                 {
-                    type = TransformType.Translation;
-                    translation = new Vector3D(matrix.elements[12], matrix.elements[13], matrix.elements[14]);
+                    this.type = TransformType.Translation;
+                    this.translation = new Vector3D((double) matrix.elements[12], (double) matrix.elements[13], (double) matrix.elements[14]);
                 }
                 else
                 {
-                    type = TransformType.AffineMatrix;
-                    translation = new Vector3D(matrix.elements[12], matrix.elements[13], matrix.elements[14]);
+                    this.type = TransformType.AffineMatrix;
+                    this.translation = new Vector3D((double) matrix.elements[12], (double) matrix.elements[13], (double) matrix.elements[14]);
                     this.matrix = matrix.clone().setPosition(new Vector3D(0.0, 0.0, 0.0));
                 }
-                _Result = null;
-                _ResultEx = null;
+                this._Result = null;
+                this._ResultEx = null;
             }
             return this;
         }
 
         public Vector3F OfPoint(Vector3F point)
         {
-            if (type == TransformType.Identity)
+            if (this.type == TransformType.Identity)
             {
                 return point;
             }
-            return GetMatrix().transformPoint(point);
+            return this.GetMatrix().transformPoint(point);
         }
 
         public Vector3F OfPointEx(Vector3F point)
         {
-            if (type == TransformType.Identity)
+            if (this.type == TransformType.Identity)
             {
                 return point;
             }
-            return GetMatrixEx().transformPoint(point);
+            return this.GetMatrixEx().transformPoint(point);
         }
 
-        public Vector3F OfVector(Vector3F vector)
-        {
-            return GetMatrix().transformDirection(vector);
-        }
+        public Vector3F OfVector(Vector3F vector) => 
+            this.GetMatrix().transformDirection(vector);
 
         internal static Transform Read(PackFileStreamReader ptr)
         {
             Vector3D vectord;
             Vector4F vectorf2;
-            var stream = ptr.stream;
-            var num = stream.getUint8();
-            var globalOffset = new Vector3F(0f, 0f, 0f);
+            PackFileStream stream = ptr.stream;
+            byte num = stream.getUint8();
+            Vector3F globalOffset = new Vector3F(0f, 0f, 0f);
             switch (num)
             {
                 case 0:
@@ -238,14 +221,14 @@ namespace BIM.Lmv.Content.Geometry.Types
 
                 case 2:
                 {
-                    var scale = stream.getFloat32();
+                    float scale = stream.getFloat32();
                     vectorf2 = ptr.ReadQuaternionF();
                     vectord = ptr.ReadVector3D(globalOffset);
                     return GetUniformScaleRotationTranslation(scale, vectorf2, vectord);
                 }
                 case 3:
                 {
-                    var m = new Matrix4F();
+                    Matrix4F m = new Matrix4F();
                     ptr.ReadMatrix3F(m);
                     vectord = ptr.ReadVector3D(globalOffset);
                     return GetAffineMatrix(m, vectord);
@@ -260,9 +243,9 @@ namespace BIM.Lmv.Content.Geometry.Types
         {
             Vector3D vectord;
             Vector4F vectorf2;
-            var stream = ptr.stream;
-            var num = stream.getUint8();
-            var globalOffset = new Vector3F(0f, 0f, 0f);
+            PackFileStream stream = ptr.stream;
+            byte num = stream.getUint8();
+            Vector3F globalOffset = new Vector3F(0f, 0f, 0f);
             switch (num)
             {
                 case 0:
@@ -275,14 +258,14 @@ namespace BIM.Lmv.Content.Geometry.Types
 
                 case 2:
                 {
-                    var scale = stream.getFloat32();
+                    float scale = stream.getFloat32();
                     vectorf2 = ptr.ReadQuaternionF();
                     vectord = ptr.ReadVector3D(globalOffset);
                     return GetUniformScaleRotationTranslation(scale, vectorf2, vectord);
                 }
                 case 3:
                 {
-                    var m = new Matrix4F();
+                    Matrix4F m = new Matrix4F();
                     ptr.ReadMatrix3F(m);
                     vectord = ptr.ReadVector3D(globalOffset);
                     return GetAffineMatrix(m, vectord);
@@ -295,32 +278,32 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public void SetAffineMatrix(Matrix4F matrix, Vector3D translation)
         {
-            type = TransformType.AffineMatrix;
+            this.type = TransformType.AffineMatrix;
             this.matrix = matrix;
             this.translation = translation;
         }
 
         public void SetIdentity()
         {
-            type = TransformType.Identity;
+            this.type = TransformType.Identity;
         }
 
         public void SetRotationTranslation(Vector4F rotation, Vector3D translation)
         {
-            type = TransformType.RotationTranslation;
+            this.type = TransformType.RotationTranslation;
             this.rotation = rotation;
             this.translation = translation;
         }
 
         public void SetTranslation(Vector3D translation)
         {
-            type = TransformType.Translation;
+            this.type = TransformType.Translation;
             this.translation = translation;
         }
 
         public void SetUniformScaleRotationTranslation(float scale, Vector4F rotation, Vector3D translation)
         {
-            type = TransformType.UniformScaleRotationTranslation;
+            this.type = TransformType.UniformScaleRotationTranslation;
             this.scale = scale;
             this.rotation = rotation;
             this.translation = translation;
@@ -361,3 +344,4 @@ namespace BIM.Lmv.Content.Geometry.Types
         }
     }
 }
+

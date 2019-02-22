@@ -1,62 +1,65 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Net;
-using System.Text;
-using System.Threading;
-using System.Web;
-using System.Windows.Forms;
-using Autodesk.Revit.DB;
-using BIM.Lmv.Content.Geometry.Types;
-using BIM.Lmv.Types;
-using Newtonsoft.Json.Linq;
-using Utils;
-using Transform = Autodesk.Revit.DB.Transform;
+﻿using System.Web.UI.WebControls;
 
 namespace BIM.Lmv.Revit.Helpers
 {
+    using Autodesk.Revit.DB;
+    using BIM.Lmv.Content.Geometry.Types;
+    using BIM.Lmv.Types;
+    using Newtonsoft.Json.Linq;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.Net;
+    using System.Runtime.InteropServices;
+    using System.Text;
+    using System.Threading;
+    using System.Web;
+    using System.Windows.Forms;
+    using Utils;
+
     internal class TableHelp
     {
+        public bool _bIsInstance = false;
         public static Dictionary<string, string> _configDic = new Dictionary<string, string>();
         public static Vector3F _EleBoxMax = new Vector3F(float.MinValue, float.MinValue, float.MinValue);
         public static Vector3F _EleBoxMin = new Vector3F(float.MaxValue, float.MaxValue, float.MaxValue);
-        public static string _sCurBFileId;
-        public static string _sDirPath;
-        public static string _sPathData;
-        public static string _sPathData2;
-        public static string _sProjectPrefix;
-        public static SqliteOpr _SqliteOpr = new SqliteOpr();//sql操作器
-        public static string _sUrlRoot;//上传文件
-        public static string _sZipKey;
-        public static string _sZipPath = "";
-        public static bool g_bFree = false;
-        public static string g_modelName;//模型名称
-        public static string g_modelTypeNo;//项目名称
-        public static string g_stage;//项目阶段
-        public static string sUser;
-        public bool _bIsInstance;
         public Dictionary<string, string> _FamilyIns;
-        public int _InsNodeIdDelay;
+        public int _InsNodeIdDelay = 0;
         public Dictionary<int, Vector3F> _InstanceBoxMax;
         public Dictionary<int, Vector3F> _InstanceBoxMin;
         public Dictionary<int, string> _InstanceTemplates;
         public string _sBlockId = "";
+        public static string _sCurBFileId;
+        public static string _sDirPath;
         public string _sMatrix = "";
         public SceneInfo _SneneInfo;
+        public static string _sPathData;
+        public static string _sPathData2;
+        public static string _sProjectPrefix;
+        public static SqliteOpr _SqliteOpr = new SqliteOpr();
+        public static string _sUrlRoot;
+        public static string _sZipKey;
+        public static string _sZipPath = "";
         public Vector3F _TLGlobalBoxMax = new Vector3F(float.MinValue, float.MinValue, float.MinValue);
         public Vector3F _TLGlobalBoxMin = new Vector3F(float.MaxValue, float.MaxValue, float.MaxValue);
-        public Transform _TransformDelay;
+        public Autodesk.Revit.DB.Transform _TransformDelay;
+        public static bool g_bFree = false;
+        public static string g_modelName;
+        public static string g_modelTypeNo;
+        public static string g_stage;
+        public static string sUser;
 
         public TableHelp(Document doc)
         {
             _SqliteOpr.connectToDatabase(_sPathData);
-            _SneneInfo = ExportHelper.GetSceneInfo(doc);
-            _TransformDelay = Transform.Identity;
-            _InstanceTemplates = new Dictionary<int, string>();
-            _InstanceBoxMin = new Dictionary<int, Vector3F>();
-            _InstanceBoxMax = new Dictionary<int, Vector3F>();
-            _FamilyIns = new Dictionary<string, string>();
+            _SqliteOpr.createTable(_sProjectPrefix);
+            this._SneneInfo = ExportHelper.GetSceneInfo(doc);
+            this._TransformDelay = Autodesk.Revit.DB.Transform.Identity;
+            this._InstanceTemplates = new Dictionary<int, string>();
+            this._InstanceBoxMin = new Dictionary<int, Vector3F>();
+            this._InstanceBoxMax = new Dictionary<int, Vector3F>();
+            this._FamilyIns = new Dictionary<string, string>();
             _sCurBFileId = Guid.NewGuid().ToString();
         }
 
@@ -64,17 +67,17 @@ namespace BIM.Lmv.Revit.Helpers
         {
             try
             {
-                var sID = _sProjectPrefix.Substring(1);
+                string sID = _sProjectPrefix.Substring(1);
                 _sZipKey = Guid.NewGuid().ToString();
-                var str2 = Guid.NewGuid().ToString();
-                var fileNameWithoutExtension = Path.GetFileNameWithoutExtension(strSourceFile);
-                var str4 = g_modelName;
-                var extension = Path.GetExtension(strSourceFile);
-                var sUser = TableHelp.sUser;
-                var str7 = g_modelTypeNo;
-                var sColume = "NAME,TYPE,AFFIXFILEID";
-                var sValue = "'" + fileNameWithoutExtension + "','" + extension + "','" + str2 + "'";
-                var str10 = _SqliteOpr.fillTable("AFFIXTABLE" + _sProjectPrefix, sColume, sValue, "");
+                string str2 = Guid.NewGuid().ToString();
+                string fileNameWithoutExtension = Path.GetFileNameWithoutExtension(strSourceFile);
+                string str4 = g_modelName;
+                string extension = Path.GetExtension(strSourceFile);
+                string sUser = TableHelp.sUser;
+                string str7 = g_modelTypeNo;
+                string sColume = "NAME,TYPE,AFFIXFILEID";
+                string sValue = "'" + fileNameWithoutExtension + "','" + extension + "','" + str2 + "'";
+                string str10 = _SqliteOpr.fillTable("AFFIXTABLE" + _sProjectPrefix, sColume, sValue, "");
                 sColume = "NAME,PREFIXION,SOURCEID,ZIPKEY,FOREIGNID,DESCRIBE";
                 sValue = "'" + str4 + "'," + sID + "," + str10 + ",'" + _sZipKey + "','" + str7 + "','" + sUser + "'";
                 _SqliteOpr.fillTable("PROJECT", sColume, sValue, sID);
@@ -92,14 +95,14 @@ namespace BIM.Lmv.Revit.Helpers
 
         private static void delDir(string strFile)
         {
-            new Thread(delDirFunc) {IsBackground = true}.Start(strFile);
+            new Thread(new ParameterizedThreadStart(TableHelp.delDirFunc)) { IsBackground = true }.Start(strFile);
         }
 
         public static void delDirFunc(object data)
         {
             try
             {
-                var path = data as string;
+                string path = data as string;
                 if (Directory.Exists(path))
                 {
                     Directory.Delete(path, true);
@@ -112,12 +115,12 @@ namespace BIM.Lmv.Revit.Helpers
 
         public static void delFile(string strFile)
         {
-            new Thread(delFileFunc) {IsBackground = true}.Start(strFile);
+            new Thread(new ParameterizedThreadStart(TableHelp.delFileFunc)) { IsBackground = true }.Start(strFile);
         }
 
         public static void delFileFunc(object data)
         {
-            var path = data as string;
+            string path = data as string;
             if (path.Contains("e.db"))
             {
                 while (!g_bFree)
@@ -128,9 +131,9 @@ namespace BIM.Lmv.Revit.Helpers
             }
             try
             {
-                if (File.Exists(path))
+                if (System.IO.File.Exists(path))
                 {
-                    File.Delete(path);
+                    System.IO.File.Delete(path);
                 }
             }
             catch (Exception)
@@ -140,50 +143,50 @@ namespace BIM.Lmv.Revit.Helpers
 
         public void ElementBegin()
         {
-            ClearEleBox();
-            _sBlockId = "";
-            _bIsInstance = false;
+            this.ClearEleBox();
+            this._sBlockId = "";
+            this._bIsInstance = false;
             TLGeometryHelper.strMeshIds = "";
         }
 
         public void ElementEnd(bool bHasGeometry)
         {
-            if (bHasGeometry && (_EleBoxMin != null) && (_EleBoxMin.x != float.MaxValue))
+            if ((bHasGeometry && (_EleBoxMin != null)) && (_EleBoxMin.x != float.MaxValue))
             {
-                _TLGlobalBoxMin.x = Math.Min(_TLGlobalBoxMin.x, _EleBoxMin.x);
-                _TLGlobalBoxMin.y = Math.Min(_TLGlobalBoxMin.y, _EleBoxMin.y);
-                _TLGlobalBoxMin.z = Math.Min(_TLGlobalBoxMin.z, _EleBoxMin.z);
-                _TLGlobalBoxMax.x = Math.Max(_TLGlobalBoxMax.x, _EleBoxMax.x);
-                _TLGlobalBoxMax.y = Math.Max(_TLGlobalBoxMax.y, _EleBoxMax.y);
-                _TLGlobalBoxMax.z = Math.Max(_TLGlobalBoxMax.z, _EleBoxMax.z);
+                this._TLGlobalBoxMin.x = Math.Min(this._TLGlobalBoxMin.x, _EleBoxMin.x);
+                this._TLGlobalBoxMin.y = Math.Min(this._TLGlobalBoxMin.y, _EleBoxMin.y);
+                this._TLGlobalBoxMin.z = Math.Min(this._TLGlobalBoxMin.z, _EleBoxMin.z);
+                this._TLGlobalBoxMax.x = Math.Max(this._TLGlobalBoxMax.x, _EleBoxMax.x);
+                this._TLGlobalBoxMax.y = Math.Max(this._TLGlobalBoxMax.y, _EleBoxMax.y);
+                this._TLGlobalBoxMax.z = Math.Max(this._TLGlobalBoxMax.z, _EleBoxMax.z);
             }
         }
 
-        public string ElemWriteTable(Element curElem, Document tDoc, Transform tTransform)
+        public string ElemWriteTable(Element curElem, Document tDoc, Autodesk.Revit.DB.Transform tTransform, bool bReallyInstance)
         {
-            var str = "";
-            if (_bIsInstance)
+            string str = "";
+            if (this._bIsInstance && bReallyInstance)
             {
-                InstanceEndDelay();
+                this.InstanceEndDelay();
             }
-            if (!string.IsNullOrEmpty(TLGeometryHelper.strMeshIds) || !string.IsNullOrEmpty(_sBlockId))
+            if (!string.IsNullOrEmpty(TLGeometryHelper.strMeshIds) || !string.IsNullOrEmpty(this._sBlockId))
             {
-                var str2 = "";
-                var typeId = curElem.GetTypeId();
-                var element = tDoc.GetElement(typeId);
+                string str2 = "";
+                ElementId typeId = curElem.GetTypeId();
+                Element element = tDoc.GetElement(typeId);
                 if ((typeId != null) && (element != null))
                 {
                     string str3;
-                    if (_FamilyIns.TryGetValue(typeId.ToString(), out str3))
+                    if (this._FamilyIns.TryGetValue(typeId.ToString(), out str3))
                     {
                         str2 = str3;
                     }
                     else
                     {
-                        var name = curElem.Category.Name;
-                        var sFamilyName = name;
-                        var sName = curElem.Name;
-                        var type = element as ElementType;
+                        string name = curElem.Category.Name;
+                        string sFamilyName = name;
+                        string sName = curElem.Name;
+                        ElementType type = element as ElementType;
                         if (type != null)
                         {
                             sFamilyName = type.FamilyName;
@@ -193,28 +196,27 @@ namespace BIM.Lmv.Revit.Helpers
                                 name = type.Category.Name;
                             }
                         }
+                        sName = sName.Replace('\'', '`');
+                        sFamilyName = sFamilyName.Replace('\'', '`');
                         str2 = WriteFamilyTable(element.Parameters, sName, sFamilyName, name, typeId.ToString());
-                        _FamilyIns.Add(typeId.ToString(), str2);
+                        this._FamilyIns.Add(typeId.ToString(), str2);
                     }
                 }
-                var uniqueId = curElem.UniqueId;
-                var title = tDoc.Title;
-                var sBox = string.Format("{0:F3},{1:F3},{2:F3},{3:F3},{4:F3},{5:F3}", _EleBoxMin.x, _EleBoxMin.y,
-                    _EleBoxMin.z, _EleBoxMax.x, _EleBoxMax.y, _EleBoxMax.z);
-                if (_bIsInstance)
+                string uniqueId = curElem.UniqueId;
+                string title = tDoc.Title;
+                string sBox = $"{_EleBoxMin.x:F3},{_EleBoxMin.y:F3},{_EleBoxMin.z:F3},{_EleBoxMax.x:F3},{_EleBoxMax.y:F3},{_EleBoxMax.z:F3}";
+                if (this._bIsInstance && bReallyInstance)
                 {
-                    var geoItemt = new GeoItem(uniqueId, _sMatrix, "null", _sBlockId, sBox, title, str2);
+                    GeoItem geoItemt = new GeoItem(uniqueId, this._sMatrix, "null", this._sBlockId, sBox, title, str2);
                     str = WriteGeoItem(geoItemt);
                 }
                 else
                 {
-                    var matrixFrom = TransformHelper.GetMatrixFrom(tTransform);
-                    var v = new Vector3F((float) tTransform.Origin.X, (float) tTransform.Origin.Y,
-                        (float) tTransform.Origin.Z);
+                    Matrix4F matrixFrom = TransformHelper.GetMatrixFrom(tTransform);
+                    Vector3F v = new Vector3F((float) tTransform.Origin.X, (float) tTransform.Origin.Y, (float) tTransform.Origin.Z);
                     matrixFrom.setPosition(v);
-                    _sMatrix = matrixFrom.toString();
-                    var item2 = new GeoItem(uniqueId, _sMatrix, TLGeometryHelper.strMeshIds, "-1", sBox, title,
-                        str2);
+                    this._sMatrix = matrixFrom.toString();
+                    GeoItem item2 = new GeoItem(uniqueId, this._sMatrix, TLGeometryHelper.strMeshIds, "-1", sBox, title, str2);
                     str = WriteGeoItem(item2);
                 }
                 TLGeometryHelper.strMeshIds = "";
@@ -222,28 +224,27 @@ namespace BIM.Lmv.Revit.Helpers
             return str;
         }
 
-        public static string exeRequest(string sUrlseg, string sMethod, string sData, ref string sRetData,
-            bool bFirst = false)
+        public static string exeRequest(string sUrlseg, string sMethod, string sData, ref string sRetData, bool bFirst = false)
         {
-            var stopwatch = new Stopwatch();
+            Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var str = "success";
-            var request = WebRequest.Create(_sUrlRoot + sUrlseg) as HttpWebRequest;
+            string str = "success";
+            HttpWebRequest request = WebRequest.Create(_sUrlRoot + sUrlseg) as HttpWebRequest;
             request.Timeout = 0x493e0;
             request.Method = sMethod;
             request.ContentType = "application/json;charset=UTF-8";
             if ((sMethod == "POST") && !string.IsNullOrEmpty(sData))
             {
-                var bytes = Encoding.UTF8.GetBytes(sData);
+                byte[] bytes = Encoding.UTF8.GetBytes(sData.ToString());
                 request.ContentLength = bytes.Length;
-                using (var stream = request.GetRequestStream())
+                using (Stream stream = request.GetRequestStream())
                 {
                     stream.Write(bytes, 0, bytes.Length);
                 }
             }
-            using (var response = request.GetResponse() as HttpWebResponse)
+            using (HttpWebResponse response = request.GetResponse() as HttpWebResponse)
             {
-                var obj2 = JObject.Parse(new StreamReader(response.GetResponseStream(), Encoding.ASCII).ReadToEnd());
+                JObject obj2 = JObject.Parse(new StreamReader(response.GetResponseStream(), Encoding.ASCII).ReadToEnd());
                 str = obj2["success"].ToString();
                 if (!string.IsNullOrEmpty(sRetData))
                 {
@@ -258,28 +259,27 @@ namespace BIM.Lmv.Revit.Helpers
                 }
             }
             stopwatch.Stop();
-            var elapsed = stopwatch.Elapsed;
+            TimeSpan elapsed = stopwatch.Elapsed;
             return str;
         }
 
         public void Finish()
         {
-            var geoItemt = new CoordinaeSysItem
-            {
+            CoordinaeSysItem geoItemt = new CoordinaeSysItem {
                 Name = "geosys",
-                False_easting = _SneneInfo.Longitude.ToString(),//长度
-                False_northing = _SneneInfo.Latitude.ToString(),//高度
-                Centralmeridian = _SneneInfo.AngleToTrueNorth.ToString()//中心顶点
+                False_easting = this._SneneInfo.Longitude.ToString(),
+                False_northing = this._SneneInfo.Latitude.ToString(),
+                Centralmeridian = this._SneneInfo.AngleToTrueNorth.ToString()
             };
             WriteCoordSysItem(geoItemt);
             try
             {
-                if (File.Exists(_sZipPath))
+                if (System.IO.File.Exists(_sZipPath))
                 {
-                    var bArray = File.ReadAllBytes(_sZipPath);
-                    var sColume = "OBJGUID";
-                    var sValue = "'" + _sZipKey + "'";
-                    var sObjectId = _SqliteOpr.fillTable("AFFIXFILE" + _sProjectPrefix, sColume, sValue, "");
+                    byte[] bArray = System.IO.File.ReadAllBytes(_sZipPath);
+                    string sColume = "OBJGUID";
+                    string sValue = "'" + _sZipKey + "'";
+                    string sObjectId = _SqliteOpr.fillTable("AFFIXFILE" + _sProjectPrefix, sColume, sValue, "");
                     _SqliteOpr.fillTableblob("AFFIXFILE" + _sProjectPrefix, sObjectId, "CONTENT", bArray);
                 }
             }
@@ -290,11 +290,11 @@ namespace BIM.Lmv.Revit.Helpers
             _SqliteOpr = null;
             try
             {
-                if (File.Exists(_sPathData))
+                if (System.IO.File.Exists(_sPathData))
                 {
-                    File.Copy(_sPathData, _sPathData2, true);
+                    System.IO.File.Copy(_sPathData, _sPathData2, true);
                     Thread.Sleep(0x3e8);
-                    var bArr = File.ReadAllBytes(_sPathData2);
+                    byte[] bArr = System.IO.File.ReadAllBytes(_sPathData2);
                     UploadFileXss("insertBatch?Prefixion=" + _sProjectPrefix, bArr);
                 }
             }
@@ -316,22 +316,21 @@ namespace BIM.Lmv.Revit.Helpers
             try
             {
                 g_modelName = HttpUtility.UrlEncode(g_modelName, Encoding.GetEncoding("utf-8"));
-                var str4 = _sProjectPrefix.Substring(1);
-                var dictParam = new Dictionary<string, string>
-                {
-                    {
+                string str4 = _sProjectPrefix.Substring(1);
+                Dictionary<string, string> dictParam = new Dictionary<string, string> {
+                    { 
                         "pro_no",
                         g_modelTypeNo
                     },
-                    {
+                    { 
                         "mod_typ",
                         g_stage
                     },
-                    {
+                    { 
                         "mod_nam",
                         g_modelName
                     },
-                    {
+                    { 
                         "mod_id",
                         str4
                     }
@@ -344,84 +343,79 @@ namespace BIM.Lmv.Revit.Helpers
             catch (Exception)
             {
             }
-
-            //运行完成了， 报出消息
             MessageBox.Show("数据上传完成！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
         }
 
         public string HandleInstanceTable(int nKey)
         {
-            var sName = nKey.ToString();
-            var sDesc = sName + "_Instance";
-            var geoItemt = new GeoBlockItem(sName, sDesc, TLGeometryHelper.strMeshIds);
-            var str3 = WriteGeoInstanceItem(geoItemt);
+            string sName = nKey.ToString();
+            string sDesc = sName + "_Instance";
+            GeoBlockItem geoItemt = new GeoBlockItem(sName, sDesc, TLGeometryHelper.strMeshIds);
+            string str3 = WriteGeoInstanceItem(geoItemt);
             TLGeometryHelper.strMeshIds = "";
             return str3;
         }
 
-        public static void InitConfig()
+        public static bool InitConfig(string exePath)
         {
             try
             {
-                var path = @"C:\temp\config.txt";
-                if (!File.Exists(path))
+                string str;
+                if (!System.IO.File.Exists(exePath))
                 {
-                    MessageBox.Show(path + "---:配置文件不存在!");
+                    return false;
                 }
-                else
+                FileStream stream = new FileStream(exePath, FileMode.OpenOrCreate);
+                StreamReader reader = new StreamReader(stream);
+                while ((str = reader.ReadLine()) != null)
                 {
-                    string str2;
-                    var stream = new FileStream(path, FileMode.OpenOrCreate);
-                    var reader = new StreamReader(stream);
-                    while ((str2 = reader.ReadLine()) != null)
-                    {
-                        var index = str2.IndexOf('=');
-                        _configDic.Add(str2.Substring(0, index).Trim(), str2.Substring(index + 1).Trim());
-                    }
-                    reader.Close();
-                    stream.Close();
+                    int index = str.IndexOf('=');
+                    _configDic.Add(str.Substring(0, index).Trim(), str.Substring(index + 1).Trim());
                 }
+                reader.Close();
+                stream.Close();
+                return true;
             }
             catch (Exception)
             {
+                return false;
             }
         }
 
-        public bool InstanceBegin(Transform tTransform, int nSymbolID)
+        public bool InstanceBegin(Autodesk.Revit.DB.Transform tTransform, int nSymbolID)
         {
             string str;
-            _bIsInstance = true;
-            var matrixFrom = TransformHelper.GetMatrixFrom(tTransform);
-            var v = new Vector3F((float) tTransform.Origin.X, (float) tTransform.Origin.Y,
-                (float) tTransform.Origin.Z);
+            this._bIsInstance = true;
+            Matrix4F matrixFrom = TransformHelper.GetMatrixFrom(tTransform);
+            Vector3F v = new Vector3F((float) tTransform.Origin.X, (float) tTransform.Origin.Y, (float) tTransform.Origin.Z);
             matrixFrom.setPosition(v);
-            _sMatrix = matrixFrom.toString();
-            if (_InstanceTemplates.TryGetValue(nSymbolID, out str))
+            this._sMatrix = matrixFrom.toString();
+            if (this._InstanceTemplates.TryGetValue(nSymbolID, out str))
             {
-                _sBlockId = str;
+                this._sBlockId = str;
                 return true;
             }
             return false;
         }
 
-        public void InstanceEnd(Transform tTransform, int nSymbolID)
+        public void InstanceEnd(Autodesk.Revit.DB.Transform tTransform, int nSymbolID)
         {
-            _InsNodeIdDelay = nSymbolID;
-            _TransformDelay = tTransform;
+            this._InsNodeIdDelay = nSymbolID;
+            this._TransformDelay = tTransform;
         }
 
         public void InstanceEndDelay()
         {
             string str;
-            var flag = false;
-            if (!_InstanceTemplates.TryGetValue(_InsNodeIdDelay, out str))
+            bool flag = false;
+            if (!this._InstanceTemplates.TryGetValue(this._InsNodeIdDelay, out str))
             {
                 if (!string.IsNullOrEmpty(TLGeometryHelper.strMeshIds))
                 {
-                    _sBlockId = HandleInstanceTable(_InsNodeIdDelay);
-                    _InstanceTemplates.Add(_InsNodeIdDelay, _sBlockId);
-                    _InstanceBoxMin.Add(_InsNodeIdDelay, _EleBoxMin);
-                    _InstanceBoxMax.Add(_InsNodeIdDelay, _EleBoxMax);
+                    this._sBlockId = this.HandleInstanceTable(this._InsNodeIdDelay);
+                    this._InstanceTemplates.Add(this._InsNodeIdDelay, this._sBlockId);
+                    this._InstanceBoxMin.Add(this._InsNodeIdDelay, _EleBoxMin);
+                    this._InstanceBoxMax.Add(this._InsNodeIdDelay, _EleBoxMax);
                     flag = true;
                 }
             }
@@ -431,12 +425,11 @@ namespace BIM.Lmv.Revit.Helpers
             }
             if (flag)
             {
-                var matrixFrom = TransformHelper.GetMatrixFrom(_TransformDelay);
-                var v = new Vector3F((float) _TransformDelay.Origin.X, (float) _TransformDelay.Origin.Y,
-                    (float) _TransformDelay.Origin.Z);
+                Matrix4F matrixFrom = TransformHelper.GetMatrixFrom(this._TransformDelay);
+                Vector3F v = new Vector3F((float) this._TransformDelay.Origin.X, (float) this._TransformDelay.Origin.Y, (float) this._TransformDelay.Origin.Z);
                 matrixFrom.setPosition(v);
-                _EleBoxMin = _InstanceBoxMin[_InsNodeIdDelay];
-                _EleBoxMax = _InstanceBoxMax[_InsNodeIdDelay];
+                _EleBoxMin = this._InstanceBoxMin[this._InsNodeIdDelay];
+                _EleBoxMax = this._InstanceBoxMax[this._InsNodeIdDelay];
                 _EleBoxMin.applyMatrix4(matrixFrom);
                 _EleBoxMax.applyMatrix4(matrixFrom);
             }
@@ -450,11 +443,10 @@ namespace BIM.Lmv.Revit.Helpers
         {
             try
             {
-                foreach (var item in ListData)
+                foreach (PropertyItem item in ListData)
                 {
-                    var sColume = "SECTION,NAME,VALUE,UNIT,TYPE,GEOID";
-                    var sValue = "'" + item.Section + "','" + item.Name + "','" + item.Value + "','" + item.Unit +
-                                 "'," + item.Type + "," + strGeoID;
+                    string sColume = "SECTION,NAME,VALUE,UNIT,TYPE,GEOID";
+                    string sValue = "'" + item.Section + "','" + item.Name + "','" + item.Value + "','" + item.Unit + "'," + item.Type + "," + strGeoID;
                     _SqliteOpr.fillTable("PROTABLE" + _sProjectPrefix, sColume, sValue, "");
                 }
             }
@@ -463,17 +455,16 @@ namespace BIM.Lmv.Revit.Helpers
             }
         }
 
-        public static string Upload_Request(string sUrlseg, string fileNamePath, BinaryReader brIn = null,
-            long nFileLength = 0L)
-        {//上传文件
-            var stopwatch = new Stopwatch();
+        public static string Upload_Request(string sUrlseg, string fileNamePath, BinaryReader brIn = null, long nFileLength = 0L)
+        {
+            Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var requestUriString = _sUrlRoot + sUrlseg;
-            var str2 = "";
-            var str3 = "Binaryfile";
-            var str4 = "----------" + DateTime.Now.Ticks.ToString("x");
-            var bytes = Encoding.ASCII.GetBytes("\r\n--" + str4 + "\r\n");
-            var builder = new StringBuilder();
+            string requestUriString = _sUrlRoot + sUrlseg;
+            string str2 = "";
+            string str3 = "Binaryfile";
+            string str4 = "----------" + DateTime.Now.Ticks.ToString("x");
+            byte[] bytes = Encoding.ASCII.GetBytes("\r\n--" + str4 + "\r\n");
+            StringBuilder builder = new StringBuilder();
             builder.Append("--");
             builder.Append(str4);
             builder.Append("\r\n");
@@ -487,10 +478,10 @@ namespace BIM.Lmv.Revit.Helpers
             builder.Append("application/octet-stream");
             builder.Append("\r\n");
             builder.Append("\r\n");
-            var s = builder.ToString();
-            var buffer = Encoding.UTF8.GetBytes(s);
-            var length = nFileLength;
-            var reader = brIn;
+            string s = builder.ToString();
+            byte[] buffer = Encoding.UTF8.GetBytes(s);
+            long length = nFileLength;
+            BinaryReader reader = brIn;
             FileStream input = null;
             if (length == 0L)
             {
@@ -498,26 +489,26 @@ namespace BIM.Lmv.Revit.Helpers
                 reader = new BinaryReader(input);
                 length = input.Length;
             }
-            var request = (HttpWebRequest) WebRequest.Create(requestUriString);
+            HttpWebRequest request = (HttpWebRequest) WebRequest.Create(requestUriString);
             request.Method = "POST";
             request.AllowWriteStreamBuffering = false;
             request.Timeout = 0x1e8480;
             request.ContentType = "multipart/form-data; boundary=" + str4;
-            var num2 = length + buffer.Length + bytes.Length;
+            long num2 = (length + buffer.Length) + bytes.Length;
             request.ContentLength = num2;
             try
             {
-                var requestStream = request.GetRequestStream();
+                Stream requestStream = request.GetRequestStream();
                 requestStream.Write(buffer, 0, buffer.Length);
-                var count = Math.Min(0x7d000, (int) length);
-                var buffer3 = new byte[count];
-                for (var i = reader.Read(buffer3, 0, count); i > 0; i = reader.Read(buffer3, 0, count))
+                int count = Math.Min(0x7d000, (int) length);
+                byte[] buffer3 = new byte[count];
+                for (int i = reader.Read(buffer3, 0, count); i > 0; i = reader.Read(buffer3, 0, count))
                 {
                     requestStream.Write(buffer3, 0, i);
                 }
                 requestStream.Write(bytes, 0, bytes.Length);
-                var responseStream = request.GetResponse().GetResponseStream();
-                var reader2 = new StreamReader(responseStream);
+                Stream responseStream = request.GetResponse().GetResponseStream();
+                StreamReader reader2 = new StreamReader(responseStream);
                 str2 = reader2.ReadLine();
                 responseStream.Close();
                 reader2.Close();
@@ -532,39 +523,35 @@ namespace BIM.Lmv.Revit.Helpers
                 input.Dispose();
             }
             stopwatch.Stop();
-            var elapsed = stopwatch.Elapsed;
+            TimeSpan elapsed = stopwatch.Elapsed;
             return str2;
         }
 
         public static string UploadFileXss(string sUrlseg, byte[] bArr)
         {
-            var stopwatch = new Stopwatch();
+            Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
-            var requestUriString = _sUrlRoot + sUrlseg;
-            var str2 = "";
-            var str3 = "Binaryfile";
+            string requestUriString = _sUrlRoot + sUrlseg;
+            string str2 = "";
+            string str3 = "Binaryfile";
             try
             {
-                var request = WebRequest.Create(requestUriString) as HttpWebRequest;
+                HttpWebRequest request = WebRequest.Create(requestUriString) as HttpWebRequest;
                 request.Timeout = 0x1e8480;
                 request.Method = "POST";
-                var str4 = DateTime.Now.Ticks.ToString("X");
+                string str4 = DateTime.Now.Ticks.ToString("X");
                 request.ContentType = "multipart/form-data;charset=utf-8;boundary=" + str4;
-                var bytes = Encoding.UTF8.GetBytes("\r\n--" + str4 + "\r\n");
-                var buffer = Encoding.UTF8.GetBytes("\r\n--" + str4 + "--\r\n");
-                var builder =
-                    new StringBuilder(
-                        string.Format(
-                            "Content-Disposition:form-data;name=\"file\";filename=\"{0}\"\r\nContent-Type:application/octet-stream\r\n\r\n",
-                            str3));
-                var buffer3 = Encoding.UTF8.GetBytes(builder.ToString());
-                var requestStream = request.GetRequestStream();
+                byte[] bytes = Encoding.UTF8.GetBytes("\r\n--" + str4 + "\r\n");
+                byte[] buffer = Encoding.UTF8.GetBytes("\r\n--" + str4 + "--\r\n");
+                StringBuilder builder = new StringBuilder($"Content-Disposition:form-data;name=\"file\";filename=\"{str3}\"\r\nContent-Type:application/octet-stream");
+                byte[] buffer3 = Encoding.UTF8.GetBytes(builder.ToString());
+                Stream requestStream = request.GetRequestStream();
                 requestStream.Write(bytes, 0, bytes.Length);
                 requestStream.Write(buffer3, 0, buffer3.Length);
                 requestStream.Write(bArr, 0, bArr.Length);
                 requestStream.Write(buffer, 0, buffer.Length);
                 requestStream.Close();
-                var response = request.GetResponse() as HttpWebResponse;
+                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
                 str2 = new StreamReader(response.GetResponseStream(), Encoding.UTF8).ReadToEnd();
             }
             catch (Exception exception)
@@ -572,18 +559,17 @@ namespace BIM.Lmv.Revit.Helpers
                 str2 = exception.ToString();
             }
             stopwatch.Stop();
-            var elapsed = stopwatch.Elapsed;
+            TimeSpan elapsed = stopwatch.Elapsed;
             return str2;
         }
 
         public static string WriteCoordSysItem(CoordinaeSysItem geoItemt)
         {
-            var str = "";
+            string str = "";
             try
             {
-                var sColume = "NAME,FALSE_EASTING,FALSE_NORTHING,CENTRALMERIDIAN";
-                var sValue = "'" + geoItemt.Name + "'," + geoItemt.False_easting + "," + geoItemt.False_northing +
-                             "," + geoItemt.Centralmeridian;
+                string sColume = "NAME,FALSE_EASTING,FALSE_NORTHING,CENTRALMERIDIAN";
+                string sValue = "'" + geoItemt.Name + "'," + geoItemt.False_easting + "," + geoItemt.False_northing + "," + geoItemt.Centralmeridian;
                 str = _SqliteOpr.fillTable("COORDINATE_SYSTEM", sColume, sValue, "");
             }
             catch (Exception)
@@ -592,24 +578,21 @@ namespace BIM.Lmv.Revit.Helpers
             return str;
         }
 
-        public static string WriteFamilyTable(ParameterSet Parameters, string sName, string sFamilyName,
-            string sCategory, string sDesc)
+        public static string WriteFamilyTable(ParameterSet Parameters, string sName, string sFamilyName, string sCategory, string sDesc)
         {
-            var str = "";
-            var sColume = " ";
-            var sValue = " ";
+            string str = "";
+            string sColume = " ";
+            string sValue = " ";
             try
             {
-                var str4 = _SqliteOpr.getTableField("FAMILYTABLE" + _sProjectPrefix, "OBJECTID",
-                    "NAME == '" + sCategory + "'");
+                string str4 = _SqliteOpr.getTableField("FAMILYTABLE" + _sProjectPrefix, "OBJECTID", "NAME == '" + sCategory + "'");
                 if (string.IsNullOrEmpty(str4))
                 {
                     sColume = "NAME,PARENTID,DESCRIBE";
                     sValue = "'" + sCategory + "',-1,'" + sDesc + "'";
                     str4 = _SqliteOpr.fillTable("FAMILYTABLE" + _sProjectPrefix, sColume, sValue, "");
                 }
-                var str5 = _SqliteOpr.getTableField("FAMILYTABLE" + _sProjectPrefix, "OBJECTID",
-                    "NAME == '" + sFamilyName + "'");
+                string str5 = _SqliteOpr.getTableField("FAMILYTABLE" + _sProjectPrefix, "OBJECTID", "NAME == '" + sFamilyName + "'");
                 if (string.IsNullOrEmpty(str5))
                 {
                     sColume = "NAME,PARENTID,DESCRIBE";
@@ -619,13 +602,12 @@ namespace BIM.Lmv.Revit.Helpers
                 sColume = "NAME,PARENTID,DESCRIBE";
                 sValue = "'" + sName + "'," + str5 + ",'" + sDesc + "'";
                 str = _SqliteOpr.fillTable("FAMILYTABLE" + _sProjectPrefix, sColume, sValue, "");
-                var tListData = new List<PropertyItem>();
+                List<PropertyItem> tListData = new List<PropertyItem>();
                 TLPropertyHelper.getParameterVar(Parameters, tListData, false);
-                foreach (var item in tListData)
+                foreach (PropertyItem item in tListData)
                 {
-                    var str6 = "SECTION,NAME,VALUE,UNIT,TYPE,FAMILYID";
-                    var str7 = "'" + item.Section + "','" + item.Name + "','" + item.Value + "','" + item.Unit + "'," +
-                               item.Type + "," + str;
+                    string str6 = "SECTION,NAME,VALUE,UNIT,TYPE,FAMILYID";
+                    string str7 = "'" + item.Section + "','" + item.Name + "','" + item.Value + "','" + item.Unit + "'," + item.Type + "," + str;
                     _SqliteOpr.fillTable("FMYITEMTABLE" + _sProjectPrefix, str6, str7, "");
                 }
             }
@@ -637,11 +619,11 @@ namespace BIM.Lmv.Revit.Helpers
 
         public static string WriteGeoInstanceItem(GeoBlockItem geoItemt)
         {
-            var str = "";
+            string str = "";
             try
             {
-                var sColume = "NAME,DESCRIBE,MESHIDS";
-                var sValue = "'" + geoItemt.Name + "','" + geoItemt.Desc + "','" + geoItemt.MeshIds + "'";
+                string sColume = "NAME,DESCRIBE,MESHIDS";
+                string sValue = "'" + geoItemt.Name + "','" + geoItemt.Desc + "','" + geoItemt.MeshIds + "'";
                 str = _SqliteOpr.fillTable("GEOBLOCK" + _sProjectPrefix, sColume, sValue, "");
             }
             catch (Exception)
@@ -652,12 +634,11 @@ namespace BIM.Lmv.Revit.Helpers
 
         public static string WriteGeoItem(GeoItem geoItemt)
         {
-            var str = "";
+            string str = "";
             try
             {
-                var sColume = "NAME,MATRIX,MESHIDS,BLOCKID,BOX,FAMILYID";
-                var sValue = "'" + geoItemt.Name + "','" + geoItemt.Matrix + "','" + geoItemt.MeshIds + "'," +
-                             geoItemt.BlockId + ",'" + geoItemt.Box + "'," + geoItemt.FamilyID;
+                string sColume = "NAME,MATRIX,MESHIDS,BLOCKID,BOX,FAMILYID";
+                string sValue = "'" + geoItemt.Name + "','" + geoItemt.Matrix + "','" + geoItemt.MeshIds + "'," + geoItemt.BlockId + ",'" + geoItemt.Box + "'," + geoItemt.FamilyID;
                 str = _SqliteOpr.fillTable("GEOTABLE" + _sProjectPrefix, sColume, sValue, "");
             }
             catch (Exception)
@@ -668,75 +649,66 @@ namespace BIM.Lmv.Revit.Helpers
 
         public static int WriteMaterial(MaterialInfo LmvItem, string key)
         {
-            var s = "";
+            string s = "";
             try
             {
-                var str2 = "-1";
-                var sFormat = "6408";
-                var sMagfilter = "9729";
-                var sMinfilter = "9987";
-                var sWraps = "10497";
-                var sWrapt = "10497";
+                string str2 = "-1";
+                string sFormat = "6408";
+                string sMagfilter = "9729";
+                string sMinfilter = "9987";
+                string sWraps = "10497";
+                string sWrapt = "10497";
                 if ((LmvItem.Textures != null) && (LmvItem.Textures.Count > 0))
                 {
-                    var num = 0;
-                    foreach (var info in LmvItem.Textures)
+                    int num = 0;
+                    foreach (TextureInfo info in LmvItem.Textures)
                     {
-                        if ((info.TextureFilePath != null) && !string.IsNullOrEmpty(info.TextureFilePath) &&
-                            File.Exists(info.TextureFilePath))
+                        if (((info.TextureFilePath != null) && !string.IsNullOrEmpty(info.TextureFilePath)) && System.IO.File.Exists(info.TextureFilePath))
                         {
-                            var textureTypeText = info.GetTextureTypeText();
-                            var sName = ++num + "_" + textureTypeText;
-                            var textureFilePath = info.TextureFilePath;
+                            string textureTypeText = info.GetTextureTypeText();
+                            string sName = ++num + "_" + textureTypeText;
+                            string textureFilePath = info.TextureFilePath;
                             textureFilePath = textureFilePath.Substring(textureFilePath.LastIndexOf('\\') + 1);
                             textureFilePath = textureFilePath.Substring(textureFilePath.LastIndexOf('/') + 1);
-                            var str11 = Guid.NewGuid().ToString();
-                            var item = new TexturesItem(sName, sFormat, sMagfilter, sMinfilter, sWraps, sWrapt,
-                                textureFilePath);
-                            var str12 = "NAME,FORMAT,MAGFILTER,MINFILTER,WRAPS,WRAPT,IMAGENAME,TEXIMGID";
-                            var str13 = "'" + item.Name + "'," + item.Format + "," + item.Magfilter + "," +
-                                        item.Minfilter + "," + item.Wraps + "," + item.Wrapt + ",'" + item.Imagename +
-                                        "','" + str11 + "'";
+                            string str11 = Guid.NewGuid().ToString();
+                            TexturesItem item = new TexturesItem(sName, sFormat, sMagfilter, sMinfilter, sWraps, sWrapt, textureFilePath);
+                            string str12 = "NAME,FORMAT,MAGFILTER,MINFILTER,WRAPS,WRAPT,IMAGENAME,TEXIMGID";
+                            string str13 = "'" + item.Name + "'," + item.Format + "," + item.Magfilter + "," + item.Minfilter + "," + item.Wraps + "," + item.Wrapt + ",'" + item.Imagename + "','" + str11 + "'";
                             str2 = _SqliteOpr.fillTable("TEXTURES" + _sProjectPrefix, str12, str13, "");
-                            var str14 = "OBJGUID";
-                            var str15 = "'" + str11 + "'";
-                            var sObjectId = _SqliteOpr.fillTable("TEXIMG" + _sProjectPrefix, str14, str15, "");
-                            var bytes = Encoding.Default.GetBytes("b!@tl&kkkf&ig!le");
-                            _SqliteOpr.fillTableblob("TEXIMG" + _sProjectPrefix, sObjectId, "CONTENT", bytes);
+                            byte[] bArray = System.IO.File.ReadAllBytes(info.TextureFilePath);
+                            string str14 = "OBJGUID";
+                            string str15 = "'" + str11 + "'";
+                            string sObjectId = _SqliteOpr.fillTable("TEXIMG" + _sProjectPrefix, str14, str15, "");
+                            _SqliteOpr.fillTableblob("TEXIMG" + _sProjectPrefix, sObjectId, "CONTENT", bArray);
                             break;
                         }
                     }
                 }
-                var sAmbient = " ";
-                var sEmission = " ";
-                var sShininess = " ";
-                var sSpecular = " ";
-                var sDiffuse = " ";
+                string sAmbient = " ";
+                string sEmission = " ";
+                string sShininess = " ";
+                string sSpecular = " ";
+                string sDiffuse = " ";
                 if (LmvItem.Ambient != null)
                 {
-                    sAmbient = string.Format("{0:F},{1:F},{2:F},1.0", LmvItem.Ambient.x, LmvItem.Ambient.y,
-                        LmvItem.Ambient.z);
+                    sAmbient = $"{LmvItem.Ambient.x:F},{LmvItem.Ambient.y:F},{LmvItem.Ambient.z:F},1.0";
                 }
                 if (LmvItem.Emissive != null)
                 {
-                    sEmission = string.Format("{0:F},{1:F},{2:F},1.0", LmvItem.Emissive.x, LmvItem.Emissive.y,
-                        LmvItem.Emissive.z);
+                    sEmission = $"{LmvItem.Emissive.x:F},{LmvItem.Emissive.y:F},{LmvItem.Emissive.z:F},1.0";
                 }
-                sShininess = string.Format("{0:F}", LmvItem.Shininess);
+                sShininess = $"{LmvItem.Shininess:F}";
                 if (LmvItem.Specular != null)
                 {
-                    sSpecular = string.Format("{0:F},{1:F},{2:F},1.0", LmvItem.Specular.x, LmvItem.Specular.y,
-                        LmvItem.Specular.z);
+                    sSpecular = $"{LmvItem.Specular.x:F},{LmvItem.Specular.y:F},{LmvItem.Specular.z:F},1.0";
                 }
                 if (LmvItem.Color != null)
                 {
-                    sDiffuse = string.Format("{0:F},{1:F},{2:F},1.0", LmvItem.Color.x, LmvItem.Color.y, LmvItem.Color.z);
+                    sDiffuse = $"{LmvItem.Color.x:F},{LmvItem.Color.y:F},{LmvItem.Color.z:F},1.0";
                 }
-                var item2 = new MaterialItem(key, " ", sAmbient, sEmission, sShininess, sSpecular, sDiffuse,
-                    str2);
-                var sColume = "NAME,AMBIENT,EMISSION,SHININESS,SPECULAR,DIFFUSE,TEXTURE_1";
-                var sValue = "'" + item2.Name + "','" + item2.Ambient + "','" + item2.Emission + "','" +
-                             item2.Shininess + "','" + item2.Specular + "','" + item2.Diffuse + "'," + item2.Texture1;
+                MaterialItem item2 = new MaterialItem(key, " ", sAmbient, sEmission, sShininess, sSpecular, sDiffuse, str2);
+                string sColume = "NAME,AMBIENT,EMISSION,SHININESS,SPECULAR,DIFFUSE,TEXTURE_1";
+                string sValue = "'" + item2.Name + "','" + item2.Ambient + "','" + item2.Emission + "','" + item2.Shininess + "','" + item2.Specular + "','" + item2.Diffuse + "'," + item2.Texture1;
                 s = _SqliteOpr.fillTable("MATERIALTABLE" + _sProjectPrefix, sColume, sValue, "");
             }
             catch (Exception)
@@ -746,3 +718,4 @@ namespace BIM.Lmv.Revit.Helpers
         }
     }
 }
+

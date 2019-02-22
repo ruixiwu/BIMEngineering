@@ -1,12 +1,13 @@
-﻿using System;
-using System.IO;
-using System.Security.Cryptography;
-using System.Text;
-using BIM.Lmv.Revit.Utility;
-using Newtonsoft.Json;
-
-namespace BIM.Lmv.Revit.Config
+﻿namespace BIM.Lmv.Revit.Config
 {
+    using BIM.Lmv.Revit.Utility;
+    using Newtonsoft.Json;
+    using System;
+    using System.IO;
+    using System.Runtime.CompilerServices;
+    using System.Security.Cryptography;
+    using System.Text;
+
     internal static class AppConfigManager
     {
         private const string FILE_NAME = "BIM.Lmv.Revit.cfg";
@@ -18,22 +19,17 @@ namespace BIM.Lmv.Revit.Config
             AppConfig config2;
             try
             {
-                var provider = new DESCryptoServiceProvider
-                {
+                DESCryptoServiceProvider provider = new DESCryptoServiceProvider {
                     Key = Encoding.ASCII.GetBytes("fukgdgf#"),
                     IV = Encoding.ASCII.GetBytes("349kj*&(")
                 };
-                using (
-                    var stream = new FileStream(AppHelper.GetPath("BIM.Lmv.Revit.cfg"), FileMode.Open,
-                        FileAccess.Read))
+                using (FileStream stream = new FileStream(AppHelper.GetPath("BIM.Lmv.Revit.cfg"), FileMode.Open, FileAccess.Read))
                 {
-                    using (
-                        var stream2 = new CryptoStream(stream, provider.CreateDecryptor(),
-                            CryptoStreamMode.Read))
+                    using (CryptoStream stream2 = new CryptoStream(stream, provider.CreateDecryptor(), CryptoStreamMode.Read))
                     {
-                        using (var reader = new StreamReader(stream2, Encoding.UTF8))
+                        using (StreamReader reader = new StreamReader(stream2, Encoding.UTF8))
                         {
-                            var config = JsonConvert.DeserializeObject<AppConfig>(reader.ReadToEnd());
+                            AppConfig config = JsonConvert.DeserializeObject<AppConfig>(reader.ReadToEnd());
                             if (config.Local == null)
                             {
                                 config.Local = new AppLocalConfig();
@@ -63,22 +59,17 @@ namespace BIM.Lmv.Revit.Config
             bool flag;
             try
             {
-                var provider = new DESCryptoServiceProvider
-                {
+                DESCryptoServiceProvider provider = new DESCryptoServiceProvider {
                     Key = Encoding.ASCII.GetBytes("fukgdgf#"),
                     IV = Encoding.ASCII.GetBytes("349kj*&(")
                 };
-                using (
-                    var stream = new FileStream(AppHelper.GetPath("BIM.Lmv.Revit.cfg"), FileMode.Create,
-                        FileAccess.Write))
+                using (FileStream stream = new FileStream(AppHelper.GetPath("BIM.Lmv.Revit.cfg"), FileMode.Create, FileAccess.Write))
                 {
-                    using (
-                        var stream2 = new CryptoStream(stream, provider.CreateEncryptor(),
-                            CryptoStreamMode.Write))
+                    using (CryptoStream stream2 = new CryptoStream(stream, provider.CreateEncryptor(), CryptoStreamMode.Write))
                     {
-                        using (var writer = new StreamWriter(stream2, Encoding.UTF8))
+                        using (StreamWriter writer = new StreamWriter(stream2, Encoding.UTF8))
                         {
-                            var str2 = JsonConvert.SerializeObject(config);
+                            string str2 = JsonConvert.SerializeObject(config);
                             writer.Write(str2);
                             writer.Flush();
                         }
@@ -94,3 +85,4 @@ namespace BIM.Lmv.Revit.Config
         }
     }
 }
+

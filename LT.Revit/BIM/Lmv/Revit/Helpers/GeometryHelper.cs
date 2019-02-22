@@ -1,10 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using Autodesk.Revit.DB;
-
-namespace BIM.Lmv.Revit.Helpers
+﻿namespace BIM.Lmv.Revit.Helpers
 {
+    using Autodesk.Revit.DB;
+    using BIM.Lmv;
+    using System;
+    using System.Collections.Generic;
+    using System.Linq;
+    using System.Runtime.InteropServices;
+
     internal class GeometryHelper
     {
         private readonly GeometryBuffer _Buffer;
@@ -16,97 +18,92 @@ namespace BIM.Lmv.Revit.Helpers
             {
                 throw new ArgumentNullException("exporter");
             }
-            _Exporter = exporter;
-            _Buffer = new GeometryBuffer(0xffff);
+            this._Exporter = exporter;
+            this._Buffer = new GeometryBuffer(0xffff);
         }
 
         private Mesh GetMeshFromRPC(Element element)
         {
-            var instance =
-                element.get_Geometry(new Options()).FirstOrDefault(x => x is GeometryInstance) as
-                    GeometryInstance;
+            GeometryInstance instance = element.get_Geometry(new Options()).FirstOrDefault<GeometryObject>(x => (x is GeometryInstance)) as GeometryInstance;
             if (instance == null)
             {
                 return null;
             }
-            return instance.SymbolGeometry.FirstOrDefault(x => x is Mesh) as Mesh;
+            return (instance.SymbolGeometry.FirstOrDefault<GeometryObject>(x => (x is Mesh)) as Mesh);
         }
 
         public void OnPolymesh(PolymeshTopology node)
         {
-            _Buffer.OnPolymesh(node);
-            _Exporter.OnGeometry(_Buffer.vertexCount, _Buffer.triangleCount, _Buffer.hasNormal,
-                _Buffer.vertex, _Buffer.indices, _Buffer.normals, _Buffer.uvs);
+            this._Buffer.OnPolymesh(node);
+            this._Exporter.OnGeometry(this._Buffer.vertexCount, this._Buffer.triangleCount, this._Buffer.hasNormal, this._Buffer.vertex, this._Buffer.indices, this._Buffer.normals, this._Buffer.uvs);
         }
 
         public void OnRPC(Element element)
         {
-            var meshFromRPC = GetMeshFromRPC(element);
+            Mesh meshFromRPC = this.GetMeshFromRPC(element);
             if (meshFromRPC != null)
             {
-                _Buffer.OnMesh(meshFromRPC);
-                _Exporter.OnGeometry(_Buffer.vertexCount, _Buffer.triangleCount, _Buffer.hasNormal,
-                    _Buffer.vertex, _Buffer.indices, _Buffer.normals, _Buffer.uvs);
+                this._Buffer.OnMesh(meshFromRPC);
+                this._Exporter.OnGeometry(this._Buffer.vertexCount, this._Buffer.triangleCount, this._Buffer.hasNormal, this._Buffer.vertex, this._Buffer.indices, this._Buffer.normals, this._Buffer.uvs);
             }
         }
 
         private class GeometryBuffer
         {
-            public readonly int Limit;
             public bool hasNormal;
-            public readonly int[] indices;
-            public readonly float[] normals;
+            public int[] indices;
+            public readonly int Limit;
+            public float[] normals;
             public int triangleCount;
-            public readonly float[] uvs;
-            public readonly float[] vertex;
+            public float[] uvs;
+            public float[] vertex;
             public int vertexCount;
 
             public GeometryBuffer(int limit = 0xffff)
             {
-                Limit = limit;
-                vertex = new float[Limit*3];
-                indices = new int[Limit*3];
-                normals = new float[Limit*3];
-                uvs = new float[Limit*2];
+                this.Limit = limit;
+                this.vertex = new float[this.Limit * 3];
+                this.indices = new int[this.Limit * 3];
+                this.normals = new float[this.Limit * 3];
+                this.uvs = new float[this.Limit * 2];
             }
 
             public void OnMesh(Mesh mesh)
             {
-                vertexCount = mesh.Vertices.Count;
-                if (vertexCount > Limit)
+                this.vertexCount = mesh.Vertices.Count;
+                if (this.vertexCount > this.Limit)
                 {
-                    throw new NotSupportedException("VertexCount: " + vertexCount);
+                    throw new NotSupportedException("VertexCount: " + this.vertexCount);
                 }
-                var num = 0;
-                foreach (var xyz in mesh.Vertices)
+                int num = 0;
+                foreach (XYZ xyz in mesh.Vertices)
                 {
-                    vertex[num*3] = (float) xyz.X;
-                    vertex[num*3 + 1] = (float) xyz.Y;
-                    vertex[num*3 + 2] = (float) xyz.Z;
+                    this.vertex[num * 3] = (float) xyz.X;
+                    this.vertex[(num * 3) + 1] = (float) xyz.Y;
+                    this.vertex[(num * 3) + 2] = (float) xyz.Z;
                     num++;
                 }
-                triangleCount = mesh.NumTriangles;
-                if (triangleCount > Limit)
+                this.triangleCount = mesh.NumTriangles;
+                if (this.triangleCount > this.Limit)
                 {
-                    throw new NotSupportedException("TriangleCount: " + triangleCount);
+                    throw new NotSupportedException("TriangleCount: " + this.triangleCount);
                 }
-                for (var i = 0; i < mesh.NumTriangles; i++)
+                for (int i = 0; i < mesh.NumTriangles; i++)
                 {
-                    var triangle = mesh.get_Triangle(i);
-                    indices[i*3] = (int) triangle.get_Index(0);
-                    indices[i*3 + 1] = (int) triangle.get_Index(1);
-                    indices[i*3 + 2] = (int) triangle.get_Index(2);
+                    MeshTriangle triangle = mesh.get_Triangle(i);
+                    this.indices[i * 3] = (int) triangle.get_Index(0);
+                    this.indices[(i * 3) + 1] = (int) triangle.get_Index(1);
+                    this.indices[(i * 3) + 2] = (int) triangle.get_Index(2);
                 }
-                hasNormal = true;
-                var normals =
-                    new NormalCalculator(mesh.Vertices, indices, mesh.NumTriangles).GetNormals();
+                this.hasNormal = true;
+                float[] normals = new GeometryHelper.NormalCalculator(mesh.Vertices, this.indices, mesh.NumTriangles).GetNormals();
                 if (normals == null)
                 {
-                    for (var j = 0; j < vertexCount; j++)
+                    for (int j = 0; j < this.vertexCount; j++)
                     {
-                        this.normals[j*3] = 1f;
-                        this.normals[j*3 + 1] = 1f;
-                        this.normals[j*3 + 2] = 1f;
+                        this.normals[j * 3] = 1f;
+                        this.normals[(j * 3) + 1] = 1f;
+                        this.normals[(j * 3) + 2] = 1f;
                     }
                 }
                 else
@@ -117,74 +114,74 @@ namespace BIM.Lmv.Revit.Helpers
 
             public void OnPolymesh(PolymeshTopology node)
             {
-                vertexCount = node.NumberOfPoints;
-                if (vertexCount > Limit)
+                this.vertexCount = node.NumberOfPoints;
+                if (this.vertexCount > this.Limit)
                 {
-                    throw new NotSupportedException("VertexCount: " + vertexCount);
+                    throw new NotSupportedException("VertexCount: " + this.vertexCount);
                 }
-                var num = 0;
-                foreach (var xyz in node.GetPoints())
+                int num = 0;
+                foreach (XYZ xyz in node.GetPoints())
                 {
-                    vertex[num*3] = (float) xyz.X;
-                    vertex[num*3 + 1] = (float) xyz.Y;
-                    vertex[num*3 + 2] = (float) xyz.Z;
+                    this.vertex[num * 3] = (float) xyz.X;
+                    this.vertex[(num * 3) + 1] = (float) xyz.Y;
+                    this.vertex[(num * 3) + 2] = (float) xyz.Z;
                     num++;
                 }
-                triangleCount = node.NumberOfFacets;
-                var num2 = 0;
-                foreach (var facet in node.GetFacets())
+                this.triangleCount = node.NumberOfFacets;
+                int num2 = 0;
+                foreach (PolymeshFacet facet in node.GetFacets())
                 {
-                    indices[num2*3] = facet.V1;
-                    indices[num2*3 + 1] = facet.V2;
-                    indices[num2*3 + 2] = facet.V3;
+                    this.indices[num2 * 3] = facet.V1;
+                    this.indices[(num2 * 3) + 1] = facet.V2;
+                    this.indices[(num2 * 3) + 2] = facet.V3;
                     num2++;
                 }
-                hasNormal = true;
+                this.hasNormal = true;
                 switch (node.DistributionOfNormals)
                 {
                     case DistributionOfNormals.AtEachPoint:
                     {
-                        var num3 = 0;
-                        foreach (var xyz2 in node.GetNormals())
+                        int num3 = 0;
+                        foreach (XYZ xyz2 in node.GetNormals())
                         {
-                            normals[num3*3] = (float) xyz2.X;
-                            normals[num3*3 + 1] = (float) xyz2.Y;
-                            normals[num3*3 + 2] = (float) xyz2.Z;
+                            this.normals[num3 * 3] = (float) xyz2.X;
+                            this.normals[(num3 * 3) + 1] = (float) xyz2.Y;
+                            this.normals[(num3 * 3) + 2] = (float) xyz2.Z;
                             num3++;
                         }
                         break;
                     }
                     case DistributionOfNormals.OnePerFace:
                     {
-                        var normal = node.GetNormal(0);
-                        for (var i = 0; i < vertexCount; i++)
+                        XYZ normal = node.GetNormal(0);
+                        for (int i = 0; i < this.vertexCount; i++)
                         {
-                            normals[i*3] = (float) normal.X;
-                            normals[i*3 + 1] = (float) normal.Y;
-                            normals[i*3 + 2] = (float) normal.Z;
+                            this.normals[i * 3] = (float) normal.X;
+                            this.normals[(i * 3) + 1] = (float) normal.Y;
+                            this.normals[(i * 3) + 2] = (float) normal.Z;
                         }
                         break;
                     }
                     case DistributionOfNormals.OnEachFacet:
                     {
-                        var num5 = 0;
-                        foreach (var xyz4 in node.GetNormals())
+                        int num5 = 0;
+                        foreach (XYZ xyz4 in node.GetNormals())
                         {
-                            var x = (float) xyz4.X;
-                            var y = (float) xyz4.Y;
-                            var z = (float) xyz4.Z;
-                            var num9 = indices[num5*3];
-                            var num10 = indices[num5*3 + 1];
-                            var num11 = indices[num5*3 + 2];
-                            normals[num9*3] = x;
-                            normals[num9*3 + 1] = y;
-                            normals[num9*3 + 2] = z;
-                            normals[num10*3] = x;
-                            normals[num10*3 + 1] = y;
-                            normals[num10*3 + 2] = z;
-                            normals[num11*3] = x;
-                            normals[num11*3 + 1] = y;
-                            normals[num11*3 + 2] = z;
+                            float x = (float) xyz4.X;
+                            float y = (float) xyz4.Y;
+                            float z = (float) xyz4.Z;
+                            int num9 = this.indices[num5 * 3];
+                            int num10 = this.indices[(num5 * 3) + 1];
+                            int num11 = this.indices[(num5 * 3) + 2];
+                            this.normals[num9 * 3] = x;
+                            this.normals[(num9 * 3) + 1] = y;
+                            this.normals[(num9 * 3) + 2] = z;
+                            this.normals[num10 * 3] = x;
+                            this.normals[(num10 * 3) + 1] = y;
+                            this.normals[(num10 * 3) + 2] = z;
+                            this.normals[num11 * 3] = x;
+                            this.normals[(num11 * 3) + 1] = y;
+                            this.normals[(num11 * 3) + 2] = z;
                             num5++;
                         }
                         break;
@@ -194,11 +191,11 @@ namespace BIM.Lmv.Revit.Helpers
                 }
                 if (node.NumberOfUVs > 0)
                 {
-                    var num12 = 0;
-                    foreach (var uv in node.GetUVs())
+                    int num12 = 0;
+                    foreach (UV uv in node.GetUVs())
                     {
-                        uvs[num12*2] = (float) uv.U;
-                        uvs[num12*2 + 1] = (float) uv.V;
+                        this.uvs[num12 * 2] = (float) uv.U;
+                        this.uvs[(num12 * 2) + 1] = (float) uv.V;
                         num12++;
                     }
                 }
@@ -207,72 +204,64 @@ namespace BIM.Lmv.Revit.Helpers
 
         private class NormalCalculator
         {
-            private readonly int[] _Indices;
-            private readonly int _IndicesCount;
-            private readonly IList<XYZ> _Verticles;
+            private int[] _Indices;
+            private int _IndicesCount;
+            private IList<XYZ> _Verticles;
 
             public NormalCalculator(IList<XYZ> verticles, int[] indices, int indicesCount)
             {
-                _Verticles = verticles;
-                _Indices = indices;
-                _IndicesCount = indicesCount;
+                this._Verticles = verticles;
+                this._Indices = indices;
+                this._IndicesCount = indicesCount;
             }
 
-            private XYZ GetMeshNormal(XYZ p1, XYZ p2, XYZ p3)
-            {
-                return (p2 - p1).CrossProduct(p3 - p1);
-            }
+            private XYZ GetMeshNormal(XYZ p1, XYZ p2, XYZ p3) => 
+                ((p2 - p1)).CrossProduct(p3 - p1);
 
             public float[] GetNormals()
             {
-                if ((_Verticles == null) || (_Verticles.Count < 1) || (_Indices.Length < 1))
+                if (((this._Verticles == null) || (this._Verticles.Count < 1)) || (this._Indices.Length < 1))
                 {
                     return null;
                 }
-                if (_Indices.Length%3 != 0)
+                if ((this._Indices.Length % 3) != 0)
                 {
                     return null;
                 }
                 try
                 {
-                    var numArray = new float[_Verticles.Count*3];
-                    var numArray2 = new int[_IndicesCount, 3];
-                    for (var i = 0L; i < _IndicesCount; i += 1L)
+                    float[] numArray = new float[this._Verticles.Count * 3];
+                    int[,] numArray2 = new int[this._IndicesCount, 3];
+                    for (long i = 0L; i < this._IndicesCount; i += 1L)
                     {
-                        numArray2[(int) (IntPtr) i, (int) (IntPtr) 0L] = _Indices[(int) (IntPtr) (i*3L)];
-                        numArray2[(int) (IntPtr) i, (int) (IntPtr) 1L] =
-                            _Indices[(int) (IntPtr) (i*3L + 1L)];
-                        numArray2[(int) (IntPtr) i, (int) (IntPtr) 2L] =
-                            _Indices[(int) (IntPtr) (i*3L + 2L)];
+                        numArray2[(int) ((IntPtr) i), (int) ((IntPtr) 0L)] = this._Indices[(int) ((IntPtr) (i * 3L))];
+                        numArray2[(int) ((IntPtr) i), (int) ((IntPtr) 1L)] = this._Indices[(int) ((IntPtr) ((i * 3L) + 1L))];
+                        numArray2[(int) ((IntPtr) i), (int) ((IntPtr) 2L)] = this._Indices[(int) ((IntPtr) ((i * 3L) + 2L))];
                     }
-                    var numArray3 = new int[_Verticles.Count][];
-                    for (var j = 0; j < _Verticles.Count; j++)
+                    int[][] numArray3 = new int[this._Verticles.Count][];
+                    for (int j = 0; j < this._Verticles.Count; j++)
                     {
-                        var list = new List<int>();
-                        for (var m = 0; m < numArray2.Length/3; m++)
+                        List<int> list = new List<int>();
+                        for (int m = 0; m < (numArray2.Length / 3); m++)
                         {
-                            if ((j == numArray2[m, 0]) || (j == numArray2[m, 1]) || (j == numArray2[m, 2]))
+                            if (((j == numArray2[m, 0]) || (j == numArray2[m, 1])) || (j == numArray2[m, 2]))
                             {
                                 list.Add(m);
                             }
                         }
                         numArray3[j] = list.ToArray();
                     }
-                    for (var k = 0; k < _Verticles.Count; k++)
+                    for (int k = 0; k < this._Verticles.Count; k++)
                     {
-                        var xyz = new XYZ(0.0, 0.0, 0.0);
-                        for (var n = 0L; n < numArray3[k].Length; n += 1L)
+                        XYZ xyz = new XYZ(0.0, 0.0, 0.0);
+                        for (long n = 0L; n < numArray3[k].Length; n += 1L)
                         {
-                            xyz +=
-                                GetMeshNormal(
-                                    _Verticles[Convert.ToInt32(numArray2[numArray3[k][(int) (IntPtr) n], 0])],
-                                    _Verticles[Convert.ToInt32(numArray2[numArray3[k][(int) (IntPtr) n], 1])],
-                                    _Verticles[Convert.ToInt32(numArray2[numArray3[k][(int) (IntPtr) n], 2])]);
+                            xyz += this.GetMeshNormal(this._Verticles[Convert.ToInt32(numArray2[numArray3[k][(int) ((IntPtr) n)], 0])], this._Verticles[Convert.ToInt32(numArray2[numArray3[k][(int) ((IntPtr) n)], 1])], this._Verticles[Convert.ToInt32(numArray2[numArray3[k][(int) ((IntPtr) n)], 2])]);
                         }
-                        var xyz2 = xyz.Normalize();
-                        numArray[k*3] = (float) xyz2.X;
-                        numArray[k*3 + 1] = (float) xyz2.Y;
-                        numArray[k*3 + 2] = (float) xyz2.Z;
+                        XYZ xyz2 = xyz.Normalize();
+                        numArray[k * 3] = (float) xyz2.X;
+                        numArray[(k * 3) + 1] = (float) xyz2.Y;
+                        numArray[(k * 3) + 2] = (float) xyz2.Z;
                     }
                     return numArray;
                 }
@@ -284,3 +273,4 @@ namespace BIM.Lmv.Revit.Helpers
         }
     }
 }
+

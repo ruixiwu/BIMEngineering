@@ -1,13 +1,15 @@
-﻿using System.IO;
-
-namespace BIM.Lmv.Types
+﻿namespace BIM.Lmv.Types
 {
+    using System;
+    using System.IO;
+    using System.Runtime.CompilerServices;
+
     public class ExportOption
     {
         public ExportOption()
         {
-            Target = ExportTarget.LocalPackage;
-            OutputStream = null;
+            this.Target = ExportTarget.LocalPackage;
+            this.OutputStream = null;
         }
 
         public Stream OutputStream { get; set; }
@@ -15,3 +17,4 @@ namespace BIM.Lmv.Types
         public ExportTarget Target { get; set; }
     }
 }
+

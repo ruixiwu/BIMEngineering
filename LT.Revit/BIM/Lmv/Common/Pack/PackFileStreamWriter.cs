@@ -1,77 +1,76 @@
-﻿using System;
-using System.IO;
-using BIM.Lmv.Common.TypeArray;
-using BIM.Lmv.Content.Geometry.Types;
-
-namespace BIM.Lmv.Common.Pack
+﻿namespace BIM.Lmv.Common.Pack
 {
+    using BIM.Lmv.Common.TypeArray;
+    using BIM.Lmv.Content.Geometry.Types;
+    using System;
+    using System.IO;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
+
     internal class PackFileStreamWriter : IDisposable
     {
         public PackFileStreamWriter(Stream memoryStream)
         {
-            stream = new PackFileStream(memoryStream);
+            this.stream = new PackFileStream(memoryStream);
         }
-
-        public PackFileStream stream { get; private set; }
 
         public void Dispose()
         {
-            if (stream != null)
+            if (this.stream != null)
             {
-                stream = null;
+                this.stream = null;
             }
         }
 
         public Box3F ReadBox3F()
         {
-            var min = ReadVector3F();
-            return new Box3F(min, ReadVector3F());
+            Vector3F min = this.ReadVector3F();
+            return new Box3F(min, this.ReadVector3F());
         }
 
         public void ReadMatrix3F(Matrix4F m)
         {
-            var matrixf = m;
+            Matrix4F matrixf = m;
             matrixf.identity();
-            for (var i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
-                for (var j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
-                    matrixf.elements[4*i + j] = stream.getFloat32();
+                    matrixf.elements[(4 * i) + j] = this.stream.getFloat32();
                 }
             }
         }
 
         public Vector4F ReadQuaternionF()
         {
-            var x = stream.getFloat32();
-            var y = stream.getFloat32();
-            var z = stream.getFloat32();
-            return new Vector4F(x, y, z, stream.getFloat32());
+            float x = this.stream.getFloat32();
+            float y = this.stream.getFloat32();
+            float z = this.stream.getFloat32();
+            return new Vector4F(x, y, z, this.stream.getFloat32());
         }
 
         public string readString()
         {
-            var len = readU32V();
-            return stream.getString(len);
+            int len = this.readU32V();
+            return this.stream.getString(len);
         }
 
-        public Matrix4F readTransform(int entityIndex = -1, Float32Array buffer = null, int offset = 0,
-            Vector3F globalOffset = null)
+        public Matrix4F readTransform(int entityIndex = -1, Float32Array buffer = null, int offset = 0, Vector3F globalOffset = null)
         {
             Vector4F vectorf2;
             Vector3F vectorf3;
-            var scale = new Vector3F(1f, 1f, 1f);
-            var m = new Matrix4F();
-            switch (stream.getUint8())
+            Vector3F scale = new Vector3F(1f, 1f, 1f);
+            Matrix4F m = new Matrix4F();
+            switch (this.stream.getUint8())
             {
                 case 0:
-                    vectorf3 = (Vector3F) ReadVector3D(globalOffset);
+                    vectorf3 = (Vector3F) this.ReadVector3D(globalOffset);
                     m.makeTranslation(vectorf3.x, vectorf3.y, vectorf3.z);
                     break;
 
                 case 1:
-                    vectorf2 = ReadQuaternionF();
-                    vectorf3 = (Vector3F) ReadVector3D(globalOffset);
+                    vectorf2 = this.ReadQuaternionF();
+                    vectorf3 = (Vector3F) this.ReadVector3D(globalOffset);
                     scale.x = 1f;
                     scale.y = 1f;
                     scale.z = 1f;
@@ -80,9 +79,9 @@ namespace BIM.Lmv.Common.Pack
 
                 case 2:
                 {
-                    var num2 = stream.getFloat32();
-                    vectorf2 = ReadQuaternionF();
-                    vectorf3 = (Vector3F) ReadVector3D(globalOffset);
+                    float num2 = this.stream.getFloat32();
+                    vectorf2 = this.ReadQuaternionF();
+                    vectorf3 = (Vector3F) this.ReadVector3D(globalOffset);
                     scale.x = num2;
                     scale.y = num2;
                     scale.z = num2;
@@ -90,8 +89,8 @@ namespace BIM.Lmv.Common.Pack
                     break;
                 }
                 case 3:
-                    ReadMatrix3F(m);
-                    vectorf3 = (Vector3F) ReadVector3D(globalOffset);
+                    this.ReadMatrix3F(m);
+                    vectorf3 = (Vector3F) this.ReadVector3D(globalOffset);
                     m.setPosition(vectorf3);
                     break;
 
@@ -112,7 +111,7 @@ namespace BIM.Lmv.Common.Pack
             {
                 if (buffer != null)
                 {
-                    var elements = m.elements;
+                    float[] elements = m.elements;
                     buffer[offset] = elements[0];
                     buffer[offset + 1] = elements[1];
                     buffer[offset + 2] = elements[2];
@@ -131,32 +130,24 @@ namespace BIM.Lmv.Common.Pack
             return m;
         }
 
-        public ushort ReadU16()
-        {
-            return stream.getUint16();
-        }
+        public ushort ReadU16() => 
+            this.stream.getUint16();
 
-        public int readU32V()
-        {
-            return ReadVarint();
-        }
+        public int readU32V() => 
+            this.ReadVarint();
 
-        public byte readU8()
-        {
-            return stream.getUint8();
-        }
+        public byte readU8() => 
+            this.stream.getUint8();
 
-        public int ReadVarint()
-        {
-            return stream.GetVarints();
-        }
+        public int ReadVarint() => 
+            this.stream.GetVarints();
 
         public Vector3D ReadVector3D(Vector3D globalOffset)
         {
-            var x = stream.getFloat64();
-            var y = stream.getFloat64();
-            var z = stream.getFloat64();
-            var vectord = new Vector3D(x, y, z);
+            double x = this.stream.getFloat64();
+            double y = this.stream.getFloat64();
+            double z = this.stream.getFloat64();
+            Vector3D vectord = new Vector3D(x, y, z);
             if (globalOffset != null)
             {
                 vectord.x -= globalOffset.x;
@@ -166,31 +157,29 @@ namespace BIM.Lmv.Common.Pack
             return vectord;
         }
 
-        public Vector3D ReadVector3D(Vector3F globalOffset)
-        {
-            return ReadVector3D((Vector3D) globalOffset);
-        }
+        public Vector3D ReadVector3D(Vector3F globalOffset) => 
+            this.ReadVector3D((Vector3D) globalOffset);
 
         public Vector3F ReadVector3F()
         {
-            var x = stream.getFloat32();
-            var y = stream.getFloat32();
-            return new Vector3F(x, y, stream.getFloat32());
+            float x = this.stream.getFloat32();
+            float y = this.stream.getFloat32();
+            return new Vector3F(x, y, this.stream.getFloat32());
         }
 
         public void WriteBox3F(Box3F value)
         {
-            WriteVector3F(value.min);
-            WriteVector3F(value.max);
+            this.WriteVector3F(value.min);
+            this.WriteVector3F(value.max);
         }
 
         public void WriteMatrix3F(Matrix4F value)
         {
-            for (var i = 0; i < 3; i++)
+            for (int i = 0; i < 3; i++)
             {
-                for (var j = 0; j < 3; j++)
+                for (int j = 0; j < 3; j++)
                 {
-                    stream.Write(value.elements[4*i + j]);
+                    this.stream.Write(value.elements[(4 * i) + j]);
                 }
             }
         }
@@ -209,98 +198,101 @@ namespace BIM.Lmv.Common.Pack
             }
             else
             {
-                strArray = pathId.Split('/');
+                strArray = pathId.Split(new char[] { '/' });
                 length = (uint) strArray.Length;
             }
-            WriteU32V(length);
+            this.WriteU32V(length);
             if ((strArray != null) && (strArray.Length > 0))
             {
-                foreach (var str in strArray)
+                foreach (string str in strArray)
                 {
-                    var n = uint.Parse(str);
-                    WriteU32V(n);
+                    uint n = uint.Parse(str);
+                    this.WriteU32V(n);
                 }
             }
         }
 
         public void WriteQuaternionF(Vector4F value)
         {
-            stream.Write(value.x);
-            stream.Write(value.y);
-            stream.Write(value.z);
-            stream.Write(value.w);
+            this.stream.Write(value.x);
+            this.stream.Write(value.y);
+            this.stream.Write(value.z);
+            this.stream.Write(value.w);
         }
 
         public void WriteString(string s)
         {
-            WriteU32V((uint) s.Length);
-            stream.WriteStringWithoutLength(s);
+            this.WriteU32V((uint) s.Length);
+            this.stream.WriteStringWithoutLength(s);
         }
 
         public void WriteTransformAffineMatrix(Matrix4F m, Vector3D t)
         {
-            stream.Write((byte) 3);
-            WriteMatrix3F(m);
-            WriteVector3D(t);
+            this.stream.Write((byte) 3);
+            this.WriteMatrix3F(m);
+            this.WriteVector3D(t);
         }
 
         public void WriteTransformIdentity()
         {
-            stream.Write((byte) 4);
+            this.stream.Write((byte) 4);
         }
 
         public void WriteTransformRotationTranslation(Vector4F vector)
         {
-            stream.Write((byte) 1);
-            WriteQuaternionF(vector);
+            this.stream.Write((byte) 1);
+            this.WriteQuaternionF(vector);
         }
 
         public void WriteTransformTranslation(Vector3D vector)
         {
-            stream.Write((byte) 0);
-            WriteVector3D(vector);
+            this.stream.Write((byte) 0);
+            this.WriteVector3D(vector);
         }
 
         public void WriteTransformUniformScaleRotationTranslation(float scale, Vector4F q, Vector3D t)
         {
-            stream.Write((byte) 2);
-            stream.Write(scale);
-            WriteQuaternionF(q);
-            WriteVector3D(t);
+            this.stream.Write((byte) 2);
+            this.stream.Write(scale);
+            this.WriteQuaternionF(q);
+            this.WriteVector3D(t);
         }
 
         public void WriteU16(ushort n)
         {
-            stream.Write(n);
+            this.stream.Write(n);
         }
 
         public void WriteU32V(uint n)
         {
-            WriteVarint(n);
+            this.WriteVarint(n);
         }
 
         public void WriteU8(byte n)
         {
-            stream.Write(n);
+            this.stream.Write(n);
         }
 
         public void WriteVarint(uint n)
         {
-            stream.WriteVarints(n);
+            this.stream.WriteVarints(n);
         }
 
         public void WriteVector3D(Vector3D value)
         {
-            stream.Write(value.x);
-            stream.Write(value.y);
-            stream.Write(value.z);
+            this.stream.Write(value.x);
+            this.stream.Write(value.y);
+            this.stream.Write(value.z);
         }
 
         public void WriteVector3F(Vector3F value)
         {
-            stream.Write(value.x);
-            stream.Write(value.y);
-            stream.Write(value.z);
+            this.stream.Write(value.x);
+            this.stream.Write(value.y);
+            this.stream.Write(value.z);
         }
+
+        public PackFileStream stream { get; private set; }
     }
 }
+

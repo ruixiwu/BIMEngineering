@@ -1,16 +1,15 @@
-﻿using System.Runtime.InteropServices;
-
-namespace BIM.Lmv.Revit.Utility
+﻿namespace BIM.Lmv.Revit.Utility
 {
+    using System;
+    using System.Runtime.InteropServices;
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct INPUT
     {
         internal uint type;
         internal InputUnion U;
-
-        internal static int Size
-        {
-            get { return Marshal.SizeOf(typeof (INPUT)); }
-        }
+        internal static int Size =>
+            Marshal.SizeOf(typeof(INPUT));
     }
 }
+

@@ -1,8 +1,8 @@
-﻿using System;
-using BIM.Lmv.Common.Pack;
-
-namespace BIM.Lmv.Content.Geometry
+﻿namespace BIM.Lmv.Content.Geometry
 {
+    using BIM.Lmv.Common.Pack;
+    using System;
+
     internal class EntryGeometryMetadata : PackEntryBase
     {
         public uint entityIndex;
@@ -16,16 +16,17 @@ namespace BIM.Lmv.Content.Geometry
 
         public override void Write(PackFileStreamWriter pfw, PackEntryType tse)
         {
-            var stream = pfw.stream;
+            PackFileStream stream = pfw.stream;
             stream.Write((byte) 0);
-            for (var i = 0; i < 6; i++)
+            for (int i = 0; i < 6; i++)
             {
-                stream.Write(0f);
+                stream.Write((float) 0f);
             }
-            stream.Write(primCount);
-            pfw.WriteString(packFile);
-            pfw.WriteU32V(entityIndex);
+            stream.Write(this.primCount);
+            pfw.WriteString(this.packFile);
+            pfw.WriteU32V(this.entityIndex);
             stream.Write(-1);
         }
     }
 }
+

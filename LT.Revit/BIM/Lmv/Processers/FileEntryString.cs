@@ -1,37 +1,39 @@
-﻿using System.IO;
-using System.Text;
-using Ionic.Zip;
-
-namespace BIM.Lmv.Processers
+﻿namespace BIM.Lmv.Processers
 {
+    using Ionic.Zip;
+    using System;
+    using System.IO;
+    using System.Text;
+
     internal class FileEntryString : FileEntry
     {
         private string _Content;
 
         public FileEntryString(string entryName, string content) : base(entryName)
         {
-            _Content = content;
+            this._Content = content;
         }
 
         public override void Dispose()
         {
-            _Content = null;
+            this._Content = null;
         }
 
         public override void OnOutputToDisk(string path)
         {
-            if (_Content != null)
+            if (this._Content != null)
             {
-                File.WriteAllText(path, _Content, Encoding.UTF8);
+                File.WriteAllText(path, this._Content, Encoding.UTF8);
             }
         }
 
         public override void OnOutputToZip(ZipFile zip)
         {
-            if (_Content != null)
+            if (this._Content != null)
             {
-                zip.AddEntry(EntryName, _Content, Encoding.UTF8);
+                zip.AddEntry(base.EntryName, this._Content, Encoding.UTF8);
             }
         }
     }
 }
+

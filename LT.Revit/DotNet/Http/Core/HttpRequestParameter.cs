@@ -1,18 +1,20 @@
-﻿using System.Collections.Generic;
-using System.Text;
-
-namespace DotNet.Http.Core
+﻿namespace DotNet.Http.Core
 {
+    using System;
+    using System.Collections.Generic;
+    using System.Runtime.CompilerServices;
+    using System.Text;
+
     public class HttpRequestParameter
     {
         public HttpRequestParameter()
         {
-            Encoding = Encoding.UTF8;
+            this.Encoding = System.Text.Encoding.UTF8;
         }
 
         public HttpCookieType Cookie { get; set; }
 
-        public Encoding Encoding { get; set; }
+        public System.Text.Encoding Encoding { get; set; }
 
         public bool IsPost { get; set; }
 
@@ -23,3 +25,4 @@ namespace DotNet.Http.Core
         public string Url { get; set; }
     }
 }
+

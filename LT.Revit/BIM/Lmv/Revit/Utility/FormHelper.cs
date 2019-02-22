@@ -1,7 +1,9 @@
-﻿using System.Windows.Forms;
-
-namespace BIM.Lmv.Revit.Utility
+﻿namespace BIM.Lmv.Revit.Utility
 {
+    using System;
+    using System.Runtime.CompilerServices;
+    using System.Windows.Forms;
+
     internal static class FormHelper
     {
         public static void ShowMessageBox(this Form form, string message)
@@ -10,3 +12,4 @@ namespace BIM.Lmv.Revit.Utility
         }
     }
 }
+

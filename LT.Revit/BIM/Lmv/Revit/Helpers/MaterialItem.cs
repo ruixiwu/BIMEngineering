@@ -1,22 +1,24 @@
 ﻿namespace BIM.Lmv.Revit.Helpers
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     internal class MaterialItem
     {
         public MaterialItem()
         {
         }
 
-        public MaterialItem(string sName, string sTechdes, string sAmbient, string sEmission, string sShininess,
-            string sSpecular, string sDiffuse, string sTexture1)
+        public MaterialItem(string sName, string sTechdes, string sAmbient, string sEmission, string sShininess, string sSpecular, string sDiffuse, string sTexture1)
         {
-            Name = sName;
-            Techdes = sTechdes;
-            Ambient = sAmbient;
-            Emission = sEmission;
-            Shininess = sShininess;
-            Specular = sSpecular;
-            Diffuse = sDiffuse;
-            Texture1 = sTexture1;
+            this.Name = sName;
+            this.Techdes = sTechdes;
+            this.Ambient = sAmbient;
+            this.Emission = sEmission;
+            this.Shininess = sShininess;
+            this.Specular = sSpecular;
+            this.Diffuse = sDiffuse;
+            this.Texture1 = sTexture1;
         }
 
         public string Ambient { get; set; }
@@ -38,3 +40,4 @@
         public string Texture1 { get; set; }
     }
 }
+

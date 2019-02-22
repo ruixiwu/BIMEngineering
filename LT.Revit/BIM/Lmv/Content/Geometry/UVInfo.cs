@@ -1,17 +1,20 @@
 ﻿namespace BIM.Lmv.Content.Geometry
 {
+    using System;
+
     internal class UVInfo
     {
         public readonly string File;
+        public bool IsValid = false;
         public readonly string Name;
         public readonly float[] uvs;
-        public bool IsValid = false;
 
         public UVInfo(string name, int limit)
         {
-            Name = name;
-            File = "";
-            uvs = new float[limit*2];
+            this.Name = name;
+            this.File = "";
+            this.uvs = new float[limit * 2];
         }
     }
 }
+

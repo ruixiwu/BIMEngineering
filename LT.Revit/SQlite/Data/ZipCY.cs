@@ -1,10 +1,11 @@
-﻿using System;
-using System.IO;
-using System.Text.RegularExpressions;
-using ICSharpCode.SharpZipLib.Zip;
-
-namespace SQlite.Data
+﻿namespace SQlite.Data
 {
+    using ICSharpCode.SharpZipLib.Zip;
+    using System;
+    using System.IO;
+    using System.Runtime.InteropServices;
+    using System.Text.RegularExpressions;
+
     public class ZipCY
     {
         private static void AddZipEntry(string name, string rootPath, ZipOutputStream zos1, out ZipOutputStream zos2)
@@ -12,14 +13,14 @@ namespace SQlite.Data
             ZipEntry entry = null;
             if (Directory.Exists(name))
             {
-                var info = new DirectoryInfo(name);
-                foreach (var info2 in info.GetDirectories())
+                DirectoryInfo info = new DirectoryInfo(name);
+                foreach (DirectoryInfo info2 in info.GetDirectories())
                 {
                     entry = new ZipEntry(GetFilePath(info2.FullName, rootPath) + "/");
                     zos1.PutNextEntry(entry);
                     AddZipEntry(info2.FullName, rootPath, zos1, out zos1);
                 }
-                foreach (var info3 in info.GetFiles())
+                foreach (FileInfo info3 in info.GetFiles())
                 {
                     AddZipEntry(info3.FullName, rootPath, zos1, out zos2);
                 }
@@ -27,9 +28,9 @@ namespace SQlite.Data
             if (File.Exists(name))
             {
                 zos1.SetLevel(9);
-                var stream = File.OpenRead(name);
-                var count = 0;
-                var buffer = new byte[0x800];
+                FileStream stream = File.OpenRead(name);
+                int count = 0;
+                byte[] buffer = new byte[0x800];
                 entry = new ZipEntry(GetFilePath(name, rootPath + "/"));
                 zos1.PutNextEntry(entry);
                 while ((count = stream.Read(buffer, 0, 0x800)) != 0)
@@ -41,10 +42,8 @@ namespace SQlite.Data
             zos2 = zos1;
         }
 
-        public static string GetFilePath(string file)
-        {
-            return file.Replace('/', '\\').Substring(0, file.LastIndexOf('\\') + 1);
-        }
+        public static string GetFilePath(string file) => 
+            file.Replace('/', '\\').Substring(0, file.LastIndexOf('\\') + 1);
 
         private static string GetFilePath(string filePath, string rootPath)
         {
@@ -55,7 +54,7 @@ namespace SQlite.Data
 
         public static string UnZipFile(string zipFile, string dePath)
         {
-            var message = "";
+            string message = "";
             try
             {
                 if (!File.Exists(zipFile))
@@ -66,13 +65,13 @@ namespace SQlite.Data
                 {
                     Directory.CreateDirectory(dePath);
                 }
-                var stream = new ZipInputStream(File.OpenRead(zipFile));
+                ZipInputStream stream = new ZipInputStream(File.OpenRead(zipFile));
                 ZipEntry entry = null;
-                var path = "";
-                var str3 = "";
+                string path = "";
+                string str3 = "";
                 FileStream stream2 = null;
-                var buffer = new byte[0x800];
-                var count = 0;
+                byte[] buffer = new byte[0x800];
+                int count = 0;
                 while ((entry = stream.GetNextEntry()) != null)
                 {
                     if (entry.IsDirectory)
@@ -114,13 +113,13 @@ namespace SQlite.Data
             {
                 Directory.CreateDirectory(sZipath);
             }
-            var path = sZipath + @"\" + sZipName + ".zip";
+            string path = sZipath + @"\" + sZipName + ".zip";
             if (File.Exists(path))
             {
-                var str2 = "";
-                for (var i = 1; i < 100; i++)
+                string str2 = "";
+                for (int i = 1; i < 100; i++)
                 {
-                    str2 = sZipath + @"\" + sZipName + i + ".zip";
+                    str2 = sZipath + @"\" + sZipName + i.ToString() + ".zip";
                     if (!File.Exists(str2))
                     {
                         break;
@@ -136,20 +135,20 @@ namespace SQlite.Data
         {
             directory = directory.Replace(@"\", "/");
             zipName = zipName.Replace(@"\", "/");
-            var message = "";
+            string message = "";
             try
             {
                 if (!Directory.Exists(directory))
                 {
                     throw new Exception("指定的压缩目录不存在！");
                 }
-                var stream = new ZipOutputStream(File.Create(zipName));
-                var info = new DirectoryInfo(directory);
-                foreach (var info2 in info.GetDirectories())
+                ZipOutputStream stream = new ZipOutputStream(File.Create(zipName));
+                DirectoryInfo info = new DirectoryInfo(directory);
+                foreach (DirectoryInfo info2 in info.GetDirectories())
                 {
                     AddZipEntry(info2.FullName, directory, stream, out stream);
                 }
-                foreach (var info3 in info.GetFiles())
+                foreach (FileInfo info3 in info.GetFiles())
                 {
                     AddZipEntry(info3.FullName, directory, stream, out stream);
                 }
@@ -166,14 +165,14 @@ namespace SQlite.Data
         {
             srcName = new Regex(@"[\/]+").Replace(srcName, "/");
             zipName = new Regex(@"[\/]+").Replace(zipName, "/");
-            var message = "";
+            string message = "";
             try
             {
                 if (!File.Exists(srcName))
                 {
                     throw new Exception("指定的压缩文件不存在！");
                 }
-                var stream = new ZipOutputStream(File.Create(zipName));
+                ZipOutputStream stream = new ZipOutputStream(File.Create(zipName));
                 AddZipEntry(srcName, srcName.Substring(0, srcName.LastIndexOf("/")), stream, out stream);
                 stream.Close();
             }
@@ -185,3 +184,4 @@ namespace SQlite.Data
         }
     }
 }
+

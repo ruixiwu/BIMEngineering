@@ -1,8 +1,9 @@
-﻿using BIM.Lmv.Common.Pack;
-using BIM.Lmv.Content.Geometry.Types;
-
-namespace BIM.Lmv.Content.Geometry
+﻿namespace BIM.Lmv.Content.Geometry
 {
+    using BIM.Lmv.Common.Pack;
+    using BIM.Lmv.Content.Geometry.Types;
+    using System;
+
     internal class EntryFragment : PackEntryBase
     {
         public readonly float[] boxes = new float[6];
@@ -13,30 +14,31 @@ namespace BIM.Lmv.Content.Geometry
 
         public override void Read(PackFileStreamWriter pfr, PackEntryType tse)
         {
-            var stream = pfr.stream;
+            PackFileStream stream = pfr.stream;
             pfr.readU8();
-            materialId = (uint) pfr.readU32V();
-            metadataId = (uint) pfr.readU32V();
-            transform = Transform.Read(pfr);
-            for (var i = 0; i < boxes.Length; i++)
+            this.materialId = (uint) pfr.readU32V();
+            this.metadataId = (uint) pfr.readU32V();
+            this.transform = Transform.Read(pfr);
+            for (int i = 0; i < this.boxes.Length; i++)
             {
-                boxes[i] = stream.getFloat32();
+                this.boxes[i] = stream.getFloat32();
             }
-            dbId = (uint) pfr.readU32V();
+            this.dbId = (uint) pfr.readU32V();
         }
 
         public override void Write(PackFileStreamWriter pfw, PackEntryType tse)
         {
-            var stream = pfw.stream;
+            PackFileStream stream = pfw.stream;
             pfw.WriteU8(1);
-            pfw.WriteU32V(materialId);
-            pfw.WriteU32V(metadataId);
-            Transform.Write(pfw, transform);
-            for (var i = 0; i < boxes.Length; i++)
+            pfw.WriteU32V(this.materialId);
+            pfw.WriteU32V(this.metadataId);
+            Transform.Write(pfw, this.transform);
+            for (int i = 0; i < this.boxes.Length; i++)
             {
-                stream.Write(boxes[i]);
+                stream.Write(this.boxes[i]);
             }
-            pfw.WriteU32V(dbId);
+            pfw.WriteU32V(this.dbId);
         }
     }
 }
+

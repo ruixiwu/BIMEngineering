@@ -1,26 +1,26 @@
-﻿using System.CodeDom.Compiler;
-using System.Configuration;
-using System.Diagnostics;
-using System.Runtime.CompilerServices;
-
-namespace BIM.Lmv.Revit.Properties
+﻿namespace BIM.Lmv.Revit.Properties
 {
-    [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "12.0.0.0"),
-     CompilerGenerated]
+    using System;
+    using System.CodeDom.Compiler;
+    using System.Configuration;
+    using System.Diagnostics;
+    using System.Runtime.CompilerServices;
+
+    [GeneratedCode("Microsoft.VisualStudio.Editors.SettingsDesigner.SettingsSingleFileGenerator", "12.0.0.0"), CompilerGenerated]
     internal sealed class Settings : ApplicationSettingsBase
     {
-        [ApplicationScopedSetting, DebuggerNonUserCode, DefaultSettingValue("http://v.yunzu360.com/")]
-        public string ApiEndpoint
-        {
-            get { return (string) this["ApiEndpoint"]; }
-        }
+        private static Settings defaultInstance = ((Settings) SettingsBase.Synchronized(new Settings()));
 
-        public static Settings Default { get; } = (Settings) Synchronized(new Settings());
+        [DefaultSettingValue("http://v.yunzu360.com/"), ApplicationScopedSetting, DebuggerNonUserCode]
+        public string ApiEndpoint =>
+            ((string) this["ApiEndpoint"]);
 
-        [DefaultSettingValue("http://www.yunzu360.cn/"), ApplicationScopedSetting, DebuggerNonUserCode]
-        public string WXEndpoint
-        {
-            get { return (string) this["WXEndpoint"]; }
-        }
+        public static Settings Default =>
+            defaultInstance;
+
+        [DebuggerNonUserCode, DefaultSettingValue("http://www.yunzu360.cn/"), ApplicationScopedSetting]
+        public string WXEndpoint =>
+            ((string) this["WXEndpoint"]);
     }
 }
+

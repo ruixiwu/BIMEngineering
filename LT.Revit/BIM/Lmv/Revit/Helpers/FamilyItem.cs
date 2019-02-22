@@ -1,15 +1,18 @@
 ﻿namespace BIM.Lmv.Revit.Helpers
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     internal class FamilyItem
     {
         public FamilyItem(string sSection, string sName, string sValue, string sUnit, string sType, string sFamilyID)
         {
-            Section = sSection;
-            Name = sName;
-            Value = sValue;
-            Unit = sUnit;
-            Type = sType;
-            FamilyID = sFamilyID;
+            this.Section = sSection;
+            this.Name = sName;
+            this.Value = sValue;
+            this.Unit = sUnit;
+            this.Type = sType;
+            this.FamilyID = sFamilyID;
         }
 
         public string FamilyID { get; set; }
@@ -25,3 +28,4 @@
         public string Value { get; set; }
     }
 }
+

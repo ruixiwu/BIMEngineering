@@ -1,9 +1,11 @@
-﻿using System.Collections.Generic;
-using System.Drawing;
-using BIM.Lmv.Content.Geometry.Types;
-
-namespace BIM.Lmv.Types
+﻿namespace BIM.Lmv.Types
 {
+    using BIM.Lmv.Content.Geometry.Types;
+    using System;
+    using System.Collections.Generic;
+    using System.Drawing;
+    using System.Runtime.CompilerServices;
+
     public class MaterialInfo
     {
         private static readonly Vector3D DefaultAmbient = ToVector3F(ColorTranslator.FromHtml("#030303"));
@@ -12,18 +14,21 @@ namespace BIM.Lmv.Types
 
         public MaterialInfo()
         {
-            Ambient = null;
-            Color = null;
-            Specular = null;
-            Emissive = null;
-            Shininess = 30.0;
-            Transparent = 0.0;
-            Reflectivity = 0.0;
-            BumpIsNormal = false;
-            BumpAmount = 0.0;
-            IsMetal = false;
-            BackfaceCulling = false;
+            this.Ambient = null;
+            this.Color = null;
+            this.Specular = null;
+            this.Emissive = null;
+            this.Shininess = 30.0;
+            this.Transparent = 0.0;
+            this.Reflectivity = 0.0;
+            this.BumpIsNormal = false;
+            this.BumpAmount = 0.0;
+            this.IsMetal = false;
+            this.BackfaceCulling = false;
         }
+
+        public static Vector3D ToVector3F(System.Drawing.Color c) => 
+            new Vector3D(((double) c.R) / 255.0, ((double) c.G) / 255.0, ((double) c.B) / 255.0);
 
         public Vector3D Ambient { get; set; }
 
@@ -48,10 +53,6 @@ namespace BIM.Lmv.Types
         public List<TextureInfo> Textures { get; set; }
 
         public double Transparent { get; set; }
-
-        public static Vector3D ToVector3F(Color c)
-        {
-            return new Vector3D(c.R/255.0, c.G/255.0, c.B/255.0);
-        }
     }
 }
+

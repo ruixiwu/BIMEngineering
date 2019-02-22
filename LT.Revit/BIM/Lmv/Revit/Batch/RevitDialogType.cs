@@ -1,5 +1,7 @@
 ﻿namespace BIM.Lmv.Revit.Batch
 {
+    using System;
+
     internal enum RevitDialogType
     {
         AuditWarning,
@@ -17,3 +19,4 @@
         TaskDialog_Rendering_Library_Not_Installed
     }
 }
+

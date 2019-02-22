@@ -1,21 +1,41 @@
-﻿using System;
-
-namespace BIM.Lmv.Types
+﻿namespace BIM.Lmv.Types
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     public class TextureInfo
     {
         public TextureInfo()
         {
-            TextureType = TextureType.Diffuse;
-            Invert = false;
-            URepeat = true;
-            VRepeat = true;
-            UScale = 1.0;
-            VScale = 1.0;
-            UOffset = 0.0;
-            VOffset = 0.0;
-            WAngle = 0.0;
-            IsShared = false;
+            this.TextureType = BIM.Lmv.Types.TextureType.Diffuse;
+            this.Invert = false;
+            this.URepeat = true;
+            this.VRepeat = true;
+            this.UScale = 1.0;
+            this.VScale = 1.0;
+            this.UOffset = 0.0;
+            this.VOffset = 0.0;
+            this.WAngle = 0.0;
+            this.IsShared = false;
+        }
+
+        public string GetTextureTypeText()
+        {
+            switch (this.TextureType)
+            {
+                case BIM.Lmv.Types.TextureType.Diffuse:
+                    return "generic_diffuse";
+
+                case BIM.Lmv.Types.TextureType.Bump:
+                    return "generic_bump";
+
+                case BIM.Lmv.Types.TextureType.Specular:
+                    return "generic_specular";
+
+                case BIM.Lmv.Types.TextureType.Alpha:
+                    return "generic_alpha";
+            }
+            throw new ArgumentOutOfRangeException();
         }
 
         public bool Invert { get; set; }
@@ -24,7 +44,7 @@ namespace BIM.Lmv.Types
 
         public string TextureFilePath { get; set; }
 
-        public TextureType TextureType { get; set; }
+        public BIM.Lmv.Types.TextureType TextureType { get; set; }
 
         public double UOffset { get; set; }
 
@@ -39,24 +59,6 @@ namespace BIM.Lmv.Types
         public double VScale { get; set; }
 
         public double WAngle { get; set; }
-
-        public string GetTextureTypeText()
-        {
-            switch (TextureType)
-            {
-                case TextureType.Diffuse:
-                    return "generic_diffuse";
-
-                case TextureType.Bump:
-                    return "generic_bump";
-
-                case TextureType.Specular:
-                    return "generic_specular";
-
-                case TextureType.Alpha:
-                    return "generic_alpha";
-            }
-            throw new ArgumentOutOfRangeException();
-        }
     }
 }
+

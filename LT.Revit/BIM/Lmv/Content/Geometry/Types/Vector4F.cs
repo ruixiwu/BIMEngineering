@@ -1,5 +1,7 @@
 ﻿namespace BIM.Lmv.Content.Geometry.Types
 {
+    using System;
+
     public class Vector4F
     {
         public float w;
@@ -15,9 +17,8 @@
             this.w = w;
         }
 
-        public Vector4F Clone()
-        {
-            return new Vector4F(x, y, z, w);
-        }
+        public Vector4F Clone() => 
+            new Vector4F(this.x, this.y, this.z, this.w);
     }
 }
+

@@ -1,13 +1,14 @@
-﻿using System;
-using System.Net;
-
-namespace DotNet.Http.Core
+﻿namespace DotNet.Http.Core
 {
+    using System;
+    using System.Net;
+    using System.Runtime.CompilerServices;
+
     public class HttpResponseParameter
     {
         public HttpResponseParameter()
         {
-            Cookie = new HttpCookieType();
+            this.Cookie = new HttpCookieType();
         }
 
         public string Body { get; set; }
@@ -16,6 +17,7 @@ namespace DotNet.Http.Core
 
         public HttpStatusCode StatusCode { get; set; }
 
-        public Uri Uri { get; set; }
+        public System.Uri Uri { get; set; }
     }
 }
+

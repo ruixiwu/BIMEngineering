@@ -1,5 +1,7 @@
 ﻿namespace BIM.Lmv.Revit.Utility
 {
+    using System;
+
     internal enum VirtualKeyShort : short
     {
         ACCEPT = 30,
@@ -176,3 +178,4 @@
         ZOOM = 0xfb
     }
 }
+

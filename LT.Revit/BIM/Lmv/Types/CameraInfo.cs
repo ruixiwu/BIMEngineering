@@ -1,7 +1,9 @@
-﻿using BIM.Lmv.Content.Geometry.Types;
-
-namespace BIM.Lmv.Types
+﻿namespace BIM.Lmv.Types
 {
+    using BIM.Lmv.Content.Geometry.Types;
+    using System;
+    using System.Runtime.CompilerServices;
+
     public class CameraInfo
     {
         public float Aspect { get; set; }
@@ -19,3 +21,4 @@ namespace BIM.Lmv.Types
         public Vector3F Up { get; set; }
     }
 }
+

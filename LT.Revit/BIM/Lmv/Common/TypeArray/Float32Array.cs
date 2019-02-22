@@ -1,61 +1,41 @@
-﻿using System;
-
-namespace BIM.Lmv.Common.TypeArray
+﻿namespace BIM.Lmv.Common.TypeArray
 {
+    using System;
+    using System.Reflection;
+    using System.Runtime.CompilerServices;
+    using System.Runtime.InteropServices;
+
     internal class Float32Array
     {
         private const int ITEM_SIZE = 4;
 
         public Float32Array(int size)
         {
-            length = size;
-            buffer = new byte[size*4];
+            this.length = size;
+            this.buffer = new byte[size * 4];
         }
 
         public Float32Array(byte[] buffer)
         {
-            length = buffer.Length/4;
+            this.length = buffer.Length / 4;
             this.buffer = buffer;
         }
 
         public Float32Array(float[] array)
         {
-            length = array.Length;
-            buffer = new byte[length*4];
-            for (var i = 0; i < length; i++)
+            this.length = array.Length;
+            this.buffer = new byte[this.length * 4];
+            for (int i = 0; i < this.length; i++)
             {
                 this[i] = array[i];
             }
         }
 
-        public float[] array
-        {
-            get
-            {
-                var numArray = new float[length];
-                for (var i = 0; i < length; i++)
-                {
-                    numArray[i] = this[i];
-                }
-                return numArray;
-            }
-        }
-
-        public byte[] buffer { get; }
-
-        public float this[int index]
-        {
-            get { return BitConverter.ToSingle(buffer, index*4); }
-            set { Buffer.BlockCopy(BitConverter.GetBytes(value), 0, buffer, index*4, 4); }
-        }
-
-        public int length { get; }
-
         public void set(float[] array, int offset = 0)
         {
-            for (var i = 0; i < length; i++)
+            for (int i = 0; i < this.length; i++)
             {
-                if (offset + i >= array.Length)
+                if ((offset + i) >= array.Length)
                 {
                     break;
                 }
@@ -65,14 +45,41 @@ namespace BIM.Lmv.Common.TypeArray
 
         public void set(Float32Array array, int offset = 0)
         {
-            for (var i = 0; i < length; i++)
+            for (int i = 0; i < this.length; i++)
             {
-                if (offset + i >= array.length)
+                if ((offset + i) >= array.length)
                 {
                     break;
                 }
                 this[i] = array[offset + i];
             }
         }
+
+        public float[] array
+        {
+            get
+            {
+                float[] numArray = new float[this.length];
+                for (int i = 0; i < this.length; i++)
+                {
+                    numArray[i] = this[i];
+                }
+                return numArray;
+            }
+        }
+
+        public byte[] buffer { get; private set; }
+
+        public float this[int index]
+        {
+            get { return BitConverter.ToSingle(this.buffer, index*4); }
+            set
+            {
+                Buffer.BlockCopy(BitConverter.GetBytes(value), 0, this.buffer, index * 4, 4);
+            }
+        }
+
+        public int length { get; private set; }
     }
 }
+

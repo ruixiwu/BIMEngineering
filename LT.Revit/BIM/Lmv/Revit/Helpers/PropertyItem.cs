@@ -1,14 +1,17 @@
 ﻿namespace BIM.Lmv.Revit.Helpers
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     internal class PropertyItem
     {
         public PropertyItem(string sSection, string sName, string sValue, string sUnit, string sType)
         {
-            Section = sSection;
-            Name = sName;
-            Value = sValue;
-            Unit = sUnit;
-            Type = sType;
+            this.Section = sSection;
+            this.Name = sName;
+            this.Value = sValue;
+            this.Unit = sUnit;
+            this.Type = sType;
         }
 
         public string Name { get; set; }
@@ -22,3 +25,4 @@
         public string Value { get; set; }
     }
 }
+

@@ -1,36 +1,34 @@
-﻿using System;
-using System.IO;
-using ICSharpCode.SharpZipLib.Checksums;
-using ICSharpCode.SharpZipLib.Zip;
-
-namespace SQlite.Data
+﻿namespace SQlite.Data
 {
+    using ICSharpCode.SharpZipLib.Checksums;
+    using ICSharpCode.SharpZipLib.Zip;
+    using System;
+    using System.IO;
+
     public class ZipHelper
     {
         public static void test()
         {
-            var folderToZip = "c:/BIM-SSH";
-            var zipedFolder = "d:/BIM-SSH";
-            var zipedFile = "d:/BIMTest.zip";
+            string folderToZip = "c:/BIM-SSH";
+            string zipedFolder = "d:/BIM-SSH";
+            string zipedFile = "d:/BIMTest.zip";
             ZipDirectory(folderToZip, zipedFile);
             UnZip(zipedFile, zipedFolder);
         }
 
         public static void test11()
         {
-            var folderToZip = "d:/9999/222/BIM-SSH";
-            var zipedFile = "d:/B7IM-SSH.zip";
+            string folderToZip = "d:/9999/222/BIM-SSH";
+            string zipedFile = "d:/B7IM-SSH.zip";
             ZipDirectory(folderToZip, zipedFile);
         }
 
-        public static bool UnZip(string fileToUnZip, string zipedFolder)
-        {
-            return UnZip(fileToUnZip, zipedFolder, null);
-        }
+        public static bool UnZip(string fileToUnZip, string zipedFolder) => 
+            UnZip(fileToUnZip, zipedFolder, null);
 
         public static bool UnZip(string fileToUnZip, string zipedFolder, string password)
         {
-            var flag = true;
+            bool flag = true;
             FileStream stream = null;
             ZipInputStream stream2 = null;
             ZipEntry entry = null;
@@ -53,7 +51,7 @@ namespace SQlite.Data
                 {
                     if (!string.IsNullOrEmpty(entry.Name))
                     {
-                        var path = Path.Combine(zipedFolder, entry.Name).Replace('/', '\\');
+                        string path = Path.Combine(zipedFolder, entry.Name).Replace('/', '\\');
                         if (path.EndsWith(@"\"))
                         {
                             Directory.CreateDirectory(path);
@@ -61,8 +59,8 @@ namespace SQlite.Data
                         else
                         {
                             stream = File.Create(path);
-                            var num = 0x800;
-                            var buffer = new byte[num];
+                            int num = 0x800;
+                            byte[] buffer = new byte[num];
                             while (stream2.Read(buffer, 0, buffer.Length) > 0)
                             {
                                 stream.Write(buffer, 0, buffer.Length);
@@ -97,14 +95,12 @@ namespace SQlite.Data
             return flag;
         }
 
-        public static bool Zip(string fileToZip, string zipedFile)
-        {
-            return Zip(fileToZip, zipedFile, null);
-        }
+        public static bool Zip(string fileToZip, string zipedFile) => 
+            Zip(fileToZip, zipedFile, null);
 
         public static bool Zip(string fileToZip, string zipedFile, string password)
         {
-            var flag = false;
+            bool flag = false;
             if (Directory.Exists(fileToZip))
             {
                 return ZipDirectory(fileToZip, zipedFile, password);
@@ -122,13 +118,13 @@ namespace SQlite.Data
             {
                 Directory.CreateDirectory(sZipath);
             }
-            var path = sZipath + @"\" + sZipName + ".zip";
+            string path = sZipath + @"\" + sZipName + ".zip";
             if (File.Exists(path))
             {
-                var str2 = "";
-                for (var i = 1; i < 100; i++)
+                string str2 = "";
+                for (int i = 1; i < 100; i++)
                 {
-                    str2 = sZipath + @"\" + sZipName + i + ".zip";
+                    str2 = sZipath + @"\" + sZipName + i.ToString() + ".zip";
                     if (!File.Exists(str2))
                     {
                         break;
@@ -140,34 +136,29 @@ namespace SQlite.Data
             return path;
         }
 
-        public static bool ZipDirectory(string folderToZip, string zipedFile)
-        {
-            return ZipDirectory(folderToZip, zipedFile, null);
-        }
+        public static bool ZipDirectory(string folderToZip, string zipedFile) => 
+            ZipDirectory(folderToZip, zipedFile, null);
 
         private static bool ZipDirectory(string folderToZip, ZipOutputStream zipStream, string parentFolderName)
         {
-            var flag = true;
+            bool flag = true;
             ZipEntry entry = null;
             FileStream stream = null;
-            var crc = new Crc32();
+            Crc32 crc = new Crc32();
             try
             {
                 entry = new ZipEntry(Path.Combine(parentFolderName, Path.GetFileName(folderToZip) + "/"));
                 zipStream.PutNextEntry(entry);
                 zipStream.Flush();
-                foreach (var str in Directory.GetFiles(folderToZip))
+                foreach (string str in Directory.GetFiles(folderToZip))
                 {
                     stream = File.OpenRead(str);
-                    var buffer = new byte[stream.Length];
+                    byte[] buffer = new byte[stream.Length];
                     stream.Read(buffer, 0, buffer.Length);
-                    entry =
-                        new ZipEntry(Path.Combine(parentFolderName,
-                            Path.GetFileName(folderToZip) + "/" + Path.GetFileName(str)))
-                        {
-                            DateTime = DateTime.Now,
-                            Size = stream.Length
-                        };
+                    entry = new ZipEntry(Path.Combine(parentFolderName, Path.GetFileName(folderToZip) + "/" + Path.GetFileName(str))) {
+                        DateTime = DateTime.Now,
+                        Size = stream.Length
+                    };
                     stream.Close();
                     crc.Reset();
                     crc.Update(buffer);
@@ -194,7 +185,7 @@ namespace SQlite.Data
                 GC.Collect();
                 GC.Collect(1);
             }
-            foreach (var str2 in Directory.GetDirectories(folderToZip))
+            foreach (string str2 in Directory.GetDirectories(folderToZip))
             {
                 if (!ZipDirectory(str2, zipStream, folderToZip))
                 {
@@ -206,10 +197,10 @@ namespace SQlite.Data
 
         public static bool ZipDirectory(string folderToZip, string zipedFile, string password)
         {
-            var flag = false;
+            bool flag = false;
             if (Directory.Exists(folderToZip))
             {
-                var zipStream = new ZipOutputStream(File.Create(zipedFile));
+                ZipOutputStream zipStream = new ZipOutputStream(File.Create(zipedFile));
                 zipStream.SetLevel(6);
                 if (!string.IsNullOrEmpty(password))
                 {
@@ -222,14 +213,12 @@ namespace SQlite.Data
             return flag;
         }
 
-        public static bool ZipFile(string fileToZip, string zipedFile)
-        {
-            return ZipFile(fileToZip, zipedFile, null);
-        }
+        public static bool ZipFile(string fileToZip, string zipedFile) => 
+            ZipFile(fileToZip, zipedFile, null);
 
         public static bool ZipFile(string fileToZip, string zipedFile, string password)
         {
-            var flag = true;
+            bool flag = true;
             ZipOutputStream stream = null;
             FileStream baseOutputStream = null;
             ZipEntry entry = null;
@@ -240,7 +229,7 @@ namespace SQlite.Data
             try
             {
                 baseOutputStream = File.OpenRead(fileToZip);
-                var buffer = new byte[baseOutputStream.Length];
+                byte[] buffer = new byte[baseOutputStream.Length];
                 baseOutputStream.Read(buffer, 0, buffer.Length);
                 baseOutputStream.Close();
                 baseOutputStream = File.Create(zipedFile);
@@ -281,3 +270,4 @@ namespace SQlite.Data
         }
     }
 }
+

@@ -1,5 +1,7 @@
 ﻿namespace BIM.Lmv.Revit.Utility
 {
+    using System;
+
     internal enum ScanCodeShort : short
     {
         ACCEPT = 0,
@@ -176,3 +178,4 @@
         ZOOM = 0x62
     }
 }
+

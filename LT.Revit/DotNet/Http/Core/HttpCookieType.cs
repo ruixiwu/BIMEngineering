@@ -1,11 +1,14 @@
-﻿using System.Net;
-
-namespace DotNet.Http.Core
+﻿namespace DotNet.Http.Core
 {
+    using System;
+    using System.Net;
+    using System.Runtime.CompilerServices;
+
     public class HttpCookieType
     {
-        public CookieCollection CookieCollection { get; set; }
+        public System.Net.CookieCollection CookieCollection { get; set; }
 
         public string CookieString { get; set; }
     }
 }
+

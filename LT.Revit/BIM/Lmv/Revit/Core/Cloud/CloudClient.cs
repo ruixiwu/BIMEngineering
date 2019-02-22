@@ -1,32 +1,31 @@
-﻿using System;
-using System.Collections.Generic;
-using Newtonsoft.Json;
-
-namespace BIM.Lmv.Revit.Core.Cloud
+﻿namespace BIM.Lmv.Revit.Core.Cloud
 {
+    using Newtonsoft.Json;
+    using System;
+    using System.Collections.Generic;
+
     internal class CloudClient
     {
         private readonly Uri _Endpoint;
-        private readonly Uri _WXEndpoint;
         private string _SessionToken;
+        private readonly Uri _WXEndpoint;
 
         public CloudClient(Uri endpoint, Uri wxEndpoint)
         {
-            _Endpoint = endpoint;
-            _WXEndpoint = wxEndpoint;
+            this._Endpoint = endpoint;
+            this._WXEndpoint = wxEndpoint;
         }
 
         public string GetQRCode()
         {
             try
             {
-                var uri = new Uri(_WXEndpoint, "wx/getqrcode");
+                Uri uri = new Uri(this._WXEndpoint, "wx/getqrcode");
                 return HttpHelper.HttpPost(uri.ToString(), null);
             }
             catch (Exception exception)
             {
-                var error = new InvokeError
-                {
+                InvokeError error = new InvokeError {
                     ErrorCode = -1,
                     ErrorMsg = exception.ToString()
                 };
@@ -38,42 +37,40 @@ namespace BIM.Lmv.Revit.Core.Cloud
         {
             try
             {
-                var fields = new Dictionary<string, string>();
-                fields["session"] = _SessionToken;
-                var uri = new Uri(_Endpoint, "api/model/upload");
+                Dictionary<string, string> fields = new Dictionary<string, string> {
+                    ["session"] = this._SessionToken
+                };
+                Uri uri = new Uri(this._Endpoint, "api/model/upload");
                 return JsonConvert.DeserializeObject<InvokeResultUpload>(HttpHelper.HttpPost(uri.ToString(), fields));
             }
             catch (Exception exception)
             {
-                var error = new InvokeError
-                {
+                InvokeError error = new InvokeError {
                     ErrorCode = -1,
                     ErrorMsg = exception.ToString()
                 };
-                return new InvokeResultUpload {Error = error};
+                return new InvokeResultUpload { Error = error };
             }
         }
 
-        public bool IsLogined()
-        {
-            return !string.IsNullOrEmpty(_SessionToken);
-        }
+        public bool IsLogined() => 
+            !string.IsNullOrEmpty(this._SessionToken);
 
         public string Login(string token)
         {
             try
             {
-                var uri = new Uri(_WXEndpoint, "WX/Login");
-                var fields = new Dictionary<string, string>();
-                fields["token"] = token;
-                var str = HttpHelper.HttpPost(uri.ToString(), fields);
-                _SessionToken = str;
+                Uri uri = new Uri(this._WXEndpoint, "WX/Login");
+                Dictionary<string, string> fields = new Dictionary<string, string> {
+                    ["token"] = token
+                };
+                string str = HttpHelper.HttpPost(uri.ToString(), fields);
+                this._SessionToken = str;
                 return str;
             }
             catch (Exception exception)
             {
-                var error = new InvokeError
-                {
+                InvokeError error = new InvokeError {
                     ErrorCode = -1,
                     ErrorMsg = exception.ToString()
                 };
@@ -85,87 +82,81 @@ namespace BIM.Lmv.Revit.Core.Cloud
         {
             try
             {
-                var fields = new Dictionary<string, string>();
-                fields["userName"] = userName;
-                fields["userPwd"] = userPwd;
-                var uri = new Uri(_Endpoint, "api/user/login");
-                var login =
-                    JsonConvert.DeserializeObject<InvokeResultLogin>(HttpHelper.HttpPost(uri.ToString(), fields));
+                Dictionary<string, string> fields = new Dictionary<string, string> {
+                    ["userName"] = userName,
+                    ["userPwd"] = userPwd
+                };
+                Uri uri = new Uri(this._Endpoint, "api/user/login");
+                InvokeResultLogin login = JsonConvert.DeserializeObject<InvokeResultLogin>(HttpHelper.HttpPost(uri.ToString(), fields));
                 if (login.Success)
                 {
-                    _SessionToken = login.Token;
+                    this._SessionToken = login.Token;
                 }
                 else
                 {
-                    _SessionToken = string.Empty;
+                    this._SessionToken = string.Empty;
                 }
                 return login;
             }
             catch (Exception exception)
             {
-                var error = new InvokeError
-                {
+                InvokeError error = new InvokeError {
                     ErrorCode = -1,
                     ErrorMsg = exception.ToString()
                 };
-                return new InvokeResultLogin
-                {
+                return new InvokeResultLogin { 
                     Error = error,
                     Success = false
                 };
             }
         }
 
-        public InvokeResultRegisterModel RegisterModel(string token, string modelName, DateTime expirationDate,
-            bool hasPwd, string workId, string options)
+        public InvokeResultRegisterModel RegisterModel(string token, string modelName, DateTime expirationDate, bool hasPwd, string workId, string options)
         {
             try
             {
-                var fields = new Dictionary<string, string>
-                {
-                    {
+                Dictionary<string, string> fields = new Dictionary<string, string> {
+                    { 
                         "session",
-                        _SessionToken
+                        this._SessionToken
                     },
-                    {
+                    { 
                         "modelToken",
                         token
                     },
-                    {
+                    { 
                         "modelName",
                         modelName
                     },
-                    {
+                    { 
                         "expirationDate",
                         expirationDate.ToString("yyyy-MM-dd")
                     },
-                    {
+                    { 
                         "hasPwd",
                         hasPwd.ToString()
                     },
-                    {
+                    { 
                         "workId",
                         workId
                     },
-                    {
+                    { 
                         "options",
                         options
                     }
                 };
-                var uri = new Uri(_Endpoint, "api/model/register");
-                var model =
-                    JsonConvert.DeserializeObject<InvokeResultRegisterModel>(HttpHelper.HttpPost(uri.ToString(), fields));
-                model.ShareUrl = new Uri(_Endpoint, model.ShareUrl).ToString();
+                Uri uri = new Uri(this._Endpoint, "api/model/register");
+                InvokeResultRegisterModel model = JsonConvert.DeserializeObject<InvokeResultRegisterModel>(HttpHelper.HttpPost(uri.ToString(), fields));
+                model.ShareUrl = new Uri(this._Endpoint, model.ShareUrl).ToString();
                 return model;
             }
             catch (Exception exception)
             {
-                var error = new InvokeError
-                {
+                InvokeError error = new InvokeError {
                     ErrorCode = -1,
                     ErrorMsg = exception.ToString()
                 };
-                return new InvokeResultRegisterModel {Error = error};
+                return new InvokeResultRegisterModel { Error = error };
             }
         }
 
@@ -173,14 +164,13 @@ namespace BIM.Lmv.Revit.Core.Cloud
         {
             try
             {
-                var uri = new Uri(_WXEndpoint, "wx/SendTemplateMsg");
-                var fields = new Dictionary<string, string>
-                {
-                    {
+                Uri uri = new Uri(this._WXEndpoint, "wx/SendTemplateMsg");
+                Dictionary<string, string> fields = new Dictionary<string, string> {
+                    { 
                         "token",
                         token
                     },
-                    {
+                    { 
                         "link",
                         link
                     }
@@ -190,8 +180,7 @@ namespace BIM.Lmv.Revit.Core.Cloud
             }
             catch (Exception exception)
             {
-                var error = new InvokeError
-                {
+                InvokeError error = new InvokeError {
                     ErrorCode = -1,
                     ErrorMsg = exception.ToString()
                 };
@@ -200,3 +189,4 @@ namespace BIM.Lmv.Revit.Core.Cloud
         }
     }
 }
+

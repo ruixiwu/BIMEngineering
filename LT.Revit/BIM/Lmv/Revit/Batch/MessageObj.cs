@@ -1,8 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-
-namespace BIM.Lmv.Revit.Batch
+﻿namespace BIM.Lmv.Revit.Batch
 {
+    using System;
+    using System.Collections.Generic;
+
     [Serializable]
     internal class MessageObj
     {
@@ -11,9 +11,10 @@ namespace BIM.Lmv.Revit.Batch
 
         public MessageObj(string key, params string[] items)
         {
-            Key = key;
-            Items = new List<string>(items.Length);
-            Items.AddRange(items);
+            this.Key = key;
+            this.Items = new List<string>(items.Length);
+            this.Items.AddRange(items);
         }
     }
 }
+

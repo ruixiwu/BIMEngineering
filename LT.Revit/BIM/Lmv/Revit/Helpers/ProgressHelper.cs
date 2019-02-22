@@ -1,52 +1,53 @@
-﻿using System;
-using System.Drawing;
-using System.Windows.Forms;
-using BIM.Lmv.Revit.Helpers.Progress;
-
-namespace BIM.Lmv.Revit.Helpers
+﻿namespace BIM.Lmv.Revit.Helpers
 {
+    using BIM.Lmv.Revit.Helpers.Progress;
+    using System;
+    using System.Drawing;
+    using System.Runtime.InteropServices;
+    using System.Windows.Forms;
+
     internal class ProgressHelper : IDisposable
     {
-        private static ProgressHelper _Instance;
         private FormProgress _Form;
+        private static ProgressHelper _Instance;
 
         public ProgressHelper(string title = null)
         {
-            _Form = new FormProgress(title);
-            _Form.StartPosition = FormStartPosition.CenterScreen;
-            _Form.Show();
-            _Form.Refresh();
+            this._Form = new FormProgress(title);
+            this._Form.StartPosition = FormStartPosition.CenterScreen;
+            this._Form.Show();
+            this._Form.Refresh();
             _Instance = this;
         }
 
         public ProgressHelper(Form owner, string title = null)
         {
-            _Form = new FormProgress(title);
-            _Form.StartPosition = FormStartPosition.CenterParent;
-            _Form.Show(owner);
-            _Form.Location = new Point((owner.Width - _Form.Width)/2 + owner.Left,
-                (owner.Height - _Form.Height)/2 + owner.Top);
-            _Form.Refresh();
+            this._Form = new FormProgress(title);
+            this._Form.StartPosition = FormStartPosition.CenterParent;
+            this._Form.Show(owner);
+            this._Form.Location = new Point(((owner.Width - this._Form.Width) / 2) + owner.Left, ((owner.Height - this._Form.Height) / 2) + owner.Top);
+            this._Form.Refresh();
             _Instance = this;
-        }
-
-        public void Dispose()
-        {
-            if (_Form != null)
-            {
-                _Form.Close();
-                _Form = null;
-                _Instance = null;
-            }
         }
 
         public static void Close()
         {
-            var helper = _Instance;
+            ProgressHelper helper = _Instance;
             if (helper != null)
             {
                 helper.Dispose();
             }
         }
+
+        public void Dispose()
+        {
+            if (this._Form != null)
+            {
+                this._Form.Close();
+                this._Form = null;
+                _Instance = null;
+            }
+        }
     }
 }
+

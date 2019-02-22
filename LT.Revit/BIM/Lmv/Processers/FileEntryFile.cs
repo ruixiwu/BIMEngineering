@@ -1,8 +1,9 @@
-﻿using System.IO;
-using Ionic.Zip;
-
-namespace BIM.Lmv.Processers
+﻿namespace BIM.Lmv.Processers
 {
+    using Ionic.Zip;
+    using System;
+    using System.IO;
+
     internal class FileEntryFile : FileEntry
     {
         private string _FilePath;
@@ -10,34 +11,35 @@ namespace BIM.Lmv.Processers
 
         public FileEntryFile(string entryName, string filePath) : base(entryName)
         {
-            _FilePath = filePath;
+            this._FilePath = filePath;
         }
 
         public override void Dispose()
         {
-            _FilePath = null;
-            if (_Stream != null)
+            this._FilePath = null;
+            if (this._Stream != null)
             {
-                _Stream.Dispose();
-                _Stream = null;
+                this._Stream.Dispose();
+                this._Stream = null;
             }
         }
 
         public override void OnOutputToDisk(string path)
         {
-            if ((_FilePath != null) && File.Exists(_FilePath) && !File.Exists(path))
+            if (((this._FilePath != null) && File.Exists(this._FilePath)) && !File.Exists(path))
             {
-                File.Copy(_FilePath, path, true);
+                File.Copy(this._FilePath, path, true);
             }
         }
 
         public override void OnOutputToZip(ZipFile zip)
         {
-            if ((_FilePath != null) && File.Exists(_FilePath))
+            if ((this._FilePath != null) && File.Exists(this._FilePath))
             {
-                _Stream = File.OpenRead(_FilePath);
-                zip.AddEntry(EntryName, _Stream);
+                this._Stream = File.OpenRead(this._FilePath);
+                zip.AddEntry(base.EntryName, this._Stream);
             }
         }
     }
 }
+

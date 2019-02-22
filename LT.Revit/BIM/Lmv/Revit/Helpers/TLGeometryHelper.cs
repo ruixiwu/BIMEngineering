@@ -1,55 +1,52 @@
-﻿using System.Linq;
-using Autodesk.Revit.DB;
-
-namespace BIM.Lmv.Revit.Helpers
+﻿namespace BIM.Lmv.Revit.Helpers
 {
+    using Autodesk.Revit.DB;
+    using System;
+    using System.Linq;
+
     internal class TLGeometryHelper
     {
-        public static int _CurMaterialId;
-        public static string strMeshIds;
         private readonly BFileHelp _BfileHelp;
         private readonly TLGeometryBuffer _Buffer = new TLGeometryBuffer(0xffff);
-        private readonly int _Capacity = 0x200000;
+        private int _Capacity = 0x200000;
+        public static int _CurMaterialId = 0;
+        public static string strMeshIds;
 
         public TLGeometryHelper()
         {
-            _BfileHelp = new BFileHelp(_Capacity);
+            this._BfileHelp = new BFileHelp(this._Capacity);
         }
 
         private Mesh GetMeshFromRPC(Element element)
         {
-            var instance =
-                element.get_Geometry(new Options()).FirstOrDefault(x => x is GeometryInstance) as
-                    GeometryInstance;
+            GeometryInstance instance = element.get_Geometry(new Options()).FirstOrDefault<GeometryObject>(x => (x is GeometryInstance)) as GeometryInstance;
             if (instance == null)
             {
                 return null;
             }
-            return instance.SymbolGeometry.FirstOrDefault(x => x is Mesh) as Mesh;
+            return (instance.SymbolGeometry.FirstOrDefault<GeometryObject>(x => (x is Mesh)) as Mesh);
         }
 
-        public static int getPolyMeshLength(PolymeshTopology node)
-        {
-            return node.NumberOfFacets*6 + node.NumberOfPoints*0x20;
-        }
+        public static int getPolyMeshLength(PolymeshTopology node) => 
+            ((node.NumberOfFacets * 6) + (node.NumberOfPoints * 0x20));
 
         public void OnEndElement()
         {
-            WriteData();
+            this.WriteData();
         }
 
         public void OnFinish()
         {
-            _BfileHelp.retStart();
+            this._BfileHelp.retStart();
         }
 
         public void OnPolymesh(PolymeshTopology node)
         {
-            OnPrePolymesh(node);
-            _Buffer.OnPolymesh(node);
-            if (_Buffer.GetAllLength() > 0x100000)
+            this.OnPrePolymesh(node);
+            this._Buffer.OnPolymesh(node);
+            if (this._Buffer.GetAllLength() > 0x100000)
             {
-                WriteData();
+                this.WriteData();
             }
         }
 
@@ -59,7 +56,7 @@ namespace BIM.Lmv.Revit.Helpers
             {
                 if (_CurMaterialId != 0)
                 {
-                    WriteData();
+                    this.WriteData();
                 }
                 _CurMaterialId = nMaterialId;
             }
@@ -67,29 +64,30 @@ namespace BIM.Lmv.Revit.Helpers
 
         public void OnPrePolymesh(PolymeshTopology node)
         {
-            var num = _BfileHelp.getLength();
-            var allLength = _Buffer.GetAllLength();
-            var num3 = getPolyMeshLength(node);
-            if (num + allLength + num3 > _Capacity)
+            int num = this._BfileHelp.getLength();
+            int allLength = this._Buffer.GetAllLength();
+            int num3 = getPolyMeshLength(node);
+            if (((num + allLength) + num3) > this._Capacity)
             {
-                _BfileHelp.retStart();
+                this._BfileHelp.retStart();
             }
         }
 
         public void OnRPC(Element element)
         {
-            var meshFromRPC = GetMeshFromRPC(element);
+            Mesh meshFromRPC = this.GetMeshFromRPC(element);
             if (meshFromRPC != null)
             {
-                _Buffer.OnMesh(meshFromRPC);
+                this._Buffer.OnMesh(meshFromRPC);
             }
         }
 
         public void WriteData()
         {
-            _BfileHelp.addData(_Buffer);
-            _Buffer.vertexCount = 0;
-            _Buffer.triangleCount = 0;
+            this._BfileHelp.addData(this._Buffer);
+            this._Buffer.vertexCount = 0;
+            this._Buffer.triangleCount = 0;
         }
     }
 }
+

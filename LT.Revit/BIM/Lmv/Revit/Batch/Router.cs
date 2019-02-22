@@ -1,51 +1,49 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.IO.MemoryMappedFiles;
-using System.Text;
-using System.Threading;
-using Newtonsoft.Json;
+﻿using System.Xml;
 
 namespace BIM.Lmv.Revit.Batch
 {
+    using Newtonsoft.Json;
+    using System;
+    using System.Collections.Generic;
+    using System.Diagnostics;
+    using System.IO;
+    using System.IO.MemoryMappedFiles;
+    using System.Runtime.CompilerServices;
+    using System.Text;
+    using System.Threading;
+
     internal class Router : IDisposable
     {
-        public static readonly Router Instance = new Router();
         private volatile bool _IsRunning;
-        private readonly Queue<string> _SendMessages = new Queue<string>(0x100);
+        private Queue<string> _SendMessages = new Queue<string>(0x100);
+        public static readonly Router Instance = new Router();
+
+        public event Action<DateTime, string> OnMessageReceived;
+
+        public event Action<string> OnMessageSendFailure;
 
         static Router()
         {
             Instance.Start();
         }
 
-        void IDisposable.Dispose()
-        {
-            _IsRunning = false;
-        }
-
-        public event Action<DateTime, string> OnMessageReceived;
-
-        public event Action<string> OnMessageSendFailure;
-
         private void Excute(object state)
         {
-            var id = Process.GetCurrentProcess().Id;
+            int id = Process.GetCurrentProcess().Id;
             try
             {
-                using (var file = state as MemoryMappedFile)
+                using (MemoryMappedFile file = state as MemoryMappedFile)
                 {
-                    using (var mutex = Mutex.OpenExisting("RevitRouter.Mutex"))
+                    using (Mutex mutex = Mutex.OpenExisting("RevitRouter.Mutex"))
                     {
-                        using (var stream = file.CreateViewStream())
+                        using (MemoryMappedViewStream stream = file.CreateViewStream())
                         {
-                            using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
+                            using (BinaryReader reader = new BinaryReader(stream, Encoding.UTF8, true))
                             {
-                                using (var writer = new BinaryWriter(stream, Encoding.UTF8, true))
+                                using (BinaryWriter writer = new BinaryWriter(stream, Encoding.UTF8, true))
                                 {
-                                    var flag = false;
-                                    while (_IsRunning)
+                                    bool flag = false;
+                                    while (this._IsRunning)
                                     {
                                         if (flag)
                                         {
@@ -61,9 +59,10 @@ namespace BIM.Lmv.Revit.Batch
                                             try
                                             {
                                                 bool flag2;
+                                               // Queue<string> queue;
                                                 var queue = new Queue<string>();
                                                 stream.Seek(0L, SeekOrigin.Begin);
-                                                var num2 = reader.ReadByte();
+                                                byte num2 = reader.ReadByte();
                                                 switch (num2)
                                                 {
                                                     case 0:
@@ -72,32 +71,32 @@ namespace BIM.Lmv.Revit.Batch
 
                                                     case 1:
                                                     {
-                                                        var time = new DateTime(reader.ReadInt64());
-                                                        var num3 = reader.ReadInt32();
+                                                        DateTime time = new DateTime(reader.ReadInt64());
+                                                        int num3 = reader.ReadInt32();
                                                         if (id != num3)
                                                         {
                                                             break;
                                                         }
-                                                        var str = reader.ReadString();
-                                                        if (OnMessageReceived != null)
+                                                        string str = reader.ReadString();
+                                                        if (this.OnMessageReceived != null)
                                                         {
-                                                            OnMessageReceived(time, str);
+                                                            this.OnMessageReceived(time, str);
                                                         }
                                                         goto Label_016B;
                                                     }
                                                     case 2:
                                                     {
-                                                        var time2 = new DateTime(reader.ReadInt64());
-                                                        var span = DateTime.Now - time2;
+                                                        DateTime time2 = new DateTime(reader.ReadInt64());
+                                                        TimeSpan span = (TimeSpan) (DateTime.Now - time2);
                                                         if (Math.Abs(span.TotalSeconds) <= 5.0)
                                                         {
                                                             continue;
                                                         }
-                                                        var num4 = reader.ReadInt32();
-                                                        var str2 = reader.ReadString();
-                                                        if ((OnMessageSendFailure != null) && (num4 == id))
+                                                        int num4 = reader.ReadInt32();
+                                                        string str2 = reader.ReadString();
+                                                        if ((this.OnMessageSendFailure != null) && (num4 == id))
                                                         {
-                                                            OnMessageSendFailure(str2);
+                                                            this.OnMessageSendFailure(str2);
                                                         }
                                                         goto Label_016B;
                                                     }
@@ -105,20 +104,20 @@ namespace BIM.Lmv.Revit.Batch
                                                         throw new NotSupportedException("MessageFlag=" + num2);
                                                 }
                                                 flag = true;
-                                                Label_016B:
+                                            Label_016B:
                                                 flag2 = false;
                                                 try
                                                 {
-                                                    Monitor.Enter(queue = _SendMessages, ref flag2);
+                                                    Monitor.Enter(queue = this._SendMessages, ref flag2);
                                                     stream.Seek(0L, SeekOrigin.Begin);
-                                                    if (_SendMessages.Count == 0)
+                                                    if (this._SendMessages.Count == 0)
                                                     {
                                                         writer.Write((byte) 0);
                                                     }
                                                     else
                                                     {
-                                                        var str3 = _SendMessages.Dequeue();
-                                                        var now = DateTime.Now;
+                                                        string str3 = this._SendMessages.Dequeue();
+                                                        DateTime now = DateTime.Now;
                                                         writer.Write((byte) 2);
                                                         writer.Write(now.Ticks);
                                                         writer.Write(id);
@@ -132,6 +131,7 @@ namespace BIM.Lmv.Revit.Batch
                                                         Monitor.Exit(queue);
                                                     }
                                                 }
+                                                continue;
                                             }
                                             finally
                                             {
@@ -147,62 +147,66 @@ namespace BIM.Lmv.Revit.Batch
             }
             finally
             {
-                _IsRunning = false;
-                lock (_SendMessages)
+                this._IsRunning = false;
+                lock (this._SendMessages)
                 {
-                    while (_SendMessages.Count > 0)
+                    while (this._SendMessages.Count > 0)
                     {
-                        var str4 = _SendMessages.Dequeue();
-                        if (OnMessageSendFailure != null)
+                        string str4 = this._SendMessages.Dequeue();
+                        if (this.OnMessageSendFailure != null)
                         {
-                            OnMessageSendFailure(str4);
+                            this.OnMessageSendFailure(str4);
                         }
                     }
                 }
             }
         }
 
-        public bool IsRunning()
-        {
-            return _IsRunning;
-        }
+        public bool IsRunning() => 
+            this._IsRunning;
 
         public bool SendMessage(MessageObj msg)
         {
-            if (!_IsRunning)
+            if (!this._IsRunning)
             {
                 return false;
             }
-            var item = JsonConvert.SerializeObject(msg, Formatting.None);
-            lock (_SendMessages)
+            string item = JsonConvert.SerializeObject(msg, Formatting.None);
+            lock (this._SendMessages)
             {
-                _SendMessages.Enqueue(item);
+                this._SendMessages.Enqueue(item);
                 return true;
             }
         }
 
         public bool Start()
         {
-            if (_IsRunning)
+            if (this._IsRunning)
             {
                 throw new InvalidOperationException("Router is running!");
             }
             try
             {
-                var state = MemoryMappedFile.OpenExisting("RevitRouter", MemoryMappedFileRights.ReadWrite);
-                _IsRunning = true;
-                return ThreadPool.QueueUserWorkItem(Excute, state);
+                MemoryMappedFile state = MemoryMappedFile.OpenExisting("RevitRouter", MemoryMappedFileRights.ReadWrite);
+                this._IsRunning = true;
+                return ThreadPool.QueueUserWorkItem(new WaitCallback(this.Excute), state);
             }
             catch (FileNotFoundException)
             {
-                _IsRunning = false;
+                this._IsRunning = false;
                 return false;
             }
         }
 
         public void Stop()
         {
-            _IsRunning = false;
+            this._IsRunning = false;
+        }
+
+        void IDisposable.Dispose()
+        {
+            this._IsRunning = false;
         }
     }
 }
+

@@ -1,5 +1,7 @@
 ﻿namespace Utils
 {
+    using System;
+
     public enum FamilyParamHeaderName
     {
         parent_no,
@@ -12,3 +14,4 @@
         comType
     }
 }
+

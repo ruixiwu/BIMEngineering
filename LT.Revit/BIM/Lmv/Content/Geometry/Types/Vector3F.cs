@@ -1,7 +1,8 @@
-﻿using System;
-
-namespace BIM.Lmv.Content.Geometry.Types
+﻿namespace BIM.Lmv.Content.Geometry.Types
 {
+    using System;
+    using System.Runtime.InteropServices;
+
     public class Vector3F
     {
         public float x;
@@ -21,194 +22,190 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public Vector3F add(Vector3F v)
         {
-            x += v.x;
-            y += v.y;
-            z += v.z;
+            this.x += v.x;
+            this.y += v.y;
+            this.z += v.z;
             return this;
         }
 
         public Vector3F addScalar(float s)
         {
-            x += s;
-            y += s;
-            z += s;
+            this.x += s;
+            this.y += s;
+            this.z += s;
             return this;
         }
 
         public Vector3F addScaledVector(Vector3F v, float s)
         {
-            x += v.x*s;
-            y += v.y*s;
-            z += v.z*s;
+            this.x += v.x * s;
+            this.y += v.y * s;
+            this.z += v.z * s;
             return this;
         }
 
         public Vector3F addVectors(Vector3F a, Vector3F b)
         {
-            x = a.x + b.x;
-            y = a.y + b.y;
-            z = a.z + b.z;
+            this.x = a.x + b.x;
+            this.y = a.y + b.y;
+            this.z = a.z + b.z;
             return this;
         }
 
         public Vector3F applyMatrix3(Matrix4F m)
         {
-            var x = this.x;
-            var y = this.y;
-            var z = this.z;
-            var elements = m.elements;
-            this.x = elements[0]*x + elements[3]*y + elements[6]*z;
-            this.y = elements[1]*x + elements[4]*y + elements[7]*z;
-            this.z = elements[2]*x + elements[5]*y + elements[8]*z;
+            float x = this.x;
+            float y = this.y;
+            float z = this.z;
+            float[] elements = m.elements;
+            this.x = ((elements[0] * x) + (elements[3] * y)) + (elements[6] * z);
+            this.y = ((elements[1] * x) + (elements[4] * y)) + (elements[7] * z);
+            this.z = ((elements[2] * x) + (elements[5] * y)) + (elements[8] * z);
             return this;
         }
 
         public Vector3F applyMatrix4(Matrix4F m)
         {
-            var x = this.x;
-            var y = this.y;
-            var z = this.z;
-            var elements = m.elements;
-            this.x = elements[0]*x + elements[4]*y + elements[8]*z + elements[12];
-            this.y = elements[1]*x + elements[5]*y + elements[9]*z + elements[13];
-            this.z = elements[2]*x + elements[6]*y + elements[10]*z + elements[14];
+            float x = this.x;
+            float y = this.y;
+            float z = this.z;
+            float[] elements = m.elements;
+            this.x = (((elements[0] * x) + (elements[4] * y)) + (elements[8] * z)) + elements[12];
+            this.y = (((elements[1] * x) + (elements[5] * y)) + (elements[9] * z)) + elements[13];
+            this.z = (((elements[2] * x) + (elements[6] * y)) + (elements[10] * z)) + elements[14];
             return this;
         }
 
         public Vector3F applyProjection(Matrix4F m)
         {
-            var x = this.x;
-            var y = this.y;
-            var z = this.z;
-            var elements = m.elements;
-            var num4 = 1f/(elements[3]*x + elements[7]*y + elements[11]*z + elements[15]);
-            this.x = (elements[0]*x + elements[4]*y + elements[8]*z + elements[12])*num4;
-            this.y = (elements[1]*x + elements[5]*y + elements[9]*z + elements[13])*num4;
-            this.z = (elements[2]*x + elements[6]*y + elements[10]*z + elements[14])*num4;
+            float x = this.x;
+            float y = this.y;
+            float z = this.z;
+            float[] elements = m.elements;
+            float num4 = 1f / ((((elements[3] * x) + (elements[7] * y)) + (elements[11] * z)) + elements[15]);
+            this.x = ((((elements[0] * x) + (elements[4] * y)) + (elements[8] * z)) + elements[12]) * num4;
+            this.y = ((((elements[1] * x) + (elements[5] * y)) + (elements[9] * z)) + elements[13]) * num4;
+            this.z = ((((elements[2] * x) + (elements[6] * y)) + (elements[10] * z)) + elements[14]) * num4;
             return this;
         }
 
         public Vector3F applyQuaternion(Vector4F q)
         {
-            var x = this.x;
-            var y = this.y;
-            var z = this.z;
-            var num4 = q.x;
-            var num5 = q.y;
-            var num6 = q.z;
-            var w = q.w;
-            var num8 = w*x + num5*z - num6*y;
-            var num9 = w*y + num6*x - num4*z;
-            var num10 = w*z + num4*y - num5*x;
-            var num11 = -num4*x - num5*y - num6*z;
-            this.x = num8*w + num11*-num4 + num9*-num6 - num10*-num5;
-            this.y = num9*w + num11*-num5 + num10*-num4 - num8*-num6;
-            this.z = num10*w + num11*-num6 + num8*-num5 - num9*-num4;
+            float x = this.x;
+            float y = this.y;
+            float z = this.z;
+            float num4 = q.x;
+            float num5 = q.y;
+            float num6 = q.z;
+            float w = q.w;
+            float num8 = ((w * x) + (num5 * z)) - (num6 * y);
+            float num9 = ((w * y) + (num6 * x)) - (num4 * z);
+            float num10 = ((w * z) + (num4 * y)) - (num5 * x);
+            float num11 = ((-num4 * x) - (num5 * y)) - (num6 * z);
+            this.x = (((num8 * w) + (num11 * -num4)) + (num9 * -num6)) - (num10 * -num5);
+            this.y = (((num9 * w) + (num11 * -num5)) + (num10 * -num4)) - (num8 * -num6);
+            this.z = (((num10 * w) + (num11 * -num6)) + (num8 * -num5)) - (num9 * -num4);
             return this;
         }
 
         public Vector3F ceil()
         {
-            x = (float) Math.Ceiling(x);
-            y = (float) Math.Ceiling(y);
-            z = (float) Math.Ceiling(z);
+            this.x = (float) Math.Ceiling((double) this.x);
+            this.y = (float) Math.Ceiling((double) this.y);
+            this.z = (float) Math.Ceiling((double) this.z);
             return this;
         }
 
         public Vector3F clamp(Vector3F min, Vector3F max)
         {
-            if (x < min.x)
+            if (this.x < min.x)
             {
-                x = min.x;
+                this.x = min.x;
             }
-            else if (x > max.x)
+            else if (this.x > max.x)
             {
-                x = max.x;
+                this.x = max.x;
             }
-            if (y < min.y)
+            if (this.y < min.y)
             {
-                y = min.y;
+                this.y = min.y;
             }
-            else if (y > max.y)
+            else if (this.y > max.y)
             {
-                y = max.y;
+                this.y = max.y;
             }
-            if (z < min.z)
+            if (this.z < min.z)
             {
-                z = min.z;
+                this.z = min.z;
             }
-            else if (z > max.z)
+            else if (this.z > max.z)
             {
-                z = max.z;
+                this.z = max.z;
             }
             return this;
         }
 
         public Vector3F clampScalar(float minVal, float maxVal)
         {
-            var min = new Vector3F();
-            var max = new Vector3F();
+            Vector3F min = new Vector3F();
+            Vector3F max = new Vector3F();
             min.set(minVal, minVal, minVal);
             max.set(maxVal, maxVal, maxVal);
-            return clamp(min, max);
+            return this.clamp(min, max);
         }
 
-        public Vector3F clone()
-        {
-            return new Vector3F(x, y, z);
-        }
+        public Vector3F clone() => 
+            new Vector3F(this.x, this.y, this.z);
 
         public Vector3F copy(Vector3F v)
         {
-            x = v.x;
-            y = v.y;
-            z = v.z;
+            this.x = v.x;
+            this.y = v.y;
+            this.z = v.z;
             return this;
         }
 
         public Vector3F cross(Vector3F v)
         {
-            var x = this.x;
-            var y = this.y;
-            var z = this.z;
-            this.x = y*v.z - z*v.y;
-            this.y = z*v.x - x*v.z;
-            this.z = x*v.y - y*v.x;
+            float x = this.x;
+            float y = this.y;
+            float z = this.z;
+            this.x = (y * v.z) - (z * v.y);
+            this.y = (z * v.x) - (x * v.z);
+            this.z = (x * v.y) - (y * v.x);
             return this;
         }
 
         public Vector3F crossVectors(Vector3F a, Vector3F b)
         {
-            var x = a.x;
-            var y = a.y;
-            var z = a.z;
-            var num4 = b.x;
-            var num5 = b.y;
-            var num6 = b.z;
-            this.x = y*num6 - z*num5;
-            this.y = z*num4 - x*num6;
-            this.z = x*num5 - y*num4;
+            float x = a.x;
+            float y = a.y;
+            float z = a.z;
+            float num4 = b.x;
+            float num5 = b.y;
+            float num6 = b.z;
+            this.x = (y * num6) - (z * num5);
+            this.y = (z * num4) - (x * num6);
+            this.z = (x * num5) - (y * num4);
             return this;
         }
 
-        public float distanceTo(Vector3F v)
-        {
-            return (float) Math.Sqrt(distanceToSquared(v));
-        }
+        public float distanceTo(Vector3F v) => 
+            ((float) Math.Sqrt((double) this.distanceToSquared(v)));
 
         public float distanceToSquared(Vector3F v)
         {
-            var num = x - v.x;
-            var num2 = y - v.y;
-            var num3 = z - v.z;
-            return num*num + num2*num2 + num3*num3;
+            float num = this.x - v.x;
+            float num2 = this.y - v.y;
+            float num3 = this.z - v.z;
+            return (((num * num) + (num2 * num2)) + (num3 * num3));
         }
 
         public Vector3F divide(Vector3F v)
         {
-            x /= v.x;
-            y /= v.y;
-            z /= v.z;
+            this.x /= v.x;
+            this.y /= v.y;
+            this.z /= v.z;
             return this;
         }
 
@@ -216,43 +213,39 @@ namespace BIM.Lmv.Content.Geometry.Types
         {
             if (!(scalar == 0f))
             {
-                var num = 1f/scalar;
-                x *= num;
-                y *= num;
-                z *= num;
+                float num = 1f / scalar;
+                this.x *= num;
+                this.y *= num;
+                this.z *= num;
             }
             else
             {
-                x = 0f;
-                y = 0f;
-                z = 0f;
+                this.x = 0f;
+                this.y = 0f;
+                this.z = 0f;
             }
             return this;
         }
 
-        public float dot(Vector3F v)
-        {
-            return x*v.x + y*v.y + z*v.z;
-        }
+        public float dot(Vector3F v) => 
+            (((this.x * v.x) + (this.y * v.y)) + (this.z * v.z));
 
-        public bool equals(Vector3F v)
-        {
-            return (v.x == x) && (v.y == y) && (v.z == z);
-        }
+        public bool equals(Vector3F v) => 
+            (((v.x == this.x) && (v.y == this.y)) && (v.z == this.z));
 
         public Vector3F floor()
         {
-            x = (float) Math.Floor(x);
-            y = (float) Math.Floor(y);
-            z = (float) Math.Floor(z);
+            this.x = (float) Math.Floor((double) this.x);
+            this.y = (float) Math.Floor((double) this.y);
+            this.z = (float) Math.Floor((double) this.z);
             return this;
         }
 
         public Vector3F fromArray(float[] array, int offset = 0)
         {
-            x = array[offset];
-            y = array[offset + 1];
-            z = array[offset + 2];
+            this.x = array[offset];
+            this.y = array[offset + 1];
+            this.z = array[offset + 2];
             return this;
         }
 
@@ -262,103 +255,91 @@ namespace BIM.Lmv.Content.Geometry.Types
             {
                 offset = 0;
             }
-            index = index*attributeItemSize + offset;
-            x = attributeArray[index];
-            y = attributeArray[index + 1];
-            z = attributeArray[index + 2];
+            index = (index * attributeItemSize) + offset;
+            this.x = attributeArray[index];
+            this.y = attributeArray[index + 1];
+            this.z = attributeArray[index + 2];
             return this;
         }
 
-        public Vector3F getColumnFromMatrix(int index, Matrix4F matrix)
-        {
-            return setFromMatrixColumn(index, matrix);
-        }
+        public Vector3F getColumnFromMatrix(int index, Matrix4F matrix) => 
+            this.setFromMatrixColumn(index, matrix);
 
         public float getComponent(int index)
         {
             switch (index)
             {
                 case 0:
-                    return x;
+                    return this.x;
 
                 case 1:
-                    return y;
+                    return this.y;
 
                 case 2:
-                    return z;
+                    return this.z;
             }
             throw new NotSupportedException("index is out of range: " + index);
         }
 
-        public Vector3F getPositionFromMatrix(Matrix4F m)
-        {
-            return setFromMatrixPosition(m);
-        }
+        public Vector3F getPositionFromMatrix(Matrix4F m) => 
+            this.setFromMatrixPosition(m);
 
-        public Vector3F getScaleFromMatrix(Matrix4F m)
-        {
-            return setFromMatrixScale(m);
-        }
+        public Vector3F getScaleFromMatrix(Matrix4F m) => 
+            this.setFromMatrixScale(m);
 
-        public float length()
-        {
-            return (float) Math.Sqrt(x*x + y*y + z*z);
-        }
+        public float length() => 
+            ((float) Math.Sqrt((double) (((this.x * this.x) + (this.y * this.y)) + (this.z * this.z))));
 
-        public float lengthManhattan()
-        {
-            return Math.Abs(x) + Math.Abs(y) + Math.Abs(z);
-        }
+        public float lengthManhattan() => 
+            ((Math.Abs(this.x) + Math.Abs(this.y)) + Math.Abs(this.z));
 
-        public float lengthSq()
-        {
-            return x*x + y*y + z*z;
-        }
+        public float lengthSq() => 
+            (((this.x * this.x) + (this.y * this.y)) + (this.z * this.z));
 
         public Vector3F lerp(Vector3F v, float alpha)
         {
-            x += (v.x - x)*alpha;
-            y += (v.y - y)*alpha;
-            z += (v.z - z)*alpha;
+            this.x += (v.x - this.x) * alpha;
+            this.y += (v.y - this.y) * alpha;
+            this.z += (v.z - this.z) * alpha;
             return this;
         }
 
         public Vector3F lerpVectors(Vector3F v1, Vector3F v2, float alpha)
         {
-            subVectors(v2, v1).multiplyScalar(alpha).add(v1);
+            this.subVectors(v2, v1).multiplyScalar(alpha).add(v1);
             return this;
         }
 
         public Vector3F max(Vector3F v)
         {
-            if (x < v.x)
+            if (this.x < v.x)
             {
-                x = v.x;
+                this.x = v.x;
             }
-            if (y < v.y)
+            if (this.y < v.y)
             {
-                y = v.y;
+                this.y = v.y;
             }
-            if (z < v.z)
+            if (this.z < v.z)
             {
-                z = v.z;
+                this.z = v.z;
             }
             return this;
         }
 
         public Vector3F min(Vector3F v)
         {
-            if (x > v.x)
+            if (this.x > v.x)
             {
-                x = v.x;
+                this.x = v.x;
             }
-            if (y > v.y)
+            if (this.y > v.y)
             {
-                y = v.y;
+                this.y = v.y;
             }
-            if (z > v.z)
+            if (this.z > v.z)
             {
-                z = v.z;
+                this.z = v.z;
             }
             return this;
         }
@@ -367,42 +348,40 @@ namespace BIM.Lmv.Content.Geometry.Types
         {
             if (w != null)
             {
-                return multiplyVectors(v, w);
+                return this.multiplyVectors(v, w);
             }
-            x *= v.x;
-            y *= v.y;
-            z *= v.z;
+            this.x *= v.x;
+            this.y *= v.y;
+            this.z *= v.z;
             return this;
         }
 
         public Vector3F multiplyScalar(float scalar)
         {
-            x *= scalar;
-            y *= scalar;
-            z *= scalar;
+            this.x *= scalar;
+            this.y *= scalar;
+            this.z *= scalar;
             return this;
         }
 
         public Vector3F multiplyVectors(Vector3F a, Vector3F b)
         {
-            x = a.x*b.x;
-            y = a.y*b.y;
-            z = a.z*b.z;
+            this.x = a.x * b.x;
+            this.y = a.y * b.y;
+            this.z = a.z * b.z;
             return this;
         }
 
         public Vector3F negate()
         {
-            x = -x;
-            y = -y;
-            z = -z;
+            this.x = -this.x;
+            this.y = -this.y;
+            this.z = -this.z;
             return this;
         }
 
-        public Vector3F normalize()
-        {
-            return divideScalar(length());
-        }
+        public Vector3F normalize() => 
+            this.divideScalar(this.length());
 
         public static explicit operator Vector3F(Vector3D v)
         {
@@ -415,38 +394,38 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public Vector3F projectOnPlane(Vector3F planeNormal)
         {
-            var v = new Vector3F();
+            Vector3F v = new Vector3F();
             v.copy(this).projectOnVector(planeNormal);
-            return sub(v);
+            return this.sub(v);
         }
 
         public Vector3F projectOnVector(Vector3F vector)
         {
-            var v = new Vector3F();
+            Vector3F v = new Vector3F();
             v.copy(vector).normalize();
-            var scalar = dot(v);
-            return copy(v).multiplyScalar(scalar);
+            float scalar = this.dot(v);
+            return this.copy(v).multiplyScalar(scalar);
         }
 
         public Vector3F reflect(Vector3F normal)
         {
-            var vectorf = new Vector3F();
-            return sub(vectorf.copy(normal).multiplyScalar(2f*dot(normal)));
+            Vector3F vectorf = new Vector3F();
+            return this.sub(vectorf.copy(normal).multiplyScalar(2f * this.dot(normal)));
         }
 
         public Vector3F round()
         {
-            x = (float) Math.Round(x);
-            y = (float) Math.Round(y);
-            z = (float) Math.Round(z);
+            this.x = (float) Math.Round((double) this.x);
+            this.y = (float) Math.Round((double) this.y);
+            this.z = (float) Math.Round((double) this.z);
             return this;
         }
 
         public Vector3F roundToZero()
         {
-            x = x < 0f ? (float) Math.Ceiling(x) : (float) Math.Floor(x);
-            y = y < 0f ? (float) Math.Ceiling(y) : (float) Math.Floor(y);
-            z = z < 0f ? (float) Math.Ceiling(z) : (float) Math.Floor(z);
+            this.x = (this.x < 0f) ? ((float) Math.Ceiling((double) this.x)) : ((float) Math.Floor((double) this.x));
+            this.y = (this.y < 0f) ? ((float) Math.Ceiling((double) this.y)) : ((float) Math.Floor((double) this.y));
+            this.z = (this.z < 0f) ? ((float) Math.Ceiling((double) this.z)) : ((float) Math.Floor((double) this.z));
             return this;
         }
 
@@ -463,15 +442,15 @@ namespace BIM.Lmv.Content.Geometry.Types
             switch (index)
             {
                 case 0:
-                    x = value;
+                    this.x = value;
                     break;
 
                 case 1:
-                    y = value;
+                    this.y = value;
                     break;
 
                 case 2:
-                    z = value;
+                    this.z = value;
                     break;
 
                 default:
@@ -481,39 +460,39 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public Vector3F setFromMatrixColumn(int index, Matrix4F matrix)
         {
-            var num = index*4;
-            var elements = matrix.elements;
-            x = elements[num];
-            y = elements[num + 1];
-            z = elements[num + 2];
+            int num = index * 4;
+            float[] elements = matrix.elements;
+            this.x = elements[num];
+            this.y = elements[num + 1];
+            this.z = elements[num + 2];
             return this;
         }
 
         public Vector3F setFromMatrixPosition(Matrix4F m)
         {
-            x = m.elements[12];
-            y = m.elements[13];
-            z = m.elements[14];
+            this.x = m.elements[12];
+            this.y = m.elements[13];
+            this.z = m.elements[14];
             return this;
         }
 
         public Vector3F setFromMatrixScale(Matrix4F m)
         {
-            var num = set(m.elements[0], m.elements[1], m.elements[2]).length();
-            var num2 = set(m.elements[4], m.elements[5], m.elements[6]).length();
-            var num3 = set(m.elements[8], m.elements[9], m.elements[10]).length();
-            x = num;
-            y = num2;
-            z = num3;
+            float num = this.set(m.elements[0], m.elements[1], m.elements[2]).length();
+            float num2 = this.set(m.elements[4], m.elements[5], m.elements[6]).length();
+            float num3 = this.set(m.elements[8], m.elements[9], m.elements[10]).length();
+            this.x = num;
+            this.y = num2;
+            this.z = num3;
             return this;
         }
 
         public Vector3F setLength(float l)
         {
-            var num = length();
+            float num = this.length();
             if ((num != 0f) && (l != num))
             {
-                multiplyScalar(l/num);
+                this.multiplyScalar(l / num);
             }
             return this;
         }
@@ -538,25 +517,25 @@ namespace BIM.Lmv.Content.Geometry.Types
 
         public Vector3F sub(Vector3F v)
         {
-            x -= v.x;
-            y -= v.y;
-            z -= v.z;
+            this.x -= v.x;
+            this.y -= v.y;
+            this.z -= v.z;
             return this;
         }
 
         public Vector3F subScalar(float s)
         {
-            x -= s;
-            y -= s;
-            z -= s;
+            this.x -= s;
+            this.y -= s;
+            this.z -= s;
             return this;
         }
 
         public Vector3F subVectors(Vector3F a, Vector3F b)
         {
-            x = a.x - b.x;
-            y = a.y - b.y;
-            z = a.z - b.z;
+            this.x = a.x - b.x;
+            this.y = a.y - b.y;
+            this.z = a.z - b.z;
             return this;
         }
 
@@ -570,28 +549,27 @@ namespace BIM.Lmv.Content.Geometry.Types
             {
                 array = new float[offset + 3];
             }
-            array[offset] = x;
-            array[offset + 1] = y;
-            array[offset + 2] = z;
+            array[offset] = this.x;
+            array[offset + 1] = this.y;
+            array[offset + 2] = this.z;
             return array;
         }
 
-        public override string ToString()
-        {
-            return string.Concat("Viector3F(", x, ",", y, ",", z, ")");
-        }
+        public override string ToString() => 
+            string.Concat(new object[] { "Viector3F(", this.x, ",", this.y, ",", this.z, ")" });
 
         public Vector3F transformDirection(Matrix4F m)
         {
-            var x = this.x;
-            var y = this.y;
-            var z = this.z;
-            var elements = m.elements;
-            this.x = elements[0]*x + elements[4]*y + elements[8]*z;
-            this.y = elements[1]*x + elements[5]*y + elements[9]*z;
-            this.z = elements[2]*x + elements[6]*y + elements[10]*z;
-            normalize();
+            float x = this.x;
+            float y = this.y;
+            float z = this.z;
+            float[] elements = m.elements;
+            this.x = ((elements[0] * x) + (elements[4] * y)) + (elements[8] * z);
+            this.y = ((elements[1] * x) + (elements[5] * y)) + (elements[9] * z);
+            this.z = ((elements[2] * x) + (elements[6] * y)) + (elements[10] * z);
+            this.normalize();
             return this;
         }
     }
 }
+

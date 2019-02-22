@@ -1,21 +1,34 @@
-﻿using System;
-
-namespace BIM.Lmv.Revit.Config
+﻿namespace BIM.Lmv.Revit.Config
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     [Serializable]
     internal class AppCloudConfig
     {
         public AppCloudConfig()
         {
-            UserName = string.Empty;
-            UserPassword = string.Empty;
-            UserRemember = true;
-            IncludeTexture = true;
-            IncludeProperty = true;
-            ShareMode = 1;
-            ShareExpireDays = 0;
-            WXToken = string.Empty;
+            this.UserName = string.Empty;
+            this.UserPassword = string.Empty;
+            this.UserRemember = true;
+            this.IncludeTexture = true;
+            this.IncludeProperty = true;
+            this.ShareMode = 1;
+            this.ShareExpireDays = 0;
+            this.WXToken = string.Empty;
         }
+
+        public AppCloudConfig Clone() => 
+            new AppCloudConfig { 
+                UserName = this.UserName,
+                UserPassword = this.UserPassword,
+                UserRemember = this.UserRemember,
+                IncludeTexture = this.IncludeTexture,
+                IncludeProperty = this.IncludeProperty,
+                ShareMode = this.ShareMode,
+                ShareExpireDays = this.ShareExpireDays,
+                WXToken = this.WXToken
+            };
 
         public bool IncludeProperty { get; set; }
 
@@ -32,20 +45,6 @@ namespace BIM.Lmv.Revit.Config
         public bool UserRemember { get; set; }
 
         public string WXToken { get; set; }
-
-        public AppCloudConfig Clone()
-        {
-            return new AppCloudConfig
-            {
-                UserName = UserName,
-                UserPassword = UserPassword,
-                UserRemember = UserRemember,
-                IncludeTexture = IncludeTexture,
-                IncludeProperty = IncludeProperty,
-                ShareMode = ShareMode,
-                ShareExpireDays = ShareExpireDays,
-                WXToken = WXToken
-            };
-        }
     }
 }
+

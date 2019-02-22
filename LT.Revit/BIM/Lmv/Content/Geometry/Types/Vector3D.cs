@@ -1,5 +1,7 @@
 ﻿namespace BIM.Lmv.Content.Geometry.Types
 {
+    using System;
+
     public class Vector3D
     {
         public double x;
@@ -17,10 +19,8 @@
             this.z = z;
         }
 
-        public Vector3D Clone()
-        {
-            return new Vector3D(x, y, z);
-        }
+        public Vector3D Clone() => 
+            new Vector3D(this.x, this.y, this.z);
 
         public static explicit operator Vector3D(Vector3F v)
         {
@@ -28,12 +28,11 @@
             {
                 return null;
             }
-            return new Vector3D(v.x, v.y, v.z);
+            return new Vector3D((double) v.x, (double) v.y, (double) v.z);
         }
 
-        public override string ToString()
-        {
-            return string.Concat("Viector3D(", x, ",", y, ",", z, ")");
-        }
+        public override string ToString() => 
+            string.Concat(new object[] { "Viector3D(", this.x, ",", this.y, ",", this.z, ")" });
     }
 }
+

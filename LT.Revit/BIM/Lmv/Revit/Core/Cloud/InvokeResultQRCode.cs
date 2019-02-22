@@ -1,7 +1,8 @@
-﻿using System;
-
-namespace BIM.Lmv.Revit.Core.Cloud
+﻿namespace BIM.Lmv.Revit.Core.Cloud
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     [Serializable]
     internal class InvokeResultQRCode
     {
@@ -12,3 +13,4 @@ namespace BIM.Lmv.Revit.Core.Cloud
         public string WsUrl { get; set; }
     }
 }
+

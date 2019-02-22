@@ -1,7 +1,8 @@
-﻿using System.Collections.Generic;
-
-namespace BIM.Lmv.Revit.Core.Cloud
+﻿namespace BIM.Lmv.Revit.Core.Cloud
 {
+    using System;
+    using System.Collections.Generic;
+
     internal class CloudErrorMessages
     {
         private static readonly Dictionary<int, string> ErrorInfos = new Dictionary<int, string>();
@@ -30,3 +31,4 @@ namespace BIM.Lmv.Revit.Core.Cloud
         }
     }
 }
+

@@ -1,5 +1,7 @@
 ﻿namespace BIM.Lmv.Types
 {
+    using System;
+
     public enum PropDataType
     {
         Boolean = 1,
@@ -9,3 +11,4 @@
         String = 20
     }
 }
+

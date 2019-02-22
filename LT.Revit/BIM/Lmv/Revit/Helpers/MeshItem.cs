@@ -1,5 +1,8 @@
 ﻿namespace BIM.Lmv.Revit.Helpers
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     internal class MeshItem
     {
         public static int _nCurMesh;
@@ -9,15 +12,14 @@
             _nCurMesh++;
         }
 
-        public MeshItem(string sName, string sMaterialId, string sAcc_Positon, string sAcc_Index, string sAcc_Normal,
-            string sAcc_Texcoord)
+        public MeshItem(string sName, string sMaterialId, string sAcc_Positon, string sAcc_Index, string sAcc_Normal, string sAcc_Texcoord)
         {
-            Name = sName;
-            MaterialId = sMaterialId;
-            Acc_Positon = sAcc_Positon;
-            Acc_Index = sAcc_Index;
-            Acc_Normal = sAcc_Normal;
-            Acc_Texcoord = sAcc_Texcoord;
+            this.Name = sName;
+            this.MaterialId = sMaterialId;
+            this.Acc_Positon = sAcc_Positon;
+            this.Acc_Index = sAcc_Index;
+            this.Acc_Normal = sAcc_Normal;
+            this.Acc_Texcoord = sAcc_Texcoord;
             _nCurMesh++;
         }
 
@@ -38,3 +40,4 @@
         public string ObjectId { get; set; }
     }
 }
+

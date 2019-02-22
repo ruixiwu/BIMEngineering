@@ -1,8 +1,9 @@
-﻿using System.IO;
-using Ionic.Zip;
-
-namespace BIM.Lmv.Processers
+﻿namespace BIM.Lmv.Processers
 {
+    using Ionic.Zip;
+    using System;
+    using System.IO;
+
     internal class FileEntryFolderName : FileEntry
     {
         public FileEntryFolderName(string entryName) : base(entryName)
@@ -23,7 +24,8 @@ namespace BIM.Lmv.Processers
 
         public override void OnOutputToZip(ZipFile zip)
         {
-            zip.AddDirectoryByName(EntryName);
+            zip.AddDirectoryByName(base.EntryName);
         }
     }
 }
+

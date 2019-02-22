@@ -1,12 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Text;
-using BIM.Lmv.Types;
-using Ionic.Zip;
-
-namespace BIM.Lmv.Processers
+﻿namespace BIM.Lmv.Processers
 {
+    using BIM.Lmv.Types;
+    using Ionic.Zip;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Text;
+
     internal class OutputProcesser
     {
         private readonly List<FileEntry> _EntryList;
@@ -15,9 +15,9 @@ namespace BIM.Lmv.Processers
 
         public OutputProcesser(string targetPath, ExportOption option)
         {
-            _TargetPath = targetPath;
-            _ExportOption = option;
-            _EntryList = new List<FileEntry>();
+            this._TargetPath = targetPath;
+            this._ExportOption = option;
+            this._EntryList = new List<FileEntry>();
             if (!((option.Target != ExportTarget.LocalFolder) || Directory.Exists(targetPath)))
             {
                 Directory.CreateDirectory(targetPath);
@@ -30,29 +30,29 @@ namespace BIM.Lmv.Processers
             {
                 throw new ArgumentNullException("entry");
             }
-            if (_ExportOption.Target == ExportTarget.LocalFolder)
+            if (this._ExportOption.Target == ExportTarget.LocalFolder)
             {
-                var path = Path.Combine(_TargetPath, entry.EntryName);
+                string path = Path.Combine(this._TargetPath, entry.EntryName);
                 entry.OnOutputToDisk(path);
                 entry.Dispose();
             }
             else
             {
-                _EntryList.Add(entry);
+                this._EntryList.Add(entry);
             }
         }
 
         public void OnFinish(Stream outputStream)
         {
-            if (_ExportOption.Target == ExportTarget.LocalFolder)
+            if (this._ExportOption.Target == ExportTarget.LocalFolder)
             {
                 throw new InvalidOperationException();
             }
             try
             {
-                using (var file = new ZipFile(Encoding.UTF8))
+                using (ZipFile file = new ZipFile(Encoding.UTF8))
                 {
-                    foreach (var entry in _EntryList)
+                    foreach (FileEntry entry in this._EntryList)
                     {
                         entry.OnOutputToZip(file);
                     }
@@ -61,12 +61,13 @@ namespace BIM.Lmv.Processers
             }
             finally
             {
-                foreach (var entry in _EntryList)
+                foreach (FileEntry entry in this._EntryList)
                 {
                     entry.Dispose();
                 }
-                _EntryList.Clear();
+                this._EntryList.Clear();
             }
         }
     }
 }
+

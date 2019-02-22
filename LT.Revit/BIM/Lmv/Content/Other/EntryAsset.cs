@@ -1,7 +1,8 @@
-﻿using Newtonsoft.Json.Linq;
-
-namespace BIM.Lmv.Content.Other
+﻿namespace BIM.Lmv.Content.Other
 {
+    using Newtonsoft.Json.Linq;
+    using System;
+
     internal class EntryAsset
     {
         public string id;
@@ -23,32 +24,33 @@ namespace BIM.Lmv.Content.Other
 
         public JObject GetData()
         {
-            var obj2 = new JObject();
-            if (id != null)
+            JObject obj2 = new JObject();
+            if (this.id != null)
             {
-                obj2["id"] = id;
+                obj2["id"] = this.id;
             }
-            if (type != null)
+            if (this.type != null)
             {
-                obj2["type"] = type;
+                obj2["type"] = this.type;
             }
-            if (typeset != null)
+            if (this.typeset != null)
             {
-                obj2["typeset"] = typeset;
+                obj2["typeset"] = this.typeset;
             }
-            if (uri != null)
+            if (this.uri != null)
             {
-                obj2["URI"] = uri;
+                obj2["URI"] = this.uri;
             }
-            if (size.HasValue)
+            if (this.size.HasValue)
             {
-                obj2["size"] = size;
+                obj2["size"] = this.size;
             }
-            if (usize.HasValue)
+            if (this.usize.HasValue)
             {
-                obj2["usize"] = usize;
+                obj2["usize"] = this.usize;
             }
             return obj2;
         }
     }
 }
+

@@ -177,24 +177,6 @@
     <Compile Include="BIM\Lmv\Revit\Batch\RevitDialogType.cs" />
     <Compile Include="BIM\Lmv\Revit\Batch\Router.cs" />
     <Compile Include="BIM\Lmv\Revit\Helpers\ExportHelper.cs" />
-    <Compile Include="BIM\Lmv\Revit\UI\FormCloudLogin.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BIM\Lmv\Revit\UI\FormCloudShare.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BIM\Lmv\Revit\UI\FormCloudShareProgress.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BIM\Lmv\Revit\UI\FormCloudShareResultPublic.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BIM\Lmv\Revit\UI\FormCloudShareResultPrivate.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BIM\Lmv\Revit\UI\FormLocalShare.cs">
-      <SubType>Form</SubType>
-    </Compile>
     <Compile Include="BIM\Lmv\Revit\UI\FormModel.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -243,6 +225,12 @@
     <None Include="LT.Revit.dll.config" />
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="BIM\Lmv\Revit\UI\FormLogin.resx">
+      <DependentUpon>FormLogin.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="BIM\Lmv\Revit\UI\FormModel.resx">
+      <DependentUpon>FormModel.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
@@ -256,10 +244,6 @@
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="BIM.Lmv.Processers.Resources.index.local.html" />
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Resources\config.txt" />
-    <Content Include="Resources\sqlite3RW.py" />
   </ItemGroup>
   <PropertyGroup>
     <PostBuildEvent>xcopy /e  /y $(ProjectDir)Resources $(ProjectDir)$(OutDir)</PostBuildEvent>

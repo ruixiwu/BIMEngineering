@@ -1,69 +1,68 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Windows.Forms;
-using Autodesk.Revit.DB;
-using BIM.Lmv.Content.Geometry.Types;
-using BIM.Lmv.Revit.Helpers;
-using BIM.Lmv.Types;
-using CameraInfo = Autodesk.Revit.DB.CameraInfo;
-
-namespace BIM.Lmv.Revit.Core
+﻿namespace BIM.Lmv.Revit.Core
 {
+    using Autodesk.Revit.DB;
+    using BIM.Lmv;
+    using BIM.Lmv.Content.Geometry.Types;
+    using BIM.Lmv.Revit.Helpers;
+    using BIM.Lmv.Types;
+    using System;
+    using System.Collections.Generic;
+    using System.IO;
+    using System.Runtime.InteropServices;
+    using System.Windows.Forms;
+
     internal class ExportContext : IExportContext
     {
-        private readonly Stack<Document> _DocumentStack = new Stack<Document>();
-        private readonly Dictionary<int, bool> _ElementIds;
-        private readonly bool _IncludeProperty;
-        private readonly bool _IncludeTexture;
-        private readonly Stream _OutputStream;
-        private readonly ExportTarget _Target;
-        private readonly string _TargetPath;
-        private readonly Action<string, string, string> _Trace;
-        private readonly bool _Cancelled;
-        private CameraInfo _CurrentCameraInfo;
+        private bool _Cancelled;
+        private Autodesk.Revit.DB.CameraInfo _CurrentCameraInfo;
         private Element _CurrentElement;
         private View3D _CurrentView;
         private Document _Document;
+        private readonly Stack<Document> _DocumentStack = new Stack<Document>();
         private BoundingBoxXYZ _ElementBox;
         private bool _ElementHasGeometry;
+        private readonly Dictionary<int, bool> _ElementIds;
         private IDataExport _Exporter;
         private GeometryHelper _GeometryHelper;
         private Vector3F _GlobalBoxMax;
         private Vector3F _GlobalBoxMin;
+        private readonly bool _IncludeProperty;
+        private readonly bool _IncludeTexture;
         private bool _IsElementSkiped;
         private MaterialHelper _MaterialHelper;
+        private readonly Stream _OutputStream;
         private PropertyHelper _PropHelper;
+        private readonly ExportTarget _Target;
+        private readonly string _TargetPath;
+        private readonly Action<string, string, string> _Trace;
         private bool _TraceElementInvokeSequence;
         public View3D _View;
 
-        public ExportContext(View3D view, Document document, string targetPath, ExportTarget target = 0,
-            Stream outputStream = null, bool includeTexture = true, bool includeProperty = true,
-            Action<string, string, string> trace = null, Dictionary<int, bool> elementIds = null)
+        public ExportContext(View3D view, Document document, string targetPath, ExportTarget target = 0, Stream outputStream = null, bool includeTexture = true, bool includeProperty = true, Action<string, string, string> trace = null, Dictionary<int, bool> elementIds = null)
         {
-            _View = view;
-            _Document = document;
-            _Cancelled = false;
-            _Target = target;
-            _OutputStream = outputStream;
-            _IncludeTexture = includeTexture;
-            _IncludeProperty = includeProperty;
-            _Trace = trace;
-            _TargetPath = targetPath;
-            _ElementIds = elementIds;
+            this._View = view;
+            this._Document = document;
+            this._Cancelled = false;
+            this._Target = target;
+            this._OutputStream = outputStream;
+            this._IncludeTexture = includeTexture;
+            this._IncludeProperty = includeProperty;
+            this._Trace = trace;
+            this._TargetPath = targetPath;
+            this._ElementIds = elementIds;
         }
 
         void IExportContext.Finish()
         {
             try
             {
-                Finish();
+                this.Finish();
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "Finish", exception.ToString());
+                    this._Trace("Exception", "Finish", exception.ToString());
                 }
                 throw;
             }
@@ -74,13 +73,13 @@ namespace BIM.Lmv.Revit.Core
             bool flag;
             try
             {
-                flag = IsCanceled();
+                flag = this.IsCanceled();
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "IsCanceled", exception.ToString());
+                    this._Trace("Exception", "IsCanceled", exception.ToString());
                 }
                 throw;
             }
@@ -91,13 +90,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnDaylightPortal(node);
+                this.OnDaylightPortal(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnDaylightPortal", exception.ToString());
+                    this._Trace("Exception", "OnDaylightPortal", exception.ToString());
                 }
                 throw;
             }
@@ -108,13 +107,13 @@ namespace BIM.Lmv.Revit.Core
             RenderNodeAction action;
             try
             {
-                action = OnElementBegin(elementId);
+                action = this.OnElementBegin(elementId);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnElementBegin", exception.ToString());
+                    this._Trace("Exception", "OnElementBegin", exception.ToString());
                 }
                 throw;
             }
@@ -125,13 +124,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnElementEnd(elementId);
+                this.OnElementEnd(elementId);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnElementEnd", exception.ToString());
+                    this._Trace("Exception", "OnElementEnd", exception.ToString());
                 }
                 throw;
             }
@@ -142,13 +141,13 @@ namespace BIM.Lmv.Revit.Core
             RenderNodeAction action;
             try
             {
-                action = OnFaceBegin(node);
+                action = this.OnFaceBegin(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnFaceBegin", exception.ToString());
+                    this._Trace("Exception", "OnFaceBegin", exception.ToString());
                 }
                 throw;
             }
@@ -159,13 +158,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnFaceEnd(node);
+                this.OnFaceEnd(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnFaceEnd", exception.ToString());
+                    this._Trace("Exception", "OnFaceEnd", exception.ToString());
                 }
                 throw;
             }
@@ -176,13 +175,13 @@ namespace BIM.Lmv.Revit.Core
             RenderNodeAction action;
             try
             {
-                action = OnInstanceBegin(node);
+                action = this.OnInstanceBegin(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnInstanceBegin", exception.ToString());
+                    this._Trace("Exception", "OnInstanceBegin", exception.ToString());
                 }
                 throw;
             }
@@ -193,13 +192,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnInstanceEnd(node);
+                this.OnInstanceEnd(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnInstanceEnd", exception.ToString());
+                    this._Trace("Exception", "OnInstanceEnd", exception.ToString());
                 }
                 throw;
             }
@@ -209,13 +208,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnLight(node);
+                this.OnLight(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnLight", exception.ToString());
+                    this._Trace("Exception", "OnLight", exception.ToString());
                 }
                 throw;
             }
@@ -226,13 +225,13 @@ namespace BIM.Lmv.Revit.Core
             RenderNodeAction action;
             try
             {
-                action = OnLinkBegin(node);
+                action = this.OnLinkBegin(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnLinkBegin", exception.ToString());
+                    this._Trace("Exception", "OnLinkBegin", exception.ToString());
                 }
                 throw;
             }
@@ -243,13 +242,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnLinkEnd(node);
+                this.OnLinkEnd(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnLinkEnd", exception.ToString());
+                    this._Trace("Exception", "OnLinkEnd", exception.ToString());
                 }
                 throw;
             }
@@ -259,13 +258,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnMaterial(node);
+                this.OnMaterial(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnMaterial", exception.ToString());
+                    this._Trace("Exception", "OnMaterial", exception.ToString());
                 }
                 throw;
             }
@@ -275,13 +274,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnPolymesh(node);
+                this.OnPolymesh(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnPolymesh", exception.ToString());
+                    this._Trace("Exception", "OnPolymesh", exception.ToString());
                 }
                 throw;
             }
@@ -291,13 +290,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnRPC(node);
+                this.OnRPC(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnRPC", exception.ToString());
+                    this._Trace("Exception", "OnRPC", exception.ToString());
                 }
                 throw;
             }
@@ -308,13 +307,13 @@ namespace BIM.Lmv.Revit.Core
             RenderNodeAction action;
             try
             {
-                action = OnViewBegin(node);
+                action = this.OnViewBegin(node);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnViewBegin", exception.ToString());
+                    this._Trace("Exception", "OnViewBegin", exception.ToString());
                 }
                 throw;
             }
@@ -325,13 +324,13 @@ namespace BIM.Lmv.Revit.Core
         {
             try
             {
-                OnViewEnd(elementId);
+                this.OnViewEnd(elementId);
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "OnViewEnd", exception.ToString());
+                    this._Trace("Exception", "OnViewEnd", exception.ToString());
                 }
                 throw;
             }
@@ -342,13 +341,13 @@ namespace BIM.Lmv.Revit.Core
             bool flag;
             try
             {
-                flag = Start();
+                flag = this.Start();
             }
             catch (Exception exception)
             {
-                if (_Trace != null)
+                if (this._Trace != null)
                 {
-                    _Trace("Exception", "Start", exception.ToString());
+                    this._Trace("Exception", "Start", exception.ToString());
                 }
                 throw;
             }
@@ -357,13 +356,11 @@ namespace BIM.Lmv.Revit.Core
 
         private void Finish()
         {
-            _Exporter.OnFinish();
+            this._Exporter.OnFinish();
         }
 
-        private bool IsCanceled()
-        {
-            return _Cancelled;
-        }
+        private bool IsCanceled() => 
+            this._Cancelled;
 
         private void OnDaylightPortal(DaylightPortalNode node)
         {
@@ -371,158 +368,157 @@ namespace BIM.Lmv.Revit.Core
 
         private RenderNodeAction OnElementBegin(ElementId elementId)
         {
-            _ElementHasGeometry = false;
-            _IsElementSkiped = false;
-            var element = _CurrentElement = _Document.GetElement(elementId);
-            var integerValue = elementId.IntegerValue;
+            this._ElementHasGeometry = false;
+            this._IsElementSkiped = false;
+            Element element = this._CurrentElement = this._Document.GetElement(elementId);
+            int integerValue = elementId.IntegerValue;
             if ((element.Category != null) && (element.Category.Id.IntegerValue == -2000500))
             {
-                _IsElementSkiped = true;
+                this._IsElementSkiped = true;
                 return RenderNodeAction.Skip;
             }
-            if ((_ElementIds != null) && !_ElementIds.ContainsKey(integerValue))
+            if ((this._ElementIds != null) && !this._ElementIds.ContainsKey(integerValue))
             {
-                _IsElementSkiped = true;
+                this._IsElementSkiped = true;
                 return RenderNodeAction.Skip;
             }
-            var flag1 = _TraceElementInvokeSequence;
-            var nodeId = _PropHelper.OnElement(element);
-            _ElementBox = element.get_BoundingBox(_CurrentView);
-            _Exporter.OnElementBegin(nodeId, TransformHelper.Convert(_ElementBox));
+            bool flag1 = this._TraceElementInvokeSequence;
+            int nodeId = this._PropHelper.OnElement(element);
+            this._ElementBox = element.get_BoundingBox(this._CurrentView);
+            this._Exporter.OnElementBegin(nodeId, TransformHelper.Convert(this._ElementBox));
             return RenderNodeAction.Proceed;
         }
 
         private void OnElementEnd(ElementId elementId)
         {
-            var flag1 = _TraceElementInvokeSequence;
-            if (!_IsElementSkiped)
+            bool flag1 = this._TraceElementInvokeSequence;
+            if (!this._IsElementSkiped)
             {
-                _Exporter.OnElementEnd();
+                this._Exporter.OnElementEnd();
             }
-            if (_TraceElementInvokeSequence)
+            if (this._TraceElementInvokeSequence)
             {
-                _TraceElementInvokeSequence = false;
+                this._TraceElementInvokeSequence = false;
             }
-            if (_ElementHasGeometry && (_ElementBox != null))
+            if (this._ElementHasGeometry && (this._ElementBox != null))
             {
-                var xxyz = _ElementBox;
-                _GlobalBoxMin.x = Math.Min(_GlobalBoxMin.x, (float) xxyz.Min.X);
-                _GlobalBoxMin.y = Math.Min(_GlobalBoxMin.y, (float) xxyz.Min.Y);
-                _GlobalBoxMin.z = Math.Min(_GlobalBoxMin.z, (float) xxyz.Min.Z);
-                _GlobalBoxMax.x = Math.Max(_GlobalBoxMax.x, (float) xxyz.Max.X);
-                _GlobalBoxMax.y = Math.Max(_GlobalBoxMax.y, (float) xxyz.Max.Y);
-                _GlobalBoxMax.z = Math.Max(_GlobalBoxMax.z, (float) xxyz.Max.Z);
+                BoundingBoxXYZ xxyz = this._ElementBox;
+                this._GlobalBoxMin.x = Math.Min(this._GlobalBoxMin.x, (float) xxyz.Min.X);
+                this._GlobalBoxMin.y = Math.Min(this._GlobalBoxMin.y, (float) xxyz.Min.Y);
+                this._GlobalBoxMin.z = Math.Min(this._GlobalBoxMin.z, (float) xxyz.Min.Z);
+                this._GlobalBoxMax.x = Math.Max(this._GlobalBoxMax.x, (float) xxyz.Max.X);
+                this._GlobalBoxMax.y = Math.Max(this._GlobalBoxMax.y, (float) xxyz.Max.Y);
+                this._GlobalBoxMax.z = Math.Max(this._GlobalBoxMax.z, (float) xxyz.Max.Z);
             }
-            _ElementHasGeometry = false;
+            this._ElementHasGeometry = false;
             Application.DoEvents();
         }
 
         private RenderNodeAction OnFaceBegin(FaceNode node)
         {
-            var flag1 = _TraceElementInvokeSequence;
+            bool flag1 = this._TraceElementInvokeSequence;
             return RenderNodeAction.Proceed;
         }
 
         private void OnFaceEnd(FaceNode node)
         {
-            var flag1 = _TraceElementInvokeSequence;
+            bool flag1 = this._TraceElementInvokeSequence;
         }
 
         private RenderNodeAction OnInstanceBegin(InstanceNode node)
         {
             RenderNodeAction skip;
-            var flag1 = _TraceElementInvokeSequence;
-            var instanceKey = node.GetSymbolId().IntegerValue.ToString();
-            var transform = TransformHelper.Convert(node.GetTransform());
-            if (_Exporter.OnInstanceBegin(instanceKey, transform, !_TraceElementInvokeSequence))
+            bool flag1 = this._TraceElementInvokeSequence;
+            string instanceKey = node.GetSymbolId().IntegerValue.ToString();
+            BIM.Lmv.Content.Geometry.Types.Transform transform = TransformHelper.Convert(node.GetTransform());
+            if (this._Exporter.OnInstanceBegin(instanceKey, transform, !this._TraceElementInvokeSequence))
             {
                 skip = RenderNodeAction.Skip;
-                _ElementHasGeometry = true;
+                this._ElementHasGeometry = true;
             }
             else
             {
                 skip = RenderNodeAction.Proceed;
             }
-            var flag2 = _TraceElementInvokeSequence;
+            bool flag2 = this._TraceElementInvokeSequence;
             return skip;
         }
 
         private void OnInstanceEnd(InstanceNode node)
         {
-            var flag1 = _TraceElementInvokeSequence;
-            _Exporter.OnInstanceEnd();
+            bool flag1 = this._TraceElementInvokeSequence;
+            this._Exporter.OnInstanceEnd();
         }
 
         private void OnLight(LightNode node)
         {
-            var flag1 = _TraceElementInvokeSequence;
+            bool flag1 = this._TraceElementInvokeSequence;
         }
 
         private RenderNodeAction OnLinkBegin(LinkNode node)
         {
-            _DocumentStack.Push(_Document);
-            _Document = node.GetDocument();
-            _Exporter.OnTransformBegin(TransformHelper.Convert(node.GetTransform()));
+            this._DocumentStack.Push(this._Document);
+            this._Document = node.GetDocument();
+            this._Exporter.OnTransformBegin(TransformHelper.Convert(node.GetTransform()));
             return RenderNodeAction.Proceed;
         }
 
         private void OnLinkEnd(LinkNode node)
         {
-            _Document = _DocumentStack.Pop();
-            _Exporter.OnTransformEnd();
+            this._Document = this._DocumentStack.Pop();
+            this._Exporter.OnTransformEnd();
         }
 
         private void OnMaterial(MaterialNode node)
         {
-            var flag1 = _TraceElementInvokeSequence;
-            _MaterialHelper.OnMaterial(_Document, node);
+            bool flag1 = this._TraceElementInvokeSequence;
+            this._MaterialHelper.OnMaterial(this._Document, node);
         }
 
         private void OnPolymesh(PolymeshTopology node)
         {
-            _ElementHasGeometry = true;
-            var flag1 = _TraceElementInvokeSequence;
-            _GeometryHelper.OnPolymesh(node);
+            this._ElementHasGeometry = true;
+            bool flag1 = this._TraceElementInvokeSequence;
+            this._GeometryHelper.OnPolymesh(node);
         }
 
         private void OnRPC(RPCNode node)
         {
-            var flag1 = _TraceElementInvokeSequence;
-            _MaterialHelper.OnMaterialForRPC();
-            _GeometryHelper.OnRPC(_CurrentElement);
+            bool flag1 = this._TraceElementInvokeSequence;
+            this._MaterialHelper.OnMaterialForRPC();
+            this._GeometryHelper.OnRPC(this._CurrentElement);
         }
 
         private RenderNodeAction OnViewBegin(ViewNode node)
         {
-            _CurrentView = _Document.GetElement(node.ViewId) as View3D;
-            _CurrentCameraInfo = node.GetCameraInfo();
+            this._CurrentView = this._Document.GetElement(node.ViewId) as View3D;
+            this._CurrentCameraInfo = node.GetCameraInfo();
             return RenderNodeAction.Proceed;
         }
 
         private void OnViewEnd(ElementId elementId)
         {
-            _Exporter.OnCamera(ExportHelper.GetCameraInfo(_CurrentView, _CurrentCameraInfo,
-                _GlobalBoxMin, _GlobalBoxMax));
-            _CurrentView = null;
-            _CurrentCameraInfo = null;
+            this._Exporter.OnCamera(ExportHelper.GetCameraInfo(this._CurrentView, this._CurrentCameraInfo, this._GlobalBoxMin, this._GlobalBoxMax));
+            this._CurrentView = null;
+            this._CurrentCameraInfo = null;
         }
 
         private bool Start()
         {
-            _GlobalBoxMin = new Vector3F(float.MaxValue, float.MaxValue, float.MaxValue);
-            _GlobalBoxMax = new Vector3F(float.MinValue, float.MinValue, float.MinValue);
-            var sceneInfo = ExportHelper.GetSceneInfo(_Document);
-            var option = new ExportOption
-            {
-                Target = _Target,
-                OutputStream = _OutputStream
+            this._GlobalBoxMin = new Vector3F(float.MaxValue, float.MaxValue, float.MaxValue);
+            this._GlobalBoxMax = new Vector3F(float.MinValue, float.MinValue, float.MinValue);
+            SceneInfo sceneInfo = ExportHelper.GetSceneInfo(this._Document);
+            ExportOption option = new ExportOption {
+                Target = this._Target,
+                OutputStream = this._OutputStream
             };
-            _Exporter = new DataExport();
-            _Exporter.OnStart(sceneInfo, _TargetPath, option);
-            _PropHelper = new PropertyHelper(_Exporter, _Document, _IncludeProperty);
-            _MaterialHelper = new MaterialHelper(_Exporter, _Target, _IncludeTexture, _View);
-            _GeometryHelper = new GeometryHelper(_Exporter);
+            this._Exporter = new DataExport();
+            this._Exporter.OnStart(sceneInfo, this._TargetPath, option);
+            this._PropHelper = new PropertyHelper(this._Exporter, this._Document, this._IncludeProperty);
+            this._MaterialHelper = new MaterialHelper(this._Exporter, this._Target, this._IncludeTexture, this._View);
+            this._GeometryHelper = new GeometryHelper(this._Exporter);
             return true;
         }
     }
 }
+

@@ -1,32 +1,28 @@
-﻿using System;
-using System.IO;
-using ICSharpCode.SharpZipLib.Checksums;
-using ICSharpCode.SharpZipLib.Zip;
-
-namespace SQlite.Data
+﻿namespace SQlite.Data
 {
+    using ICSharpCode.SharpZipLib.Checksums;
+    using ICSharpCode.SharpZipLib.Zip;
+    using System;
+    using System.IO;
+
     public class ZipManager
     {
-        private static string getReplace(string folderToZip)
-        {
-            return folderToZip.Replace("d:/", "");
-        }
+        private static string getReplace(string folderToZip) => 
+            folderToZip.Replace("d:/", "");
 
         public void test()
         {
-            var zipedFolder = "d:/BIM-SSH-11";
-            var fileToUnZip = @"e:\test.zip";
+            string zipedFolder = "d:/BIM-SSH-11";
+            string fileToUnZip = @"e:\test.zip";
             UnZip(fileToUnZip, zipedFolder);
         }
 
-        public static bool UnZip(string fileToUnZip, string zipedFolder)
-        {
-            return UnZip(fileToUnZip, zipedFolder, null);
-        }
+        public static bool UnZip(string fileToUnZip, string zipedFolder) => 
+            UnZip(fileToUnZip, zipedFolder, null);
 
         public static bool UnZip(string fileToUnZip, string zipedFolder, string password)
         {
-            var flag = true;
+            bool flag = true;
             FileStream stream = null;
             ZipInputStream stream2 = null;
             ZipEntry entry = null;
@@ -49,7 +45,7 @@ namespace SQlite.Data
                 {
                     if (!string.IsNullOrEmpty(entry.Name))
                     {
-                        var path = Path.Combine(zipedFolder, entry.Name).Replace('/', '\\');
+                        string path = Path.Combine(zipedFolder, entry.Name).Replace('/', '\\');
                         if (path.EndsWith(@"\"))
                         {
                             Directory.CreateDirectory(path);
@@ -57,8 +53,8 @@ namespace SQlite.Data
                         else
                         {
                             stream = File.Create(path);
-                            var num = 0x800;
-                            var buffer = new byte[num];
+                            int num = 0x800;
+                            byte[] buffer = new byte[num];
                             while (stream2.Read(buffer, 0, buffer.Length) > 0)
                             {
                                 stream.Write(buffer, 0, buffer.Length);
@@ -93,14 +89,12 @@ namespace SQlite.Data
             return flag;
         }
 
-        public static bool Zip(string fileToZip, string zipedFile)
-        {
-            return Zip(fileToZip, zipedFile, null);
-        }
+        public static bool Zip(string fileToZip, string zipedFile) => 
+            Zip(fileToZip, zipedFile, null);
 
         public static bool Zip(string fileToZip, string zipedFile, string password)
         {
-            var flag = false;
+            bool flag = false;
             if (Directory.Exists(fileToZip))
             {
                 return ZipDirectory(fileToZip, zipedFile, password);
@@ -112,17 +106,15 @@ namespace SQlite.Data
             return flag;
         }
 
-        public static bool ZipDirectory(string folderToZip, string zipedFile)
-        {
-            return ZipDirectory(folderToZip, zipedFile, null);
-        }
+        public static bool ZipDirectory(string folderToZip, string zipedFile) => 
+            ZipDirectory(folderToZip, zipedFile, null);
 
         private static bool ZipDirectory(string folderToZip, ZipOutputStream zipStream, string parentFolderName)
         {
-            var flag = true;
+            bool flag = true;
             ZipEntry entry = null;
             FileStream stream = null;
-            var crc = new Crc32();
+            Crc32 crc = new Crc32();
             try
             {
                 if (parentFolderName == "")
@@ -137,23 +129,18 @@ namespace SQlite.Data
                     zipStream.PutNextEntry(entry);
                     zipStream.Flush();
                 }
-                foreach (var str3 in Directory.GetFiles(folderToZip))
+                foreach (string str3 in Directory.GetFiles(folderToZip))
                 {
                     stream = File.OpenRead(str3);
-                    var buffer = new byte[stream.Length];
+                    byte[] buffer = new byte[stream.Length];
                     stream.Read(buffer, 0, buffer.Length);
                     if (parentFolderName == "")
                     {
-                        entry =
-                            new ZipEntry(
-                                getReplace(Path.Combine(folderToZip + "/" + Path.GetFileName(str3))));
+                        entry = new ZipEntry(getReplace(Path.Combine(new string[] { folderToZip + "/" + Path.GetFileName(str3) })));
                     }
                     else
                     {
-                        entry =
-                            new ZipEntry(
-                                getReplace(Path.Combine(parentFolderName,
-                                    Path.GetFileName(folderToZip) + "/" + Path.GetFileName(str3))));
+                        entry = new ZipEntry(getReplace(Path.Combine(parentFolderName, Path.GetFileName(folderToZip) + "/" + Path.GetFileName(str3))));
                     }
                     entry.DateTime = DateTime.Now;
                     entry.Size = stream.Length;
@@ -183,7 +170,7 @@ namespace SQlite.Data
                 GC.Collect();
                 GC.Collect(1);
             }
-            foreach (var str6 in Directory.GetDirectories(folderToZip))
+            foreach (string str6 in Directory.GetDirectories(folderToZip))
             {
                 if (!ZipDirectory(str6, zipStream, folderToZip))
                 {
@@ -195,10 +182,10 @@ namespace SQlite.Data
 
         public static bool ZipDirectory(string folderToZip, string zipedFile, string password)
         {
-            var flag = false;
+            bool flag = false;
             if (Directory.Exists(folderToZip))
             {
-                var zipStream = new ZipOutputStream(File.Create(zipedFile));
+                ZipOutputStream zipStream = new ZipOutputStream(File.Create(zipedFile));
                 zipStream.SetLevel(6);
                 if (!string.IsNullOrEmpty(password))
                 {
@@ -211,14 +198,12 @@ namespace SQlite.Data
             return flag;
         }
 
-        public static bool ZipFile(string fileToZip, string zipedFile)
-        {
-            return ZipFile(fileToZip, zipedFile, null);
-        }
+        public static bool ZipFile(string fileToZip, string zipedFile) => 
+            ZipFile(fileToZip, zipedFile, null);
 
         public static bool ZipFile(string fileToZip, string zipedFile, string password)
         {
-            var flag = true;
+            bool flag = true;
             ZipOutputStream stream = null;
             FileStream baseOutputStream = null;
             ZipEntry entry = null;
@@ -229,7 +214,7 @@ namespace SQlite.Data
             try
             {
                 baseOutputStream = File.OpenRead(fileToZip);
-                var buffer = new byte[baseOutputStream.Length];
+                byte[] buffer = new byte[baseOutputStream.Length];
                 baseOutputStream.Read(buffer, 0, buffer.Length);
                 baseOutputStream.Close();
                 baseOutputStream = File.Create(zipedFile);
@@ -270,3 +255,4 @@ namespace SQlite.Data
         }
     }
 }
+

@@ -1,13 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Drawing;
-using System.Windows.Forms;
-using BIM.Lmv.Revit.Helpers;
-using Utils;
-
-namespace BIM.Lmv.Revit.UI
+﻿namespace BIM.Lmv.Revit.UI
 {
+    using BIM.Lmv.Revit.Helpers;
+    using System;
+    using System.Collections.Generic;
+    using System.ComponentModel;
+    using System.Drawing;
+    using System.Windows.Forms;
+    using Utils;
+
     public class FormModel : Form
     {
         private Button btn_submit;
@@ -24,36 +24,35 @@ namespace BIM.Lmv.Revit.UI
 
         public FormModel()
         {
-            InitializeComponent();
+            this.InitializeComponent();
         }
 
         public FormModel(string userId) : this()
         {
             TableHelp.sUser = userId;
             TableHelp.g_modelTypeNo = "";
-            var dictParam = new Dictionary<string, string>
-            {
-                {
+            Dictionary<string, string> dictParam = new Dictionary<string, string> {
+                { 
                     "user_id",
                     userId
                 }
             };
-            var client = new WebServiceClient();
-            var str = "";
+            WebServiceClient client = new WebServiceClient();
+            string str = "";
             try
             {
-                str = client.Post(client.getPrjInfo, dictParam);//从朗坤服务器端,根据用户名称user_id获得项目信息
+                str = client.Post(client.getPrjInfo, dictParam);
             }
             catch (Exception)
             {
             }
-            if (!string.IsNullOrWhiteSpace(str))//若str不为空，则解析出项目名称列表
+            if (!string.IsNullOrWhiteSpace(str))
             {
-                var dictionary2 = new Dictionary<string, string>();
-                var startIndex = 0;
-                var index = 0;
-                var key = "";
-                var str3 = "";
+                Dictionary<string, string> dictionary2 = new Dictionary<string, string>();
+                int startIndex = 0;
+                int index = 0;
+                string key = "";
+                string str3 = "";
                 while (true)
                 {
                     startIndex = str.IndexOf("no\":\"", startIndex);
@@ -61,35 +60,34 @@ namespace BIM.Lmv.Revit.UI
                     {
                         break;
                     }
-                    index = str.IndexOf("\"", startIndex + 5);
+                    index = str.IndexOf("\"", (int) (startIndex + 5));
                     if (index < 0)
                     {
                         break;
                     }
-                    key = str.Substring(startIndex + 5, index - startIndex - 5);
+                    key = str.Substring(startIndex + 5, (index - startIndex) - 5);
                     startIndex = str.IndexOf("name\":\"", index);
                     if (startIndex < 0)
                     {
                         break;
                     }
-                    index = str.IndexOf("\"", startIndex + 7);
+                    index = str.IndexOf("\"", (int) (startIndex + 7));
                     if (index < 0)
                     {
                         break;
                     }
-                    str3 = str.Substring(startIndex + 7, index - startIndex - 7);
+                    str3 = str.Substring(startIndex + 7, (index - startIndex) - 7);
                     dictionary2.Add(key, str3);
                     startIndex = index;
                 }
                 if (dictionary2.Count > 0)
                 {
-                    var source = new BindingSource
-                    {
+                    BindingSource source = new BindingSource {
                         DataSource = dictionary2
                     };
-                    chb_modelType.DataSource = source;
-                    chb_modelType.ValueMember = "Key";
-                    chb_modelType.DisplayMember = "Value";
+                    this.chb_modelType.DataSource = source;
+                    this.chb_modelType.ValueMember = "Key";
+                    this.chb_modelType.DisplayMember = "Value";
                 }
             }
             dictParam = new Dictionary<string, string>();
@@ -101,13 +99,13 @@ namespace BIM.Lmv.Revit.UI
             catch (Exception)
             {
             }
-            if (!string.IsNullOrWhiteSpace(str))//str根据项目名称，解析出项目的阶段？？
+            if (!string.IsNullOrWhiteSpace(str))
             {
-                var dictionary3 = new Dictionary<string, string>();
-                var num3 = 0;
-                var num4 = 0;
-                var str4 = "";
-                var str5 = "";
+                Dictionary<string, string> dictionary3 = new Dictionary<string, string>();
+                int num3 = 0;
+                int num4 = 0;
+                string str4 = "";
+                string str5 = "";
                 while (true)
                 {
                     num3 = str.IndexOf("no\":\"", num3);
@@ -115,69 +113,67 @@ namespace BIM.Lmv.Revit.UI
                     {
                         break;
                     }
-                    num4 = str.IndexOf("\"", num3 + 5);
+                    num4 = str.IndexOf("\"", (int) (num3 + 5));
                     if (num4 < 0)
                     {
                         break;
                     }
-                    str4 = str.Substring(num3 + 5, num4 - num3 - 5);
+                    str4 = str.Substring(num3 + 5, (num4 - num3) - 5);
                     num3 = str.IndexOf("name\":\"", num4);
                     if (num3 < 0)
                     {
                         break;
                     }
-                    num4 = str.IndexOf("\"", num3 + 7);
+                    num4 = str.IndexOf("\"", (int) (num3 + 7));
                     if (num4 < 0)
                     {
                         break;
                     }
-                    str5 = str.Substring(num3 + 7, num4 - num3 - 7);
+                    str5 = str.Substring(num3 + 7, (num4 - num3) - 7);
                     dictionary3.Add(str4, str5);
                     num3 = num4;
                 }
                 if (dictionary3.Count > 0)
                 {
-                    var source2 = new BindingSource
-                    {
+                    BindingSource source2 = new BindingSource {
                         DataSource = dictionary3
                     };
-                    cb_stage.DataSource = source2;
-                    cb_stage.ValueMember = "Key";
-                    cb_stage.DisplayMember = "Value";
+                    this.cb_stage.DataSource = source2;
+                    this.cb_stage.ValueMember = "Key";
+                    this.cb_stage.DisplayMember = "Value";
                 }
             }
         }
 
         private void btnCancel_Click(object sender, EventArgs e)
         {
-            DialogResult = DialogResult.Cancel;
-            Close();
+            base.DialogResult = DialogResult.Cancel;
+            base.Close();
         }
 
         private void btnSubmit_Click(object sender, EventArgs e)
-        {//单击确定开始转换模型了
-            btn_submit.Enabled = false;
-            var str = tx_modelName.Text;//模型名称，tx_modelName是模型信息对话框中的值
-                                        //if (str == "")
-                                        //{//转换之前， 对模型的信息输入的条件检查
-                                        //    MessageBox.Show("请输入模型名称！", "警告", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
-                                        //    btn_submit.Enabled = true;
-                                        //}
-                                        //else
-                                        //{
-                                        //    var selectedItem =(KeyValuePair<string, string>) chb_modelType.SelectedItem;//chb_modelType是项目名称控件，需要从下拉列表中选择一项
-                                        //    TableHelp.g_modelTypeNo = selectedItem.Key;
-                                        //    var pair2 = (KeyValuePair<string, string>) cb_stage.SelectedItem; //cb_stage是模型设计阶段
-                                        //    TableHelp.g_stage = pair2.Key;
-                                        //    TableHelp.g_modelName = str;
-                                        //    Close();
-                                        //}
-
-            //以下为测试目的制作的数据
-            TableHelp.g_modelTypeNo = "testProject";
-            TableHelp.g_stage = "设计阶段";
-            TableHelp.g_modelName = "testModel";
-            Close();
+        {
+            this.btn_submit.Enabled = false;
+            string str = this.tx_modelName.Text.ToString();
+            if (string.IsNullOrEmpty(str))
+            {
+                MessageBox.Show("请输入模型名称！", "警告", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
+                this.btn_submit.Enabled = true;
+                base.Close();
+            }
+            else if ((this.chb_modelType.SelectedItem == null) || (this.cb_stage.SelectedItem == null))
+            {
+                base.Close();
+            }
+            else
+            {
+                KeyValuePair<string, string> selectedItem = (KeyValuePair<string, string>) this.chb_modelType.SelectedItem;
+                TableHelp.g_modelTypeNo = selectedItem.Key.ToString();
+                KeyValuePair<string, string> pair2 = (KeyValuePair<string, string>) this.cb_stage.SelectedItem;
+                TableHelp.g_stage = pair2.Key.ToString();
+                TableHelp.g_modelName = str;
+                base.Close();
+            }
         }
 
         private void chb_modelType_SelectedIndexChanged(object sender, EventArgs e)
@@ -186,9 +182,9 @@ namespace BIM.Lmv.Revit.UI
 
         protected override void Dispose(bool disposing)
         {
-            if (disposing && (components != null))
+            if (disposing && (this.components != null))
             {
-                components.Dispose();
+                this.components.Dispose();
             }
             base.Dispose(disposing);
         }
@@ -199,112 +195,112 @@ namespace BIM.Lmv.Revit.UI
 
         private void InitializeComponent()
         {
-            groupBox2 = new GroupBox();
-            cb_stage = new ComboBox();
-            label5 = new Label();
-            groupBox3 = new GroupBox();
-            label2 = new Label();
-            label1 = new Label();
-            tx_modelName = new TextBox();
-            chb_modelType = new ComboBox();
-            btnCancel = new Button();
-            btn_submit = new Button();
-            groupBox2.SuspendLayout();
-            groupBox3.SuspendLayout();
-            SuspendLayout();
-            groupBox2.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
-            groupBox2.Controls.Add(cb_stage);
-            groupBox2.Controls.Add(label5);
-            groupBox2.Location = new Point(11, 0x1c);
-            groupBox2.Name = "groupBox2";
-            groupBox2.Size = new Size(0x1a2, 0x44);
-            groupBox2.TabIndex = 2;
-            groupBox2.TabStop = false;
-            groupBox2.Text = "项目信息";
-            cb_stage.FormattingEnabled = true;
-            cb_stage.Location = new Point(0x59, 0x21);
-            cb_stage.Margin = new Padding(2);
-            cb_stage.Name = "cb_stage";
-            cb_stage.Size = new Size(0x134, 20);
-            cb_stage.TabIndex = 3;
-            label5.AutoSize = true;
-            label5.Location = new Point(0x16, 0x21);
-            label5.Margin = new Padding(2, 0, 2, 0);
-            label5.Name = "label5";
-            label5.Size = new Size(0x41, 12);
-            label5.TabIndex = 2;
-            label5.Text = "项目阶段：";
-            groupBox3.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Top;
-            groupBox3.Controls.Add(label2);
-            groupBox3.Controls.Add(label1);
-            groupBox3.Controls.Add(tx_modelName);
-            groupBox3.Controls.Add(chb_modelType);
-            groupBox3.Location = new Point(13, 0x77);
-            groupBox3.Name = "groupBox3";
-            groupBox3.Size = new Size(0x1a1, 0x73);
-            groupBox3.TabIndex = 3;
-            groupBox3.TabStop = false;
-            groupBox3.Text = "模型信息";
-            label2.AutoSize = true;
-            label2.Location = new Point(0x15, 0x4a);
-            label2.Margin = new Padding(2, 0, 2, 0);
-            label2.Name = "label2";
-            label2.Size = new Size(0x41, 12);
-            label2.TabIndex = 5;
-            label2.Text = "模型名称：";
-            label1.AutoSize = true;
-            label1.Location = new Point(0x15, 30);
-            label1.Margin = new Padding(2, 0, 2, 0);
-            label1.Name = "label1";
-            label1.Size = new Size(0x41, 12);
-            label1.TabIndex = 4;
-            label1.Text = "类型名称：";
-            tx_modelName.Location = new Point(0x58, 70);
-            tx_modelName.Margin = new Padding(2);
-            tx_modelName.Name = "tx_modelName";
-            tx_modelName.Size = new Size(0x134, 0x15);
-            tx_modelName.TabIndex = 3;
-            tx_modelName.TextChanged += modelName_TextChanged;
-            chb_modelType.FormattingEnabled = true;
-            chb_modelType.Location = new Point(0x58, 0x1c);
-            chb_modelType.Margin = new Padding(2);
-            chb_modelType.Name = "chb_modelType";
-            chb_modelType.Size = new Size(0x133, 20);
-            chb_modelType.TabIndex = 2;
-            chb_modelType.SelectedIndexChanged += chb_modelType_SelectedIndexChanged;
-            btnCancel.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
-            btnCancel.DialogResult = DialogResult.Cancel;
-            btnCancel.Location = new Point(0xeb, 0x102);
-            btnCancel.Name = "btnCancel";
-            btnCancel.Size = new Size(70, 0x20);
-            btnCancel.TabIndex = 6;
-            btnCancel.Text = "取消(&C)";
-            btnCancel.UseVisualStyleBackColor = true;
-            btnCancel.Click += btnCancel_Click;
-            btn_submit.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
-            btn_submit.Location = new Point(0x14f, 0x102);
-            btn_submit.Name = "btn_submit";
-            btn_submit.Size = new Size(0x5d, 0x20);
-            btn_submit.TabIndex = 7;
-            btn_submit.Text = "确定(&S)";
-            btn_submit.UseVisualStyleBackColor = true;
-            btn_submit.Click += btnSubmit_Click;
-            AutoScaleDimensions = new SizeF(6f, 12f);
-            AutoScaleMode = AutoScaleMode.Font;
-            ClientSize = new Size(0x1b6, 0x137);
-            Controls.Add(btn_submit);
-            Controls.Add(btnCancel);
-            Controls.Add(groupBox3);
-            Controls.Add(groupBox2);
-            Margin = new Padding(2);
-            Name = "FormModel";
-            Text = "模型信息";
-            Load += FormModel_Load;
-            groupBox2.ResumeLayout(false);
-            groupBox2.PerformLayout();
-            groupBox3.ResumeLayout(false);
-            groupBox3.PerformLayout();
-            ResumeLayout(false);
+            this.groupBox2 = new GroupBox();
+            this.cb_stage = new ComboBox();
+            this.label5 = new Label();
+            this.groupBox3 = new GroupBox();
+            this.label2 = new Label();
+            this.label1 = new Label();
+            this.tx_modelName = new TextBox();
+            this.chb_modelType = new ComboBox();
+            this.btnCancel = new Button();
+            this.btn_submit = new Button();
+            this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            base.SuspendLayout();
+            this.groupBox2.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Top;
+            this.groupBox2.Controls.Add(this.cb_stage);
+            this.groupBox2.Controls.Add(this.label5);
+            this.groupBox2.Location = new Point(11, 0x1c);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new Size(0x1a2, 0x44);
+            this.groupBox2.TabIndex = 2;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "项目信息";
+            this.cb_stage.FormattingEnabled = true;
+            this.cb_stage.Location = new Point(0x59, 0x21);
+            this.cb_stage.Margin = new Padding(2);
+            this.cb_stage.Name = "cb_stage";
+            this.cb_stage.Size = new Size(0x134, 20);
+            this.cb_stage.TabIndex = 3;
+            this.label5.AutoSize = true;
+            this.label5.Location = new Point(0x16, 0x21);
+            this.label5.Margin = new Padding(2, 0, 2, 0);
+            this.label5.Name = "label5";
+            this.label5.Size = new Size(0x41, 12);
+            this.label5.TabIndex = 2;
+            this.label5.Text = "项目阶段：";
+            this.groupBox3.Anchor = AnchorStyles.Right | AnchorStyles.Left | AnchorStyles.Bottom | AnchorStyles.Top;
+            this.groupBox3.Controls.Add(this.label2);
+            this.groupBox3.Controls.Add(this.label1);
+            this.groupBox3.Controls.Add(this.tx_modelName);
+            this.groupBox3.Controls.Add(this.chb_modelType);
+            this.groupBox3.Location = new Point(13, 0x77);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new Size(0x1a1, 0x73);
+            this.groupBox3.TabIndex = 3;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "模型信息";
+            this.label2.AutoSize = true;
+            this.label2.Location = new Point(0x15, 0x4a);
+            this.label2.Margin = new Padding(2, 0, 2, 0);
+            this.label2.Name = "label2";
+            this.label2.Size = new Size(0x41, 12);
+            this.label2.TabIndex = 5;
+            this.label2.Text = "模型名称：";
+            this.label1.AutoSize = true;
+            this.label1.Location = new Point(0x15, 30);
+            this.label1.Margin = new Padding(2, 0, 2, 0);
+            this.label1.Name = "label1";
+            this.label1.Size = new Size(0x41, 12);
+            this.label1.TabIndex = 4;
+            this.label1.Text = "类型名称：";
+            this.tx_modelName.Location = new Point(0x58, 70);
+            this.tx_modelName.Margin = new Padding(2);
+            this.tx_modelName.Name = "tx_modelName";
+            this.tx_modelName.Size = new Size(0x134, 0x15);
+            this.tx_modelName.TabIndex = 3;
+            this.tx_modelName.TextChanged += new EventHandler(this.modelName_TextChanged);
+            this.chb_modelType.FormattingEnabled = true;
+            this.chb_modelType.Location = new Point(0x58, 0x1c);
+            this.chb_modelType.Margin = new Padding(2);
+            this.chb_modelType.Name = "chb_modelType";
+            this.chb_modelType.Size = new Size(0x133, 20);
+            this.chb_modelType.TabIndex = 2;
+            this.chb_modelType.SelectedIndexChanged += new EventHandler(this.chb_modelType_SelectedIndexChanged);
+            this.btnCancel.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+            this.btnCancel.DialogResult = DialogResult.Cancel;
+            this.btnCancel.Location = new Point(0xeb, 0x102);
+            this.btnCancel.Name = "btnCancel";
+            this.btnCancel.Size = new Size(70, 0x20);
+            this.btnCancel.TabIndex = 6;
+            this.btnCancel.Text = "取消(&C)";
+            this.btnCancel.UseVisualStyleBackColor = true;
+            this.btnCancel.Click += new EventHandler(this.btnCancel_Click);
+            this.btn_submit.Anchor = AnchorStyles.Right | AnchorStyles.Bottom;
+            this.btn_submit.Location = new Point(0x14f, 0x102);
+            this.btn_submit.Name = "btn_submit";
+            this.btn_submit.Size = new Size(0x5d, 0x20);
+            this.btn_submit.TabIndex = 7;
+            this.btn_submit.Text = "确定(&S)";
+            this.btn_submit.UseVisualStyleBackColor = true;
+            this.btn_submit.Click += new EventHandler(this.btnSubmit_Click);
+            base.AutoScaleDimensions = new SizeF(6f, 12f);
+            base.AutoScaleMode = AutoScaleMode.Font;
+            base.ClientSize = new Size(0x1b6, 0x137);
+            base.Controls.Add(this.btn_submit);
+            base.Controls.Add(this.btnCancel);
+            base.Controls.Add(this.groupBox3);
+            base.Controls.Add(this.groupBox2);
+            base.Margin = new Padding(2);
+            base.Name = "FormModel";
+            this.Text = "模型信息";
+            base.Load += new EventHandler(this.FormModel_Load);
+            this.groupBox2.ResumeLayout(false);
+            this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            base.ResumeLayout(false);
         }
 
         private void modelName_TextChanged(object sender, EventArgs e)
@@ -313,14 +309,14 @@ namespace BIM.Lmv.Revit.UI
 
         public void showRadioButton(int listSize)
         {
-            var y = 6;
-            var num2 = 0;
-            var index = 0;
+            int y = 6;
+            int num2 = 0;
+            int index = 0;
             new GroupBox();
-            var buttonArray = new RadioButton[listSize];
+            RadioButton[] buttonArray = new RadioButton[listSize];
             for (index = 0; index < listSize; index++)
             {
-                if ((index%4 == 0) && (index != 0))
+                if (((index % 4) == 0) && (index != 0))
                 {
                     y += 20;
                     num2 = 0;
@@ -328,13 +324,14 @@ namespace BIM.Lmv.Revit.UI
                 buttonArray[index] = new RadioButton();
                 buttonArray[index].AutoSize = true;
                 buttonArray[index].Top = y;
-                buttonArray[index].Location = new Point(num2*150 + 2, y);
+                buttonArray[index].Location = new Point((num2 * 150) + 2, y);
                 buttonArray[index].Text = index.ToString();
                 buttonArray[index].Visible = true;
                 buttonArray[index].Name = "radioButton" + index;
-                groupBox2.Controls.Add(buttonArray[index]);
+                this.groupBox2.Controls.Add(buttonArray[index]);
                 num2++;
             }
         }
     }
 }
+

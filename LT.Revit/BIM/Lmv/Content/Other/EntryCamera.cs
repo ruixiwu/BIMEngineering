@@ -1,8 +1,9 @@
-﻿using BIM.Lmv.Common.Pack;
-using BIM.Lmv.Content.Geometry.Types;
-
-namespace BIM.Lmv.Content.Other
+﻿namespace BIM.Lmv.Content.Other
 {
+    using BIM.Lmv.Common.Pack;
+    using BIM.Lmv.Content.Geometry.Types;
+    using System;
+
     internal class EntryCamera : PackEntryBase
     {
         public float aspect;
@@ -15,26 +16,27 @@ namespace BIM.Lmv.Content.Other
 
         public override void Read(PackFileStreamWriter pfr, PackEntryType tse)
         {
-            var stream = pfr.stream;
-            isPerspective = stream.getUint8();
-            position = pfr.ReadVector3F();
-            target = pfr.ReadVector3F();
-            up = pfr.ReadVector3F();
-            aspect = stream.getFloat32();
-            fov = (float) (stream.getFloat32()*57.295779513082323);
-            orthoScale = stream.getFloat32();
+            PackFileStream stream = pfr.stream;
+            this.isPerspective = stream.getUint8();
+            this.position = pfr.ReadVector3F();
+            this.target = pfr.ReadVector3F();
+            this.up = pfr.ReadVector3F();
+            this.aspect = stream.getFloat32();
+            this.fov = (float) (stream.getFloat32() * 57.295779513082323);
+            this.orthoScale = stream.getFloat32();
         }
 
         public override void Write(PackFileStreamWriter pfw, PackEntryType tse)
         {
-            var stream = pfw.stream;
-            stream.Write(isPerspective);
-            pfw.WriteVector3F(position);
-            pfw.WriteVector3F(target);
-            pfw.WriteVector3F(up);
-            stream.Write(aspect);
-            stream.Write((float) (fov/57.295779513082323));
-            stream.Write(orthoScale);
+            PackFileStream stream = pfw.stream;
+            stream.Write(this.isPerspective);
+            pfw.WriteVector3F(this.position);
+            pfw.WriteVector3F(this.target);
+            pfw.WriteVector3F(this.up);
+            stream.Write(this.aspect);
+            stream.Write((float) (((double) this.fov) / 57.295779513082323));
+            stream.Write(this.orthoScale);
         }
     }
 }
+

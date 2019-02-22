@@ -1,63 +1,62 @@
-﻿using System.Collections.Generic;
-using BIM.Lmv.Common.Pack;
-using BIM.Lmv.Content.Geometry;
-using BIM.Lmv.Content.Geometry.Types;
-using BIM.Lmv.Content.Other;
-using BIM.Lmv.Processers.Helper;
-
-namespace BIM.Lmv.Processers.Geometry
+﻿namespace BIM.Lmv.Processers.Geometry
 {
+    using BIM.Lmv.Common.Pack;
+    using BIM.Lmv.Content.Geometry;
+    using BIM.Lmv.Content.Geometry.Types;
+    using BIM.Lmv.Content.Other;
+    using BIM.Lmv.Processers;
+    using BIM.Lmv.Processers.Helper;
+    using System;
+    using System.Collections.Generic;
+    using System.Runtime.InteropServices;
+
     internal class FileFragment
     {
-        public const string FILE_PATH = "FragmentList.pack";
-        private readonly EntryFragment _EntryFragment;
-        private readonly PackFileOutput<EntryFragment> _FileEntryFragment;
-
-        private readonly Dictionary<string, InstanceTemplate> _InstanceTemplates =
-            new Dictionary<string, InstanceTemplate>(0x400);
-
-        private readonly PackEntryType _PackEntryType;
         private uint _CurrDbId;
         private InstanceTemplate _CurrentInstanceTemplate;
         private Transform _CurrTransform = new Transform();
-        private readonly OutputProcesser _Output;
-        private readonly SvfFileProcesser _SvfFile;
+        private readonly EntryFragment _EntryFragment;
+        private readonly PackFileOutput<EntryFragment> _FileEntryFragment;
+        private readonly Dictionary<string, InstanceTemplate> _InstanceTemplates = new Dictionary<string, InstanceTemplate>(0x400);
+        private OutputProcesser _Output;
+        private readonly PackEntryType _PackEntryType;
+        private SvfFileProcesser _SvfFile;
+        public const string FILE_PATH = "FragmentList.pack";
 
         public FileFragment(OutputProcesser output, SvfFileProcesser svfFile)
         {
-            _Output = output;
-            _SvfFile = svfFile;
-            _EntryFragment = new EntryFragment();
-            _PackEntryType = new PackEntryType(0, "Autodesk.CloudPlatform.Fragment",
-                "Autodesk.CloudPlatform.FragmentData", 5);
-            _FileEntryFragment = new PackFileOutput<EntryFragment>(0x200000);
-            _FileEntryFragment.OnStart();
-            _FileEntryFragment.OnEntryType(_PackEntryType);
+            this._Output = output;
+            this._SvfFile = svfFile;
+            this._EntryFragment = new EntryFragment();
+            this._PackEntryType = new PackEntryType(0, "Autodesk.CloudPlatform.Fragment", "Autodesk.CloudPlatform.FragmentData", 5);
+            this._FileEntryFragment = new PackFileOutput<EntryFragment>(0x200000);
+            this._FileEntryFragment.OnStart();
+            this._FileEntryFragment.OnEntryType(this._PackEntryType);
         }
 
         public void OnAppendItem(uint materialId, uint metadataId, Box3F bbox)
         {
-            _EntryFragment.materialId = materialId;
-            _EntryFragment.metadataId = metadataId;
-            _EntryFragment.dbId = _CurrDbId;
-            _EntryFragment.transform = _CurrTransform;
-            SetFragmentBox(_EntryFragment, bbox);
-            var num = _FileEntryFragment.OnEntry(_EntryFragment, _PackEntryType);
-            if (_CurrentInstanceTemplate != null)
+            this._EntryFragment.materialId = materialId;
+            this._EntryFragment.metadataId = metadataId;
+            this._EntryFragment.dbId = this._CurrDbId;
+            this._EntryFragment.transform = this._CurrTransform;
+            this.SetFragmentBox(this._EntryFragment, bbox);
+            int num = this._FileEntryFragment.OnEntry(this._EntryFragment, this._PackEntryType);
+            if (this._CurrentInstanceTemplate != null)
             {
-                if (_CurrentInstanceTemplate.Begin < 0)
+                if (this._CurrentInstanceTemplate.Begin < 0)
                 {
-                    _CurrentInstanceTemplate.Begin = num;
+                    this._CurrentInstanceTemplate.Begin = num;
                 }
-                _CurrentInstanceTemplate.End = num;
+                this._CurrentInstanceTemplate.End = num;
             }
         }
 
         public void OnElementBegin(int nodeId, Transform transform)
         {
-            _CurrDbId = (uint) nodeId;
-            _CurrentInstanceTemplate = null;
-            SetTransform(transform);
+            this._CurrDbId = (uint) nodeId;
+            this._CurrentInstanceTemplate = null;
+            this.SetTransform(transform);
         }
 
         public void OnElementEnd()
@@ -66,47 +65,46 @@ namespace BIM.Lmv.Processers.Geometry
 
         public void OnFinish()
         {
-            var entry = new FileEntryStream("FragmentList.pack");
-            _FileEntryFragment.OnFinish(entry.Stream);
-            _Output.OnAppendFile(entry);
-            var size = entry.GetSize();
-            _SvfFile.OnEntry(new EntryAsset("FragmentList.pack", "Autodesk.CloudPlatform.FragmentList",
-                "FragmentList.pack", size, 0, _SvfFile.AssetTypeFragment));
+            FileEntryStream entry = new FileEntryStream("FragmentList.pack");
+            this._FileEntryFragment.OnFinish(entry.Stream);
+            this._Output.OnAppendFile(entry);
+            int size = entry.GetSize();
+            this._SvfFile.OnEntry(new EntryAsset("FragmentList.pack", "Autodesk.CloudPlatform.FragmentList", "FragmentList.pack", new int?(size), 0, this._SvfFile.AssetTypeFragment));
         }
 
         public bool OnInstanceBegin(string instanceKey, Transform transform, bool allowReuse = true)
         {
             InstanceTemplate template;
-            SetTransform(transform);
-            if (allowReuse && _InstanceTemplates.TryGetValue(instanceKey, out template))
+            this.SetTransform(transform);
+            if (allowReuse && this._InstanceTemplates.TryGetValue(instanceKey, out template))
             {
                 if (template.Begin >= 0)
                 {
-                    for (var i = template.Begin; i <= template.End; i++)
+                    for (int i = template.Begin; i <= template.End; i++)
                     {
-                        _FileEntryFragment.ReadEntry(i, _EntryFragment);
-                        _EntryFragment.dbId = _CurrDbId;
-                        _EntryFragment.transform = _CurrTransform;
-                        _FileEntryFragment.OnEntry(_EntryFragment, _PackEntryType);
+                        this._FileEntryFragment.ReadEntry(i, this._EntryFragment);
+                        this._EntryFragment.dbId = this._CurrDbId;
+                        this._EntryFragment.transform = this._CurrTransform;
+                        this._FileEntryFragment.OnEntry(this._EntryFragment, this._PackEntryType);
                     }
                 }
                 return true;
             }
             if (allowReuse)
             {
-                _CurrentInstanceTemplate = new InstanceTemplate(instanceKey);
+                this._CurrentInstanceTemplate = new InstanceTemplate(instanceKey);
             }
             return false;
         }
 
         public void OnInstanceEnd(Transform transform)
         {
-            if ((_CurrentInstanceTemplate != null) && (_CurrentInstanceTemplate.Begin >= 0))
+            if ((this._CurrentInstanceTemplate != null) && (this._CurrentInstanceTemplate.Begin >= 0))
             {
-                _InstanceTemplates.Add(_CurrentInstanceTemplate.Key, _CurrentInstanceTemplate);
+                this._InstanceTemplates.Add(this._CurrentInstanceTemplate.Key, this._CurrentInstanceTemplate);
             }
-            SetTransform(transform);
-            _CurrentInstanceTemplate = null;
+            this.SetTransform(transform);
+            this._CurrentInstanceTemplate = null;
         }
 
         private void SetFragmentBox(EntryFragment frag, Box3F box)
@@ -123,12 +121,13 @@ namespace BIM.Lmv.Processers.Geometry
         {
             if (t != null)
             {
-                _CurrTransform = t;
+                this._CurrTransform = t;
             }
             else
             {
-                _CurrTransform.SetIdentity();
+                this._CurrTransform.SetIdentity();
             }
         }
     }
 }
+

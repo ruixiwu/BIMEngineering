@@ -1,5 +1,7 @@
 ﻿namespace BIM.Lmv.Types
 {
+    using System;
+
     public enum TransformType
     {
         Translation,
@@ -9,3 +11,4 @@
         Identity
     }
 }
+

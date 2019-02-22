@@ -1,21 +1,23 @@
 ﻿namespace BIM.Lmv.Revit.Helpers
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     internal class GeoItem
     {
         public GeoItem()
         {
         }
 
-        public GeoItem(string sName, string sMatrix, string sMeshIds, string sBlockId, string sBox, string sOrignFile,
-            string sFamilyID)
+        public GeoItem(string sName, string sMatrix, string sMeshIds, string sBlockId, string sBox, string sOrignFile, string sFamilyID)
         {
-            Name = sName;
-            Matrix = sMatrix;
-            MeshIds = sMeshIds;
-            BlockId = sBlockId;
-            Box = sBox;
-            OrignFile = sOrignFile;
-            FamilyID = sFamilyID;
+            this.Name = sName;
+            this.Matrix = sMatrix;
+            this.MeshIds = sMeshIds;
+            this.BlockId = sBlockId;
+            this.Box = sBox;
+            this.OrignFile = sOrignFile;
+            this.FamilyID = sFamilyID;
         }
 
         public string BlockId { get; set; }
@@ -35,3 +37,4 @@
         public string TilesetId { get; set; }
     }
 }
+

@@ -1,8 +1,8 @@
-﻿using System;
-using System.Runtime.InteropServices;
-
-namespace BIM.Lmv.Revit.Utility
+﻿namespace BIM.Lmv.Revit.Utility
 {
+    using System;
+    using System.Runtime.InteropServices;
+
     [StructLayout(LayoutKind.Sequential)]
     internal struct KEYBDINPUT
     {
@@ -13,3 +13,4 @@ namespace BIM.Lmv.Revit.Utility
         internal UIntPtr dwExtraInfo;
     }
 }
+

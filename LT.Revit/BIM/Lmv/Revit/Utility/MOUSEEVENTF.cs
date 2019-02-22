@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace BIM.Lmv.Revit.Utility
+﻿namespace BIM.Lmv.Revit.Utility
 {
+    using System;
+
     [Flags]
     internal enum MOUSEEVENTF : uint
     {
@@ -21,3 +21,4 @@ namespace BIM.Lmv.Revit.Utility
         XUP = 0x100
     }
 }
+

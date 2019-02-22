@@ -1,31 +1,30 @@
-﻿using System;
-
-namespace BIM.Lmv.Revit.Config
+﻿namespace BIM.Lmv.Revit.Config
 {
+    using System;
+    using System.Runtime.CompilerServices;
+
     [Serializable]
     internal class AppConfig
     {
         public AppConfig()
         {
-            Cloud = new AppCloudConfig();
-            Local = new AppLocalConfig();
-            License = new LicenseConfig();
+            this.Cloud = new AppCloudConfig();
+            this.Local = new AppLocalConfig();
+            this.License = new LicenseConfig();
         }
+
+        public AppConfig Clone() => 
+            new AppConfig { 
+                Cloud = (this.Cloud == null) ? new AppCloudConfig() : this.Cloud.Clone(),
+                Local = (this.Local == null) ? new AppLocalConfig() : this.Local.Clone(),
+                License = (this.License == null) ? new LicenseConfig() : this.License.Clone()
+            };
 
         public AppCloudConfig Cloud { get; set; }
 
         public LicenseConfig License { get; set; }
 
         public AppLocalConfig Local { get; set; }
-
-        public AppConfig Clone()
-        {
-            return new AppConfig
-            {
-                Cloud = Cloud == null ? new AppCloudConfig() : Cloud.Clone(),
-                Local = Local == null ? new AppLocalConfig() : Local.Clone(),
-                License = License == null ? new LicenseConfig() : License.Clone()
-            };
-        }
     }
 }
+

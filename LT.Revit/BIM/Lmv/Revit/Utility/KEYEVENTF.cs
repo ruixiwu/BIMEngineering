@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace BIM.Lmv.Revit.Utility
+﻿namespace BIM.Lmv.Revit.Utility
 {
+    using System;
+
     [Flags]
     internal enum KEYEVENTF : uint
     {
@@ -11,3 +11,4 @@ namespace BIM.Lmv.Revit.Utility
         UNICODE = 4
     }
 }
+

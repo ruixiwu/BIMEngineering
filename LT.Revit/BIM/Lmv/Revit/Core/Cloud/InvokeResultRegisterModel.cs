@@ -1,7 +1,7 @@
-﻿using System;
-
-namespace BIM.Lmv.Revit.Core.Cloud
+﻿namespace BIM.Lmv.Revit.Core.Cloud
 {
+    using System;
+
     [Serializable]
     internal class InvokeResultRegisterModel : InvokeResultBase
     {
@@ -9,3 +9,4 @@ namespace BIM.Lmv.Revit.Core.Cloud
         public string ShareUrl = null;
     }
 }
+

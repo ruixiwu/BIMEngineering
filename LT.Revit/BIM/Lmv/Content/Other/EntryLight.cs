@@ -1,8 +1,9 @@
-﻿using BIM.Lmv.Common.Pack;
-using BIM.Lmv.Content.Geometry.Types;
-
-namespace BIM.Lmv.Content.Other
+﻿namespace BIM.Lmv.Content.Other
 {
+    using BIM.Lmv.Common.Pack;
+    using BIM.Lmv.Content.Geometry.Types;
+    using System;
+
     internal class EntryLight : PackEntryBase
     {
         public float b;
@@ -17,30 +18,31 @@ namespace BIM.Lmv.Content.Other
 
         public override void Read(PackFileStreamWriter pfr, PackEntryType tse)
         {
-            var stream = pfr.stream;
-            position = pfr.ReadVector3F();
-            dir = pfr.ReadVector3F();
-            r = stream.getFloat32();
-            g = stream.getFloat32();
-            b = stream.getFloat32();
-            intensity = stream.getFloat32();
-            spotAngle = stream.getFloat32();
-            size = stream.getFloat32();
-            type = stream.getUint8();
+            PackFileStream stream = pfr.stream;
+            this.position = pfr.ReadVector3F();
+            this.dir = pfr.ReadVector3F();
+            this.r = stream.getFloat32();
+            this.g = stream.getFloat32();
+            this.b = stream.getFloat32();
+            this.intensity = stream.getFloat32();
+            this.spotAngle = stream.getFloat32();
+            this.size = stream.getFloat32();
+            this.type = stream.getUint8();
         }
 
         public override void Write(PackFileStreamWriter pfw, PackEntryType tse)
         {
-            var stream = pfw.stream;
-            pfw.WriteVector3F(position);
-            pfw.WriteVector3F(dir);
-            stream.Write(r);
-            stream.Write(g);
-            stream.Write(b);
-            stream.Write(intensity);
-            stream.Write(spotAngle);
-            stream.Write(size);
-            stream.Write(type);
+            PackFileStream stream = pfw.stream;
+            pfw.WriteVector3F(this.position);
+            pfw.WriteVector3F(this.dir);
+            stream.Write(this.r);
+            stream.Write(this.g);
+            stream.Write(this.b);
+            stream.Write(this.intensity);
+            stream.Write(this.spotAngle);
+            stream.Write(this.size);
+            stream.Write(this.type);
         }
     }
 }
+
