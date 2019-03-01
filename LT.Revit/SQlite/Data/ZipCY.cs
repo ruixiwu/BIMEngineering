@@ -106,7 +106,7 @@
             }
             return message;
         }
-
+        //压缩目录为一个文件
         public static string ZipDir(string sDir, string sZipath, string sZipName)
         {
             if (!Directory.Exists(sZipath))

@@ -57,6 +57,7 @@
                 }
                 if (!string.IsNullOrWhiteSpace(str3))
                 {
+                    //加密的密码字符串和userId和密码明文有关系。
                     string str4 = new MD5Convertor().MD5Encrypt32(str3 + str2);
                     dictParam = new Dictionary<string, string> {
                         { 

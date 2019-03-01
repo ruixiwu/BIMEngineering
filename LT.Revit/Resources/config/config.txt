@@ -1,2 +1,3 @@
-urlroot=http://60.205.218.71:8090/BIMAPI/
-urlangkun=http://60.205.218.71/Liems/webservice/
+urlroot=http://localhost:8080/
+urlangkun=http://localhost:8080/
+#urlangkun=http://60.205.218.71/Liems/webservice/

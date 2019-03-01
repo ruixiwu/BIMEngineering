@@ -89,8 +89,7 @@
             return flag;
         }
 
-        public static bool Zip(string fileToZip, string zipedFile) => 
-            Zip(fileToZip, zipedFile, null);
+        public static bool Zip(string fileToZip, string zipedFile) => Zip(fileToZip, zipedFile, null);
 
         public static bool Zip(string fileToZip, string zipedFile, string password)
         {
@@ -106,8 +105,7 @@
             return flag;
         }
 
-        public static bool ZipDirectory(string folderToZip, string zipedFile) => 
-            ZipDirectory(folderToZip, zipedFile, null);
+        public static bool ZipDirectory(string folderToZip, string zipedFile) => ZipDirectory(folderToZip, zipedFile, null);
 
         private static bool ZipDirectory(string folderToZip, ZipOutputStream zipStream, string parentFolderName)
         {
@@ -129,18 +127,18 @@
                     zipStream.PutNextEntry(entry);
                     zipStream.Flush();
                 }
-                foreach (string str3 in Directory.GetFiles(folderToZip))
+                foreach (string itemToZip in Directory.GetFiles(folderToZip))
                 {
-                    stream = File.OpenRead(str3);
+                    stream = File.OpenRead(itemToZip);
                     byte[] buffer = new byte[stream.Length];
                     stream.Read(buffer, 0, buffer.Length);
                     if (parentFolderName == "")
                     {
-                        entry = new ZipEntry(getReplace(Path.Combine(new string[] { folderToZip + "/" + Path.GetFileName(str3) })));
+                        entry = new ZipEntry(getReplace(Path.Combine(new string[] { folderToZip + "/" + Path.GetFileName(itemToZip) })));
                     }
                     else
                     {
-                        entry = new ZipEntry(getReplace(Path.Combine(parentFolderName, Path.GetFileName(folderToZip) + "/" + Path.GetFileName(str3))));
+                        entry = new ZipEntry(getReplace(Path.Combine(parentFolderName, Path.GetFileName(folderToZip) + "/" + Path.GetFileName(itemToZip))));
                     }
                     entry.DateTime = DateTime.Now;
                     entry.Size = stream.Length;
@@ -170,9 +168,9 @@
                 GC.Collect();
                 GC.Collect(1);
             }
-            foreach (string str6 in Directory.GetDirectories(folderToZip))
+            foreach (string itemToZip in Directory.GetDirectories(folderToZip))
             {
-                if (!ZipDirectory(str6, zipStream, folderToZip))
+                if (!ZipDirectory(itemToZip, zipStream, folderToZip))
                 {
                     return false;
                 }
@@ -195,6 +193,7 @@
                 zipStream.Finish();
                 zipStream.Close();
             }
+            Console.WriteLine("压缩svfzip文件成功完成");
             return flag;
         }
 

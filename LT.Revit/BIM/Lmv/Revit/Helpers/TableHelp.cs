@@ -46,14 +46,14 @@ namespace BIM.Lmv.Revit.Helpers
         public Autodesk.Revit.DB.Transform _TransformDelay;
         public static bool g_bFree = false;
         public static string g_modelName;
-        public static string g_modelTypeNo;
-        public static string g_stage;
+        public static string g_workspaceId;
+        //public static string g_stage;//项目阶段， 如设计阶段， 施工阶段等
         public static string sUser;
 
         public TableHelp(Document doc)
         {
             _SqliteOpr.connectToDatabase(_sPathData);
-            _SqliteOpr.createTable(_sProjectPrefix);
+            _SqliteOpr.createTable(_sProjectPrefix);//创建sqlite表
             this._SneneInfo = ExportHelper.GetSceneInfo(doc);
             this._TransformDelay = Autodesk.Revit.DB.Transform.Identity;
             this._InstanceTemplates = new Dictionary<int, string>();
@@ -74,12 +74,13 @@ namespace BIM.Lmv.Revit.Helpers
                 string str4 = g_modelName;
                 string extension = Path.GetExtension(strSourceFile);
                 string sUser = TableHelp.sUser;
-                string str7 = g_modelTypeNo;
+                string str7 = g_workspaceId;
+                string sWorkspaceId = g_workspaceId;
                 string sColume = "NAME,TYPE,AFFIXFILEID";
                 string sValue = "'" + fileNameWithoutExtension + "','" + extension + "','" + str2 + "'";
                 string str10 = _SqliteOpr.fillTable("AFFIXTABLE" + _sProjectPrefix, sColume, sValue, "");
-                sColume = "NAME,PREFIXION,SOURCEID,ZIPKEY,FOREIGNID,DESCRIBE";
-                sValue = "'" + str4 + "'," + sID + "," + str10 + ",'" + _sZipKey + "','" + str7 + "','" + sUser + "'";
+                sColume = "NAME,PREFIXION,SOURCEID,ZIPKEY,WORKSPACEID,FOREIGNID,DESCRIBE";
+                sValue = "'" + str4 + "'," + sID + "," + str10 + ",'" + _sZipKey + "','" + sWorkspaceId + "','" + str7 + "','" + sUser + "'";
                 _SqliteOpr.fillTable("PROJECT", sColume, sValue, sID);
             }
             catch (Exception)
@@ -275,7 +276,7 @@ namespace BIM.Lmv.Revit.Helpers
             try
             {
                 if (System.IO.File.Exists(_sZipPath))
-                {
+                {//向AFFIXFILE_xxx中写入压缩文件
                     byte[] bArray = System.IO.File.ReadAllBytes(_sZipPath);
                     string sColume = "OBJGUID";
                     string sValue = "'" + _sZipKey + "'";
@@ -285,6 +286,7 @@ namespace BIM.Lmv.Revit.Helpers
             }
             catch (Exception)
             {
+                Console.WriteLine("sqlite将svfzip文件写入AFFIXFILE表失败");
             }
             _SqliteOpr.commitData();
             _SqliteOpr = null;
@@ -292,58 +294,53 @@ namespace BIM.Lmv.Revit.Helpers
             {
                 if (System.IO.File.Exists(_sPathData))
                 {
+                    //拷贝一份更保险？
                     System.IO.File.Copy(_sPathData, _sPathData2, true);
                     Thread.Sleep(0x3e8);
                     byte[] bArr = System.IO.File.ReadAllBytes(_sPathData2);
+                    //同步到服务器端的数据库表中
                     UploadFileXss("insertBatch?Prefixion=" + _sProjectPrefix, bArr);
+                    UploadZipFile("upload?Prefixion=" + _sProjectPrefix, _sZipPath);
                 }
-            }
-            catch (Exception)
-            {
-            }
-            try
-            {
+                //删除本地的文件
                 delFile(_sZipPath);
                 delDir(_sDirPath);
                 delFile(_sPathData);
                 delFile(_sPathData2);
+
+               //清空变量
+                _sZipPath = "";
+                _sPathData = "";
+
+                Console.WriteLine("数据上传完成");
+                MessageBox.Show("数据上传完成！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+                ////工作空间名称，模型名称,模型的Id号（Id号是系统根据总的已有模型id数最大值加1产生的一个唯一的值）
+                //g_modelName = HttpUtility.UrlEncode(g_modelName, Encoding.GetEncoding("utf-8"));
+                //string modelId = _sProjectPrefix.Substring(1);
+                //Dictionary<string, string> dictParam = new Dictionary<string, string> {
+                //    { 
+                //        "pro_no",
+                //        g_workspaceId
+                //    },
+                //    { 
+                //        "mod_nam",
+                //        g_modelName
+                //    },
+                //    { 
+                //        "mod_id",
+                //        modelId
+                //    }
+                //};
+                //new WebServiceClient().Post("uploadModel", dictParam);//这是向第三方服务器上传，是没有必要的
+                //g_workspaceId = "";
+                //g_modelName = "";
+                ////g_stage = "";
             }
             catch (Exception)
             {
+                MessageBox.Show("数据上传出现异常，上传失败！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
             }
-            _sZipPath = "";
-            _sPathData = "";
-            try
-            {
-                g_modelName = HttpUtility.UrlEncode(g_modelName, Encoding.GetEncoding("utf-8"));
-                string str4 = _sProjectPrefix.Substring(1);
-                Dictionary<string, string> dictParam = new Dictionary<string, string> {
-                    { 
-                        "pro_no",
-                        g_modelTypeNo
-                    },
-                    { 
-                        "mod_typ",
-                        g_stage
-                    },
-                    { 
-                        "mod_nam",
-                        g_modelName
-                    },
-                    { 
-                        "mod_id",
-                        str4
-                    }
-                };
-                new WebServiceClient().Post("uploadModel", dictParam);
-                g_modelTypeNo = "";
-                g_modelName = "";
-                g_stage = "";
-            }
-            catch (Exception)
-            {
-            }
-            MessageBox.Show("数据上传完成！", "提示", MessageBoxButtons.OK, MessageBoxIcon.Asterisk);
+
         }
 
         public string HandleInstanceTable(int nKey)
@@ -532,35 +529,143 @@ namespace BIM.Lmv.Revit.Helpers
             Stopwatch stopwatch = new Stopwatch();
             stopwatch.Start();
             string requestUriString = _sUrlRoot + sUrlseg;
-            string str2 = "";
-            string str3 = "Binaryfile";
+            string returnMsg = "";
+            string fileName = "Binaryfile";
             try
             {
-                HttpWebRequest request = WebRequest.Create(requestUriString) as HttpWebRequest;
-                request.Timeout = 0x1e8480;
+
+                //根据uri创建HttpWebRequest对象
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri(requestUriString));
+                //HttpWebRequest request = WebRequest.Create(requestUriString) as HttpWebRequest;
+                request.Timeout = 300000;//300秒
                 request.Method = "POST";
-                string str4 = DateTime.Now.Ticks.ToString("X");
-                request.ContentType = "multipart/form-data;charset=utf-8;boundary=" + str4;
-                byte[] bytes = Encoding.UTF8.GetBytes("\r\n--" + str4 + "\r\n");
-                byte[] buffer = Encoding.UTF8.GetBytes("\r\n--" + str4 + "--\r\n");
-                StringBuilder builder = new StringBuilder($"Content-Disposition:form-data;name=\"file\";filename=\"{str3}\"\r\nContent-Type:application/octet-stream");
-                byte[] buffer3 = Encoding.UTF8.GetBytes(builder.ToString());
+                request.AllowWriteStreamBuffering = false; //对发送的数据不使用缓存
+
+                string timeStamp = DateTime.Now.Ticks.ToString("X");
+                request.ContentType = "multipart/form-data;charset=utf-8;boundary=" + timeStamp;
+
+                //头信息
+                //byte[] boundary= Encoding.UTF8.GetBytes("\r\n--" + timeStamp);
+                //StringBuilder header= new StringBuilder($"Content-Disposition:form-data;name=\"file\";filename=\"{fileName}\"\r\nContent-Type:application/octet-stream\r\n\r\n");
+                //byte[] postHeaderBytes = Encoding.UTF8.GetBytes(header.ToString());
+                string boundary = "\r\n--" + timeStamp;
+                string dataFormat = boundary + "\r\nContent-Disposition: form-data; name=\"{0}\";filename=\"{1}\"\r\nContent-Type:application/octet-stream\r\n\r\n";
+                string header = string.Format(dataFormat, "file", fileName);
+                byte[] postHeaderBytes = Encoding.UTF8.GetBytes(header);
+                
+                //结束边界
+                byte[] boundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + timeStamp + "--\r\n");
+
+                long length = bArr.Length + postHeaderBytes.Length + boundaryBytes.Length;
+                request.ContentLength = length;//请求内容长度
+
                 Stream requestStream = request.GetRequestStream();
-                requestStream.Write(bytes, 0, bytes.Length);
-                requestStream.Write(buffer3, 0, buffer3.Length);
+                //requestStream.Write(boundary, 0, boundary.Length);
+                requestStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
+
+                //文件主体
                 requestStream.Write(bArr, 0, bArr.Length);
-                requestStream.Write(buffer, 0, buffer.Length);
+
+                //添加尾部边界
+                requestStream.Write(boundaryBytes , 0, boundaryBytes .Length);
                 requestStream.Close();
-                HttpWebResponse response = request.GetResponse() as HttpWebResponse;
-                str2 = new StreamReader(response.GetResponseStream(), Encoding.UTF8).ReadToEnd();
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                    returnMsg = readStream.ReadToEnd();
+                    MessageBox.Show(returnMsg);
+                    response.Close();
+                    readStream.Close();
+                }
+
+
+                //HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                //str2 = new StreamReader(response.GetResponseStream(), Encoding.UTF8).ReadToEnd();
             }
             catch (Exception exception)
             {
-                str2 = exception.ToString();
+                returnMsg = exception.ToString();
             }
             stopwatch.Stop();
             TimeSpan elapsed = stopwatch.Elapsed;
-            return str2;
+            return returnMsg;
+        }
+        public static string UploadZipFile(string sUrlseg, string filePath)
+        {
+            
+            string requestUriString = _sUrlRoot + sUrlseg;
+            string returnMsg = "";
+
+            //判断文件路径是否存在
+            if (!File.Exists(filePath))
+            {
+                returnMsg = "压缩文件不存在，无法上传";
+                return returnMsg;
+            }
+            string fileName = System.IO.Path.GetFileName(filePath);//文件名 “xxx.zip”
+
+            try
+            {
+
+                //根据uri创建HttpWebRequest对象
+                HttpWebRequest request = (HttpWebRequest)WebRequest.Create(new Uri(requestUriString));
+                //HttpWebRequest request = WebRequest.Create(requestUriString) as HttpWebRequest;
+                request.Timeout = 300000;//300秒
+                request.Method = "POST";
+                request.AllowWriteStreamBuffering = false; //对发送的数据不使用缓存
+
+                string timeStamp = DateTime.Now.Ticks.ToString("X");
+                request.ContentType = "multipart/form-data;charset=utf-8;boundary=" + timeStamp;
+
+                //头信息
+                //byte[] boundary= Encoding.UTF8.GetBytes("\r\n--" + timeStamp);
+                //StringBuilder header= new StringBuilder($"Content-Disposition:form-data;name=\"file\";filename=\"{fileName}\"\r\nContent-Type:application/octet-stream\r\n\r\n");
+                //byte[] postHeaderBytes = Encoding.UTF8.GetBytes(header.ToString());
+                string boundary = "\r\n--" + timeStamp;
+                string dataFormat = boundary + "\r\nContent-Disposition: form-data; name=\"{0}\";filename=\"{1}\"\r\nContent-Type:application/octet-stream\r\n\r\n";
+                string header = string.Format(dataFormat, "file", fileName);
+                byte[] postHeaderBytes = Encoding.UTF8.GetBytes(header);
+
+                //结束边界
+                byte[] boundaryBytes = Encoding.UTF8.GetBytes("\r\n--" + timeStamp + "--\r\n");
+                
+
+                byte[] bArr = System.IO.File.ReadAllBytes(filePath);
+                long length = bArr.Length + postHeaderBytes.Length + boundaryBytes.Length;
+                request.ContentLength = length;//请求内容长度
+
+                Stream requestStream = request.GetRequestStream();
+                //requestStream.Write(boundary, 0, boundary.Length);
+                requestStream.Write(postHeaderBytes, 0, postHeaderBytes.Length);
+
+                //文件主体
+                requestStream.Write(bArr, 0, bArr.Length);
+
+                //添加尾部边界
+                requestStream.Write(boundaryBytes, 0, boundaryBytes.Length);
+                requestStream.Close();
+
+                using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
+                {
+                    Stream receiveStream = response.GetResponseStream();
+                    StreamReader readStream = new StreamReader(receiveStream, Encoding.UTF8);
+                    returnMsg = readStream.ReadToEnd();
+                    MessageBox.Show(returnMsg);
+                    response.Close();
+                    readStream.Close();
+                }
+
+                //HttpWebResponse response = request.GetResponse() as HttpWebResponse;
+                //str2 = new StreamReader(response.GetResponseStream(), Encoding.UTF8).ReadToEnd();
+            }
+            catch (Exception exception)
+            {
+                returnMsg = exception.ToString();
+            }
+         
+            return returnMsg;
         }
 
         public static string WriteCoordSysItem(CoordinaeSysItem geoItemt)

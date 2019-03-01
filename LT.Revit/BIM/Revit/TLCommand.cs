@@ -46,7 +46,7 @@
                 return Result.Failed;
             }
             new FormModel(TableHelp.sUser) { StartPosition = FormStartPosition.CenterScreen }.ShowDialog();
-            if (string.IsNullOrEmpty(TableHelp.g_modelTypeNo))
+            if (string.IsNullOrEmpty(TableHelp.g_workspaceId))
             {
                 MessageBox.Show("请输入模型信息！", "警告", MessageBoxButtons.OKCancel, MessageBoxIcon.Exclamation);
                 return Result.Failed;

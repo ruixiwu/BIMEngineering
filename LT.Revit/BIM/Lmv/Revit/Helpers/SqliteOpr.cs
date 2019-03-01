@@ -39,7 +39,7 @@
             new SQLiteCommand(commandText, this.m_dbConnection).ExecuteNonQuery();
             new SQLiteCommand("CREATE TABLE AFFIXTABLE" + sPreFix + " (OBJECTID int(11) NOT NULL,NAME varchar(128) DEFAULT NULL,TYPE varchar(128) DEFAULT NULL,AFFIXFILEID varchar(128) DEFAULT NULL,PRIMARY KEY (OBJECTID))", this.m_dbConnection).ExecuteNonQuery();
             new SQLiteCommand("CREATE TABLE AFFIXFILE" + sPreFix + " (OBJECTID int(11) NOT NULL,OBJGUID varchar(128) DEFAULT NULL,CONTENT blob DEFAULT NULL,PRIMARY KEY (OBJECTID))", this.m_dbConnection).ExecuteNonQuery();
-            commandText = "CREATE TABLE PROJECT (OBJECTID int(11) NOT NULL,NAME varchar(128) DEFAULT NULL,PREFIXION integer DEFAULT NULL,SOURCEID int(11) DEFAULT -1,ZIPKEY varchar(128) DEFAULT NULL,FOREIGNID varchar(128) DEFAULT NULL,DESCRIBE varchar(128) DEFAULT NULL,PRIMARY KEY (OBJECTID))";
+            commandText = "CREATE TABLE PROJECT (OBJECTID int(11) NOT NULL,NAME varchar(128) DEFAULT NULL,PREFIXION integer DEFAULT NULL,SOURCEID int(11) DEFAULT -1,ZIPKEY varchar(128) DEFAULT NULL,WORKSPACEID int DEFAULT NULL,FOREIGNID varchar(128) DEFAULT NULL,DESCRIBE varchar(128) DEFAULT NULL,PRIMARY KEY (OBJECTID))";
             new SQLiteCommand(commandText, this.m_dbConnection).ExecuteNonQuery();
             new SQLiteCommand("CREATE TABLE TEXTURES" + sPreFix + " (OBJECTID int(11) NOT NULL,NAME varchar(128) DEFAULT NULL,FORMAT integer DEFAULT NULL,MAGFILTER integer DEFAULT NULL,MINFILTER integer DEFAULT NULL,WRAPS integer DEFAULT NULL,WRAPT integer DEFAULT NULL,IMAGENAME varchar(128) DEFAULT NULL,TEXIMGID varchar(128) DEFAULT NULL,PRIMARY KEY (OBJECTID))", this.m_dbConnection).ExecuteNonQuery();
             new SQLiteCommand("CREATE TABLE TEXIMG" + sPreFix + " (OBJECTID int(11) NOT NULL,OBJGUID varchar(128) DEFAULT NULL,CONTENT blob DEFAULT NULL,PRIMARY KEY (OBJECTID))", this.m_dbConnection).ExecuteNonQuery();
@@ -56,7 +56,7 @@
         }
 
         public string fillTable(string sTable, string sColume, string sValue, string sID = "")
-        {
+        {//sID即是自增值ObjectID
             try
             {
                 if (string.IsNullOrEmpty(sID))

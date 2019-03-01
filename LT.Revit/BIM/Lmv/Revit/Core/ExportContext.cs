@@ -512,7 +512,7 @@
                 Target = this._Target,
                 OutputStream = this._OutputStream
             };
-            this._Exporter = new DataExport();
+            this._Exporter = new DataExport();//输出
             this._Exporter.OnStart(sceneInfo, this._TargetPath, option);
             this._PropHelper = new PropertyHelper(this._Exporter, this._Document, this._IncludeProperty);
             this._MaterialHelper = new MaterialHelper(this._Exporter, this._Target, this._IncludeTexture, this._View);
